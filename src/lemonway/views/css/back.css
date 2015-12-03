@@ -92,3 +92,7 @@
 .Lemonway-content .ul-spaced li {
 	margin-bottom: 5px;
 }
+
+.icon-AdminLemonway:before {
+	content: "\f1ee";
+}

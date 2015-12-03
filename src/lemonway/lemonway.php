@@ -43,7 +43,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-        $this->version = '0.0.1';
+        $this->version = '1.0.0';
         $this->author = 'SIRATECK';
         $this->need_instance = 0;
 
@@ -185,10 +185,16 @@ class Lemonway extends PaymentModule
         
         //Prepare status values
         $key = 'LEMONWAY_PENDING_OS';
+        
+        $translationsAdminLemonway = array('en'=>'Lemonway','fr'=>'Lemonway');
+        $this->installModuleTab('AdminLemonway', $translationsAdminLemonway, 0);
+        
         $translationsStatus = array('en'=>'Pending payment validation from Lemonway','fr'=>'En attente de validation par Lemonway');
-		$translationsAdminMoneyOut = array('en'=>'Moneyout - Lemonway','fr'=>'Moneyout - Lemonway');
+		$translationsAdminMoneyOut = array('en'=>'Money out','fr'=>'Virements bancaire');
 		
-		$adminParentOrdersId = Db::getInstance()->getValue("SELECT `id_tab` FROM "._DB_PREFIX_."tab WHERE `class_name`='AdminParentOrders'");
+		
+		
+		$adminLemonwayId = Db::getInstance()->getValue("SELECT `id_tab` FROM "._DB_PREFIX_."tab WHERE `class_name`='AdminLemonway'");
 		
         return parent::install() &&
             $this->registerHook('header') &&
@@ -196,7 +202,7 @@ class Lemonway extends PaymentModule
             $this->registerHook('payment') &&
             $this->registerHook('paymentReturn') &&
         	$this->_addStatus($key, $translationsStatus,'orange') && //Add new Status
-        	$this->installModuleTab('AdminMoneyOut', $translationsAdminMoneyOut, $adminParentOrdersId);
+        	$this->installModuleTab('AdminMoneyOut', $translationsAdminMoneyOut, $adminLemonwayId);
         ;
     }
 
@@ -222,6 +228,7 @@ class Lemonway extends PaymentModule
         //Configuration::deleteByName('LEMONWAY_PENDING_OS');
         
         $this->uninstallModuleTab('AdminMoneyOut');
+        $this->uninstallModuleTab('AdminLemonway');
 
         include(dirname(__FILE__).'/sql/uninstall.php');
 
@@ -495,8 +502,9 @@ class Lemonway extends PaymentModule
     {
         if (Tools::getValue('module_name') == $this->name) {
             $this->context->controller->addJS($this->_path.'views/js/back.js');
-            $this->context->controller->addCSS($this->_path.'views/css/back.css');
+            
         }
+        $this->context->controller->addCSS($this->_path.'views/css/back.css');
     }
 
     /**
