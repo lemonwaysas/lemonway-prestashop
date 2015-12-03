@@ -1,0 +1,9 @@
+{
+	"name": "sirateck/presta-tools",
+	"version": "1.0.0",
+	"scripts": {
+        "package":[
+            "cd src && zip -r ../dist/lemonway.zip lemonway/ && cd .."       
+        ]
+    }
+}
