@@ -43,7 +43,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->author = 'SIRATECK';
         $this->need_instance = 0;
 
@@ -58,9 +58,8 @@ class Lemonway extends PaymentModule
         $this->description = $this->l('Through its API, Lemon Way offers you state-of-the-art payment technology. Beyond their technological expertise, Lemon Way also offers a multitude of complementary regulation and management services.');
 
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall my module? You loose your datas !');
-
-        $this->limited_countries = array('FR');
-
+		
+        $this->limited_countries = array();
         $this->limited_currencies = array('EUR');
         
         $this->local_path = _PS_MODULE_DIR_.$this->name.'/';
@@ -154,14 +153,6 @@ class Lemonway extends PaymentModule
         if (extension_loaded('curl') == false)
         {
             $this->_errors[] = $this->l('You have to enable the cURL extension on your server to install this module');
-            return false;
-        }
-
-        $iso_code = Country::getIsoById(Configuration::get('PS_COUNTRY_DEFAULT'));
-
-        if (in_array($iso_code, $this->limited_countries) == false)
-        {
-            $this->_errors[] = $this->l('This module is not available in your country');
             return false;
         }
 	
@@ -489,6 +480,9 @@ class Lemonway extends PaymentModule
         $form_values = $this->getConfigFormValues();
 
         foreach (array_keys($form_values) as $key) {
+        	if($key == 'LEMONWAY_API_PASSWORD' && trim(Tools::getValue($key)) == "" )
+        		continue;
+ 
             Configuration::updateValue($key, Tools::getValue($key));
         }
     }
