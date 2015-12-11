@@ -1,6 +1,6 @@
 # Lemonway Prestashop
 
-## configuration de l'API
+## Configuration de l'API
 
 | Nom | Description |   
 | -------- | -------- |  
