@@ -39,5 +39,4 @@ Lemonway => Virements bancaire => **+** Effectuer un nouveau virement
 | Nom | Description |   
 | -------- | -------- | 
 |Iban|Iban correspondant au compte débiteur|  
-|Montant|Montant à transférer en euro|  
-
+|Montant|Montant à transférer en euro|
