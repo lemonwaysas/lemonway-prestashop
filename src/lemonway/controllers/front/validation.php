@@ -75,14 +75,13 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         	//wait for GET redirection in front
         	//sleep(8);
         	
-        	Logger::AddLog("Enter in Post validation");
-        	Logger::AddLog("<pre> ".print_r(Tools::getAllValues(),true));
         	if(Tools::isSubmit('response_code') == false){
         		die;
         	}
         	
         	$response_code = Tools::getValue('response_code');
         	$amount = (float)Tools::getValue('response_transactionAmount');
+        	$register_card = (bool)Tools::getValue('register_card',false);
 
         	/**
         	 * Restore the context from the $cart_id & the $customer_id to process the validation properly.
@@ -109,7 +108,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 	        			$payment_status = Configuration::get('PS_OS_PAYMENT');
 	        			$message = Tools::getValue('response_msg');
 	  
-	        			if($customer_id =Context::getContext()->customer->id)
+	        			if(($customer_id =Context::getContext()->customer->id) && $register_card)
 	        			{
 	        				$card = $this->module->getCustomerCard($customer_id);
 	        				if(!$card)
@@ -152,7 +151,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         if (!Context::getContext()->cart->OrderExists())
         {
         	$this->module->validateOrder($cart_id, $payment_status, $amount, $module_name, $message, array(), $currency_id, false, $secure_key);
-        	Logger::AddLog('New order added.');
+        	//Logger::AddLog('New order added.');
         	die('New order added.');
         	
         }
@@ -162,7 +161,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         	$history = new OrderHistory();
         	$history->id_order = (int)$order_id;
         	$history->changeIdOrderState(Configuration::get('PS_OS_PAYMENT'), (int)$order_id);
-        	Logger::AddLog('Order updated');
+        	//Logger::AddLog('Order updated');
         	die('Order updated.');
   
         }
@@ -187,8 +186,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 	    	try {
 	    			
 	    		$res = $kit->GetMoneyInTransDetails($params);
-	    	
-	    		Logger::AddLog(print_r($res,true));
+
 	    	
 	    	} catch (Exception $e) {
 	    		Logger::AddLog($e->getMessage());
@@ -196,7 +194,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 	    	}
 	    	
 	    	if (isset($res->lwError)){
-	    		throw new Exception($res->lwError->getMessage(), $res->lwError->getCode());
+	    		throw new Exception((string)$res->lwError->MSG, (int)$res->lwError->CODE);
 	    	}
 	    	
 	    	$this->_moneyin_trans_details = current($res->operations);
@@ -220,7 +218,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 		 
 		if($operation)
 		{		
-			Logger::AddLog(print_r($operation,true));
 			if($operation->STATUS == $actionToStatus[$action])
 				return true;
 		}

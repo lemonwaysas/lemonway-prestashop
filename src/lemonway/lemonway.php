@@ -38,6 +38,12 @@ class Lemonway extends PaymentModule
      * @var string Module local path (eg. '/home/prestashop/modules/modulename/')
      */
     protected $local_path = null;
+    
+    public static $statuesLabel = array(1 => "Document uniquement reçu",
+    		2  => "Document vérifié et accepté",
+    		3  => "Document vérifié mais non accepté",
+    		4  => "Document remplacé par un autre document",
+    		5  => "Validité du document expiré");
 
     public function __construct()
     {
@@ -69,7 +75,7 @@ class Lemonway extends PaymentModule
         	require(_PS_MODULE_DIR_.$this->name.'/backward_compatibility/backward.php');
     }
     
-    private function installModuleTab($tabClass, $translations, $idTabParent) {
+    public function installModuleTab($tabClass, $translations, $idTabParent,$moduleName = null) {
     	@copy(_PS_MODULE_DIR_ . $this->name . '/logo.png',
     			_PS_IMG_DIR_ . 't/' . $tabClass . '.png');
     	/* @var $tab TabCore */
@@ -82,14 +88,17 @@ class Lemonway extends PaymentModule
     		}
     	}
     	$tab->class_name = $tabClass;
-    	$tab->module = $this->name;
+    	if(is_null($moduleName))
+    		$moduleName = $this->name;
+    	
+    	$tab->module = $moduleName;
     	$tab->id_parent = $idTabParent;
     	if (!$tab->save())
     		return false;
     	return true;
     }
     
-    private function uninstallModuleTab($tabClass) {
+    public function uninstallModuleTab($tabClass) {
     	$idTab = Tab::getIdFromClassName($tabClass);
     	if ($idTab != 0) {
     		$tab = new Tab($idTab);
@@ -167,8 +176,6 @@ class Lemonway extends PaymentModule
         Configuration::updateValue('LEMONWAY_IS_TEST_MODE', false);
         
         //METHOD CONFIGURATION
-        Configuration::updateValue('LEMONWAY_COMMISSION_AMOUNT', false);
-        Configuration::updateValue('LEMONWAY_IS_AUTO_COMMISSION', true);
         Configuration::updateValue('LEMONWAY_CSS_URL', 'https://www.lemonway.fr/mercanet_lw.css');
         Configuration::updateValue('LEMONWAY_ONECLIC_ENABLED', false);
 
@@ -210,8 +217,6 @@ class Lemonway extends PaymentModule
         Configuration::deleteByName('LEMONWAY_IS_TEST_MODE');
         
         //METHOD CONFIGURATION
-        Configuration::deleteByName('LEMONWAY_COMMISSION_AMOUNT');
-        Configuration::deleteByName('LEMONWAY_IS_AUTO_COMMISSION');
         Configuration::deleteByName('LEMONWAY_CSS_URL');
         Configuration::deleteByName('LEMONWAY_ONECLIC_ENABLED');
         
@@ -291,36 +296,6 @@ class Lemonway extends PaymentModule
     			),
     	);
     	
-    	
-    	$container['form']['input'][] = array(
-                        'type' => 'switch',
-                        'label' => $this->l('Auto commission'),
-                        'name' => 'LEMONWAY_IS_AUTO_COMMISSION',
-                        'is_bool' => true,
-                        'desc' => $this->l('If No you must fill field Commission amount below.'),
-                        'values' => array(
-                            array(
-                                'id' => 'active_on',
-                                'value' => true,
-                                'label' => $this->l('Enabled')
-                            ),
-                            array(
-                                'id' => 'active_off',
-                                'value' => false,
-                                'label' => $this->l('Disabled')
-                            )
-                        )
-    			);
-    	
-    	$container['form']['input'][] = array(
-    			'col' => 3,
-    			'label' => $this->l('Comission amount'),
-    			'name' => 'LEMONWAY_COMMISSION_AMOUNT',
-    			'type' => 'text',
-    			'prefix' => '<i class="icon icon-eur"></i>',
-    			'is_number' => true,
-    			'desc' => '',
-    	);
     	
     	$container['form']['input'][] = array(
     			'type' => 'switch',
@@ -465,8 +440,6 @@ class Lemonway extends PaymentModule
         	'LEMONWAY_DIRECTKIT_URL_TEST' => Configuration::get('LEMONWAY_DIRECTKIT_URL_TEST', null),
         	'LEMONWAY_WEBKIT_URL_TEST' => Configuration::get('LEMONWAY_WEBKIT_URL_TEST', null),
         	'LEMONWAY_IS_TEST_MODE' => Configuration::get('LEMONWAY_IS_TEST_MODE', null),
-        	'LEMONWAY_IS_AUTO_COMMISSION' => Configuration::get('LEMONWAY_IS_AUTO_COMMISSION', null),
-        	'LEMONWAY_COMMISSION_AMOUNT' => Configuration::get('LEMONWAY_COMMISSION_AMOUNT', null),
         	'LEMONWAY_CSS_URL' => Configuration::get('LEMONWAY_CSS_URL',null),
         	'LEMONWAY_ONECLIC_ENABLED' => Configuration::get('LEMONWAY_ONECLIC_ENABLED',null),
         );
@@ -589,10 +562,30 @@ class Lemonway extends PaymentModule
     	$oldCard = $this->getCustomerCard($id_customer);
     	if($oldCard){
     		$data = array_merge($oldCard,$data);
+    		$data['date_upd'] = date('Y-m-d H:i:s');
+    	}
+    	else{
+    		$data['date_add'] = date('Y-m-d H:i:s');
     	}
     	
     	Db::getInstance()->insert('lemonway_oneclic', $data,false,true,Db::REPLACE);
     	
+    }
+    
+    public function getWalletDetails($wallet)
+    {
+    	$params = array("wallet"=>$wallet);
+    		
+    	$kit = new LemonWayKit();
+    	try {
+    	
+    		$res = $kit->GetWalletDetails($params);
+    	
+    	} catch (Exception $e) {
+    		throw $e;
+    	}
+    		
+    	return $res;
     }
     
     

@@ -78,7 +78,7 @@
 					<dt>{l s='MOBILE PAYMENT' mod='lemonway'}</dt>
 					<dd>{l s='Launch your mobile innovations with smartphone payment, pay in a click with saved bank card numbers, and streamline your payment methods with our technology.' mod='lemonway'}</dd>
 				</dl>
-				<a href="https://www.lemonway.fr" target="_blank">More info...</a>
+				<a href="https://www.lemonway.fr" target="_blank">{l s='More info...' mod='lemonway'}</a>
 			</div>
 		</div>
 

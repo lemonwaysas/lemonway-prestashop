@@ -23,13 +23,13 @@ class MoneyOut extends ObjectModel{
 			'multilang' => false,
 			'multilang_shop' => false,
 			'fields' => array(
-					'id_lw_wallet' =>    array('type' => self::TYPE_STRING, 'validate' => 'isGenericName'),
+					'id_lw_wallet' =>    array('type' => self::TYPE_STRING, 'validate' => 'isGenericName','required'=>true),
 					'id_customer' =>            array('type' => self::TYPE_INT,'required'=>false),
 					'id_employee' =>            array('type' => self::TYPE_INT,'required'=>false),
 					'is_admin' =>            array('type' => self::TYPE_INT,'required'=>false),
 					'id_lw_iban' =>         array('type' => self::TYPE_INT,'required'=>true),
-					'prev_bal' =>            array('type' => self::TYPE_FLOAT,'validate' => 'isPrice','required'=>true),
-					'new_bal' =>            array('type' => self::TYPE_FLOAT,'validate' => 'isPrice','required'=>true),
+					'prev_bal' =>            array('type' => self::TYPE_FLOAT,'isFloat' => 'isPrice','required'=>true),
+					'new_bal' =>            array('type' => self::TYPE_FLOAT,'isFloat' => 'isPrice','required'=>true),
 					'iban' =>    array('type' => self::TYPE_STRING, 'validate' => 'isGenericName','required'=>true),
 					'amount_to_pay' =>            array('type' => self::TYPE_FLOAT,'validate' => 'isPrice','required'=>true),
 					'date_add' =>                    array('type' => self::TYPE_DATE, 'validate' => 'isDate'),
@@ -37,4 +37,34 @@ class MoneyOut extends ObjectModel{
 
 			),
 	);
+	
+	/**
+	 * Get customer maoneyout
+	 *
+	 * @param int $id_customer Customer|Employee id
+	 * @param bool $is_admin 
+	 * @param int $limit
+	 * @return array MoneyOut $moneyouts
+	 */
+	public static function getCustomerMoneyout($id_customer,$is_admin = false,$limit = 0)
+	{
+		$field_owner = 'id_customer';
+		
+		if($is_admin)
+			$field_owner = 'id_employee';
+	
+		$sql = 'SELECT * FROM `'._DB_PREFIX_.'lemonway_moneyout` wt WHERE wt.`'.$field_owner.'` = '.$id_customer.' ORDER BY wt.`date_add` DESC';
+		if($limit > 0)
+		{
+			$sql .= " LIMIT 0, ".pSQL((int)$limit);
+		}
+
+		$res = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+		if (!$res) {
+			return array();
+		}
+	
+		return $res;
+	
+	}
 }

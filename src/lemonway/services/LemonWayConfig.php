@@ -35,14 +35,6 @@ class LemonWayConfig{
 		return Configuration::get('LEMONWAY_API_PASSWORD', null);
 	}
 	
-	static function getCommissionAmount(){
-		return Configuration::get('LEMONWAY_COMMISSION_AMOUNT', null);
-	}
-	
-	static function isAutoCommision(){
-		return Configuration::get('LEMONWAY_IS_AUTO_COMMISSION', null);
-	}
-	
 	static function getCssUrl(){
 		return Configuration::get('LEMONWAY_CSS_URL', null);
 	}

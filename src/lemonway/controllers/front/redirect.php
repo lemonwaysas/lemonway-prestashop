@@ -56,21 +56,28 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 	    	$params = array('wkToken'=>$cart->id,//sprintf("%04d" ,$cart->id),
 	    			'wallet'=> LemonWayConfig::getWalletMerchantId(),
 	    			'amountTot'=>number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
-	    			'amountCom'=>number_format((float)LemonWayConfig::getCommissionAmount(), 2, '.', ''),
+	    			'amountCom'=>number_format((float)0, 2, '.', ''),//because money is transfered in merchant wallet
 	    			'comment'=>'',
-	    			'returnUrl'=>urlencode($this->context->link->getModuleLink('lemonway', 'validation', array('action' => 'return', 'secure_key' => $secure_key) , true)),
+	    			'returnUrl'=>urlencode($this->context->link->getModuleLink('lemonway', 'validation', array('register_card'=>(int)$this->registerCard(),'action' => 'return', 'secure_key' => $secure_key) , true)),
 	    			'cancelUrl'=>urlencode($this->context->link->getModuleLink('lemonway', 'validation',  array('action' => 'cancel', 'secure_key' => $secure_key), true)),
 	    			'errorUrl'=>urlencode($this->context->link->getModuleLink('lemonway', 'validation', array('action' => 'error', 'secure_key' => $secure_key), true)),
-	    			'autoCommission'=>LemonWayConfig::isAutoCommision(),
+	    			'autoCommission'=>0,
 	    			'registerCard'=>$this->registerCard(), //For Atos //@TODO get value from payment form
 	    			'useRegisteredCard'=>$this->registerCard(), //For payline //@TODO get value from payment form
 	    	);
-	    	Logger::AddLog(print_r($params,true));
+	    	
 		   	try {
 		   		
 		    	$res = $kit->MoneyInWebInit($params);
 		    	
-		    	if($customer->id)
+		    	/**
+		    	 * Oops, an error occured.
+		    	 */
+		    	if(isset($res->lwError)){
+		    		throw new Exception((string)$res->lwError->MSG, (int)$res->lwError->CODE);
+		    	}
+		    	
+		    	if($customer->id && isset($res->lwXml->MONEYINWEB->CARD) && $this->registerCard())
 		    	{
 		    	
 		    		$card = $this->module->getCustomerCard($customer->id);
@@ -91,20 +98,13 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 		   		
 		   	}
 	    	
-	        /**
-	         * Oops, an error occured.
-	         */
-	    	if (isset($res->lwError)){
-	    		$this->addError('An error occurred while trying to redirect to payment page',"Error code: " . $res->lwError->CODE . " Message: " . $res->lwError->MSG);
-	    		return $this->displayError();
-	
-	    	}
-	    	elseif($moneyInToken = (string)$res->lwXml->MONEYINWEB->TOKEN){
+	        
+	    	$moneyInToken = (string)$res->lwXml->MONEYINWEB->TOKEN;
 	    		
-	    		$language = $this->getLang();
-	    		Tools::redirect(LemonWayConfig::getWebkitUrl() . '?moneyintoken='.$moneyInToken.'&p='.urlencode(LemonWayConfig::getCssUrl()).'&lang='.$language);
+	    	$language = $this->getLang();
+	    	Tools::redirect(LemonWayConfig::getWebkitUrl() . '?moneyintoken='.$moneyInToken.'&p='.urlencode(LemonWayConfig::getCssUrl()).'&lang='.$language);
 	    		
-	    	}
+	    	
     	}
     	else{
     		if(($card = $this->module->getCustomerCard($customer->id)) && $customer->isLogged())
@@ -115,16 +115,16 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     					'wkToken'=>$cart->id,//sprintf("%04d" ,$cart->id),
 	    				'wallet'=> LemonWayConfig::getWalletMerchantId(),
 	    				'amountTot'=>number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
-	    				'amountCom'=>number_format((float)LemonWayConfig::getCommissionAmount(), 2, '.', ''),
+	    				'amountCom'=>number_format((float)0, 2, '.', ''),
     					'message'=> sprintf($this->module->l('Money In with Card Id for cart %s'),(string)$cart->id),
-    					'autoCommission'=>LemonWayConfig::isAutoCommision(),
+    					'autoCommission'=>0,
     					'cardId'=>$card['id_card'],
     					'isPreAuth'=>0,
     					'specialConfig'=>'',
     					'delayedDays'=>6 //not used because isPreAuth always false
     			);
     			 
-    			Logger::AddLog(print_r($params,true));
+    			
     			try {
     				 
     				$res = $kit->MoneyInWithCardId($params);

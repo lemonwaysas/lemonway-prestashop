@@ -13,6 +13,12 @@ class Iban{
      * @var string
      */
     public $STATUS;
+    
+    /**
+     * STATUS {0,5,6,8,9}
+     * @var string
+     */
+    public $S;
 	
 	/**
      * IBAN number

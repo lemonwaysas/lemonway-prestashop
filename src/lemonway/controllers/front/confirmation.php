@@ -28,8 +28,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
 {
     public function postProcess()
     {
-    	Logger::AddLog( "confirmation params ". print_r(Tools::getAllValues(),true));
-        if ((Tools::isSubmit('response_wkToken') == false) || (Tools::isSubmit('secure_key') == false) || Tools::isSubmit('action') == false) {
+    	if ((Tools::isSubmit('response_wkToken') == false) || (Tools::isSubmit('secure_key') == false) || Tools::isSubmit('action') == false) {
             return false;
         }
 		
@@ -69,7 +68,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         
         switch ($action){
         	case 'return':
-        		Logger::AddLog( "Cart loaded: ". (int)Validate::isLoadedObject($this->context->cart));
+        		
         		/**
         		 * If the order has been validated we try to retrieve it
         		 */

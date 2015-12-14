@@ -137,13 +137,21 @@ class AdminMoneyOutController extends ModuleAdminController{
 	public function beforeAdd($moneyOut)
 	{
 			try {
+				
+				$wallet_detail = $this->getWalletDetails();
+				if(is_null($wallet_detail))
+				{
+					throw new PrestaShopException($this->module->l('Can\'t retrieve Wallet details'));
+				}
+				$wallet = $wallet_detail->wallet;
+				
 	    			$params = array(
 	    					"wallet"=>$moneyOut->id_lw_wallet,
 	    					"amountTot"=>number_format((float)$moneyOut->amount_to_pay, 2, '.', ''),
-	    					'amountCom'=>number_format((float)LemonWayConfig::getCommissionAmount(), 2, '.', ''),
+	    					'amountCom'=>number_format((float)0, 2, '.', ''),
 	    					"message"=>$this->module->l("Moneyout from Prestashop module"),
 	    					"ibanId"=>$moneyOut->id_lw_iban,
-	    					"autCommission" => LemonWayConfig::isAutoCommision(),
+	    					"autCommission" => 0,
 	    			);
 	    			//Init APi kit
 	    			$kit = new LemonWayKit();
@@ -151,8 +159,7 @@ class AdminMoneyOutController extends ModuleAdminController{
 	    			
 	    			if($apiResponse->lwError)
 	    			{
-	    				$this->errors[] = $apiResponse->lwError->getMessage();
-	    				return false;
+	    				throw new PrestaShopException((string)$apiResponse->lwError->MSG,(int)$apiResponse->lwError->CODE);
 	    			}
 	    			
 	    			if(count($apiResponse->operations))
@@ -161,17 +168,16 @@ class AdminMoneyOutController extends ModuleAdminController{
 	    				$op = current($apiResponse->operations);
 	    				if($op->ID)
 	    				{
-	    					$moneyOut->new_bal = (float)$moneyOut->prev_bal - (float)$moneyOut->amount_to_pay;
+	    					$moneyOut->new_bal = (float)$wallet->BAL - (float)$moneyOut->amount_to_pay;
 	    					return true;
 	    				}
 	    				else {
-	    					$this->errors[] = $this->module->l("An error occurred. Please contact support.");
+	    					throw new PrestaShopException($this->module->l("An error occurred. Please contact support."));
 	    				}
 	    			}
 		    		
     		} catch (Exception $e) {
-    			
-    			$this->errors[] = $e->getMessage();
+    			throw $e;
     		}
 		
 			return false;
@@ -386,12 +392,10 @@ class AdminMoneyOutController extends ModuleAdminController{
 	public function getWalletDetails(){
 		if(is_null($this->_walletDetails))
 		{
-			$params = array("wallet"=>LemonWayConfig::getWalletMerchantId());
-			
-			$kit = new LemonWayKit();
+
 			try {
 
-				$res = $kit->GetWalletDetails($params);
+				$res = $this->module->getWalletDetails(LemonWayConfig::getWalletMerchantId());///$kit->GetWalletDetails($params);
 				
 			} catch (Exception $e) {
 				Logger::AddLog($e->getMessage());
@@ -400,7 +404,7 @@ class AdminMoneyOutController extends ModuleAdminController{
 			}
 			
 			if (isset($res->lwError)){
-				$this->errors[] = sprintf(Tools::displayError("Error: %s. Code: %s"),array($res->lwError->getMessage(), $res->lwError->getCode()));
+				$this->errors[] = sprintf(Tools::displayError("Error: %s. Code: %s"),$res->lwError->MSG, $res->lwError->CODE);
 				return null;
 			}
 			
