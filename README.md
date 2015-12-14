@@ -1,42 +1,86 @@
 # Lemonway Prestashop
+---
+## How to use this repository
 
-## Configuration de l'API
+### Get and change sources
+If you want to do any changes follow this steps:
 
-| Nom | Description |   
-| -------- | -------- |  
-|Identifiant de l'API |Society  (Login de production de l''API) |
-|Mot de passe de l'API|Mot de passe fourni par Lemonway|
-|Identifiant du wallet marchand|test-1 (Correspondant au wallet crédité. Vous devez le créer dans le BO Lemonway.)|  
-|DIRECTKIT URL|Url de **production** de l'API **DIRECTKIT** fourni par lemonway|
-|WEBKIT URL|Url de **production** de l'API **WEBKIT** fourni par lemonway|  
-|DIRECTKIT URL TEST|Url de **TEST** de l'API  **DIRECTKIT** fourni par lemonway|
-|WEBKIT URL TEST|Url de **TEST** de l'API **WEBKIT** fourni par lemonway|| 
-|Activer le mode test|Les appels à l'API se font sur les urls de tests|  
+1.  Clone the repo
+```
+$ git clone git@gitlab.sirateck.com:prestashop-modules/lemonway-presta.git
+```
+  **Note:**  
+  Don't forget to put your ssh public key into your gitlab account.  Else try with http connection:  
+```
+$ git clone git@gitlab.sirateck.com:prestashop-modules/lemonway-presta.git
+```
+
+2.  Checkout into `develop` branch
+```
+$ git checkout -b develop origin/develop
+```
+3.  Write your modifications and save your files
+
+4. Stage and commit your changes
+```
+// Stage all modifications
+$ git add .
+// Commit with message. For good practices see: https://github.com/ajoslin/conventional-changelog/blob/master/conventions/angular.md  
+$ git commit -m "fix(webkit): Not display card form selection if customer no have crad number"
+```
+5.  Share your code
+```
+$ git push
+```
+
+6. Finally, send merge request
+
+  Go to your **gitlab account** on this project and send a [merge request](http://gitlab.sirateck.com/prestashop-modules/lemonway-presta/merge_requests) to admin users.
+
+### Build Prestashop package
+
+You can easily build Prestashop package with composer.  
+If you don't have composer see: https://getcomposer.org/.  
+The following example take in consideration you have command `composer` available in your PATH environment.  
+Instead you can use `composer.phar` directly but it is less convenient.  
+`zip` command is also required.
+
+**IMPORTANT**: For now, make sure you are in master branch (`$ git checkout master`)
+
+1.  Install dependencies
+In project's root run:
+```
+$ composer install
+```
+
+2.  Build package
+```
+$ composer package
+```
+
+If build package is successful you can see *zip file* in `dist/`.
 
 
-## Configuration de la méthode
+## Wiki
+---
+You can found some informations about installation,configuration and how to use this module in [Wiki](http://gitlab.sirateck.com/prestashop-modules/lemonway-presta/wikis/home).
 
-| Nom | Description |   
-| -------- | -------- | 
-|Auto commission |Si la valeur est à NON, vous devez remplir le champs ci-dessous|    
-|Montant de la commission|En euro| 
-|Activer le Oneclic |Affiche le formulaire Oneclic sur la page des méthodes de paiements| 
-|Url du css|https://www.lemonway.fr/mercanet_lw.css|    
-  
-## Effectuer un virement bancaire      
+## Demo website
+---
+#### Frontend
+http://lw.presta.sirateck.com/
+#### Backend
+http://lw.presta.sirateck.com/admin3624wol4n  
+kassim@sirateck.com / aqwzsx123
 
-Lemonway => Virements bancaire => **+** Effectuer un nouveau virement  
 
-| Nom | Description |   
-| -------- | -------- | 
-|Wallet|Nom du Wallet débiteur|  
-|Porteur du wallet|Nom du propiétaire du Wallet|  
-|Fonds disponibles |Le montant disponible sur le Wallet débiteur|  
-|Statut du wallet|Validité du document expiré|  
+## LICENCE (TMP ??)
+---
+```
+Copyright 2015 Lemonway
 
-## Virement bancaire
-
-| Nom | Description |   
-| -------- | -------- | 
-|Iban|Iban correspondant au compte débiteur|  
-|Montant|Montant à transférer en euro|
+This source file is subject to the MIT License
+that is bundled with this package in the file LICENSE.txt.
+It is also available through the world-wide-web at this URL:
+http://opensource.org/licenses/mit-license.php
+```
