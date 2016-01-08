@@ -49,11 +49,18 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     	$kit = new LemonWayKit();
     	
     	$params = array();
+    	
+    	/**
+    	 * Generate a new wkToken for this cart ID
+    	 * It' is necessary to send a new wkToken for each requests
+    	 */
+    	$wkToken = $this->module->saveWkToken($cart->id) ;
+    	
     	if(!$this->useCard())
     	{
     		
 	    	//call directkit to get Webkit Token
-	    	$params = array('wkToken'=>$cart->id,//sprintf("%04d" ,$cart->id),
+	    	$params = array('wkToken'=> $wkToken  ,
 	    			'wallet'=> LemonWayConfig::getWalletMerchantId(),
 	    			'amountTot'=>number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
 	    			'amountCom'=>number_format((float)0, 2, '.', ''),//because money is transfered in merchant wallet
@@ -112,7 +119,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
     			//call directkit for MoneyInWithCardId
     			$params = array(
-    					'wkToken'=>$cart->id,//sprintf("%04d" ,$cart->id),
+    					'wkToken'=>$wkToken,
 	    				'wallet'=> LemonWayConfig::getWalletMerchantId(),
 	    				'amountTot'=>number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
 	    				'amountCom'=>number_format((float)0, 2, '.', ''),

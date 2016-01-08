@@ -28,12 +28,12 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
 {
     public function postProcess()
     {
-    	if ((Tools::isSubmit('response_wkToken') == false) || (Tools::isSubmit('secure_key') == false) || Tools::isSubmit('action') == false) {
+    	if ((Tools::isSubmit('cart_id') == false) || (Tools::isSubmit('secure_key') == false) || Tools::isSubmit('action') == false) {
             return false;
         }
 		
         $action = Tools::getValue('action');
-        $cart_id = Tools::getValue('response_wkToken');
+        $cart_id = Tools::getValue('cart_id');
         $secure_key = Tools::getValue('secure_key');
 
         $cart = new Cart((int)$cart_id);

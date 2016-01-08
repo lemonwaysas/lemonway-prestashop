@@ -49,7 +49,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0.1';
+        $this->version = '1.1.1';
         $this->author = 'SIRATECK';
         $this->need_instance = 0;
 
@@ -586,6 +586,54 @@ class Lemonway extends PaymentModule
     	}
     		
     	return $res;
+    }
+    
+    public function getWkToken($id_cart){
+    	return Db::getInstance()->getValue('SELECT `wktoken` FROM `'._DB_PREFIX_.'lemonway_wktoken` lw WHERE lw.`id_cart` = '.(int)$id_cart);
+    }
+    
+    public function checkIfCartHasWkToken($id_cart){
+    	
+    	return (bool)$this->getWkToken($id_cart);
+    	
+    }
+    
+    /**
+     * Insert or Update new unique wkToken
+     * @param int $id_cart
+     * @return string $wkToken
+     */
+    public function saveWkToken($id_cart){
+    	
+    	$wkToken = $this->generateUniqueCartId($id_cart);
+    	
+    	//Default  update query
+    	$query = 'UPDATE `'._DB_PREFIX_.'lemonway_wktoken` SET `wktoken` = \''.$wkToken."' WHERE `is_cart` = ".(int)pSQL($id_cart);
+    	
+    	//If cart haven't wkToken we Insert IT
+    	if (!$this->checkIfCartHasWkToken($id_cart)) {
+    		$query = 'INSERT INTO `'._DB_PREFIX_.'lemonway_wktoken` (`id_cart`,`wktoken`) VALUES (\''.(int)pSQL($id_cart).'\',\''.$wkToken.'\') ';
+    	}
+    	 
+    	Db::getInstance()->execute($query);
+    	
+    	return $wkToken;
+    }
+    
+    public function generateUniqueCartId($id_cart){
+    	
+    	return $id_cart . "-" . time() . "-" .uniqid();
+    	
+    }
+    
+    
+    public function getCartIdFromToken($wktoken){
+    	
+    	if($id_cart = Db::getInstance()->getValue('SELECT `id_cart` FROM `'._DB_PREFIX_.'lemonway_wktoken` lw WHERE lw.`wktoken` = \''.pSQL($wktoken)."'"))
+    		return $id_cart;
+    	
+    	throw new Exception($this->l("Cart not found!"),406);
+    	
     }
     
     

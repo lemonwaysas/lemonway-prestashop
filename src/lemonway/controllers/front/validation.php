@@ -44,6 +44,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
      */
     public function postProcess()
     {
+    	
         /**
          * If the module is not active anymore, no need to process anything.
          */
@@ -56,9 +57,9 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         if ((Tools::isSubmit('response_wkToken') == false) || Tools::isSubmit('action') == false) {
         	die;
         }
-        
+
         $action = Tools::getValue('action');
-        $cart_id = (int)Tools::getValue('response_wkToken');
+        $cart_id = $this->module->getCartIdFromToken( Tools::getValue('response_wkToken'));
         
         if($this->isGet())//IS redirection from lemonway
         {
@@ -67,14 +68,14 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         		die;
         	}
 
-        	Tools::redirect($this->context->link->getModuleLink('lemonway', 'confirmation', array('action' => $action, 'secure_key' => Tools::getValue('secure_key'),'response_wkToken'=>$cart_id) , true));
+        	Tools::redirect($this->context->link->getModuleLink('lemonway', 'confirmation', array('action' => $action, 'secure_key' => Tools::getValue('secure_key'),'cart_id'=>$cart_id) , true));
         	
         }
         elseif($this->isPost())//Is instant payment notification
         {
-        	//wait for GET redirection in front
-        	//sleep(8);
-        	
+        	//wait for GET redirection finish in front
+        	sleep(4);
+
         	if(Tools::isSubmit('response_code') == false){
         		die;
         	}
@@ -161,7 +162,9 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         	$history = new OrderHistory();
         	$history->id_order = (int)$order_id;
         	$history->changeIdOrderState(Configuration::get('PS_OS_PAYMENT'), (int)$order_id);
-        	//Logger::AddLog('Order updated');
+
+        	$history->save();
+
         	die('Order updated.');
   
         }
