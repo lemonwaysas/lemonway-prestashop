@@ -214,6 +214,8 @@ class LemonWayKit{
 		$ua = '';
 		if (isset($_SERVER['HTTP_USER_AGENT']))
 			$ua = $_SERVER['HTTP_USER_AGENT'];
+		$ua = "Prestashop-"._PS_VERSION_."/" . $ua;
+			
 		$ip = '';
 		if (isset($_SERVER['REMOTE_ADDR']))
 			$ip = $_SERVER['REMOTE_ADDR'];
