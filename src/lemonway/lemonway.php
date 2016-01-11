@@ -612,7 +612,7 @@ class Lemonway extends PaymentModule
     	$wkToken = $this->generateUniqueCartId($id_cart);
     	
     	//Default  update query
-    	$query = 'UPDATE `'._DB_PREFIX_.'lemonway_wktoken` SET `wktoken` = \''.$wkToken."' WHERE `is_cart` = ".(int)pSQL($id_cart);
+    	$query = 'UPDATE `'._DB_PREFIX_.'lemonway_wktoken` SET `wktoken` = \''.$wkToken."' WHERE `id_cart` = ".(int)pSQL($id_cart);
     	
     	//If cart haven't wkToken we Insert IT
     	if (!$this->checkIfCartHasWkToken($id_cart)) {
