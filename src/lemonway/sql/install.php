@@ -107,6 +107,15 @@ $sql[] = "CREATE TABLE IF NOT EXISTS `"._DB_PREFIX_."lemonway_wallet` (
   UNIQUE KEY (`id_lw_wallet`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Wallet Table' ;";
 
+$sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'lemonway_wktoken` (
+			    `id_cart_wktoken` int(11) NOT NULL AUTO_INCREMENT,
+				`id_cart` int(11) NOT NULL,
+				`wktoken` varchar(255) NOT NULL,
+			    PRIMARY KEY  (`id_cart_wktoken`),
+   				UNIQUE KEY `wktoken` (`wktoken`),
+   				UNIQUE KEY `id_cart` (`id_cart`)
+			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
+
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {
         return false;
