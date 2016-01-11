@@ -57,6 +57,13 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     	$wkToken = $this->module->saveWkToken($cart->id) ;
     	$comment = "{$customer->lastname} {$customer->firstname} {$customer->email}";
     	
+    	/**
+    	 * Check if module mkt is installed, in this case, we don't send amount commission
+    	 * Because we need this funds for credit vendors
+    	 * 
+    	 */
+    	$amountCom = number_format(($this->module->moduleMktIsInstalled() ? (float)$cart->getOrderTotal(true, 3) : 0), 2, '.', '');
+    	
     	if(!$this->useCard())
     	{
     		
@@ -64,7 +71,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 	    	$params = array('wkToken'=> $wkToken  ,
 	    			'wallet'=> LemonWayConfig::getWalletMerchantId(),
 	    			'amountTot'=>number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
-	    			'amountCom'=>number_format((float)0, 2, '.', ''),//because money is transfered in merchant wallet
+	    			'amountCom'=>$amountCom,//because money is transfered in merchant wallet
 	    			'comment'=>$comment,
 	    			'returnUrl'=>urlencode($this->context->link->getModuleLink('lemonway', 'validation', array('register_card'=>(int)$this->registerCard(),'action' => 'return', 'secure_key' => $secure_key) , true)),
 	    			'cancelUrl'=>urlencode($this->context->link->getModuleLink('lemonway', 'validation',  array('action' => 'cancel', 'secure_key' => $secure_key), true)),
@@ -123,7 +130,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     					'wkToken'=>$wkToken,
 	    				'wallet'=> LemonWayConfig::getWalletMerchantId(),
 	    				'amountTot'=>number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
-	    				'amountCom'=>number_format((float)0, 2, '.', ''),
+	    				'amountCom'=>$amountCom,
     					'message'=> sprintf($this->module->l('Money In with Card Id for cart %s. Customer: %s'),(string)$cart->id),$comment,
     					'autoCommission'=>0,
     					'cardId'=>$card['id_card'],
