@@ -86,6 +86,9 @@ class Lemonway extends PaymentModule
     		{
     			$tab->name[(int)$language['id_lang']] = $translations[Tools::strtolower($language['iso_code'])];
     		}
+    		else{
+    			$tab->name[(int)$language['id_lang']] = $translations['en'];
+    		}
     	}
     	$tab->class_name = $tabClass;
     	if(is_null($moduleName))
@@ -133,6 +136,9 @@ class Lemonway extends PaymentModule
     			if(isset($translations[Tools::strtolower($language['iso_code'])]))
     			{
     				$os->name[(int)$language['id_lang']] = $translations[Tools::strtolower($language['iso_code'])];
+    			}
+    			else{
+    				$os->name[(int)$language['id_lang']] = $translations['en'];
     			}
     		}
     		 
