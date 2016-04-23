@@ -238,7 +238,11 @@ class Lemonway extends PaymentModule
     }
     
     public function moduleMktIsInstalled(){
-    	return !(Module::getInstanceByName('lemonwaymkt') === false);
+    	return !(Module::isInstalled('lemonwaymkt') === false);
+    }
+    
+    public function moduleMktIsEnabled(){
+    	return !(Module::isEnabled('lemonwaymkt') === false);
     }
 
     /**
