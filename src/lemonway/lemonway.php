@@ -179,11 +179,11 @@ class Lemonway extends PaymentModule
         Configuration::updateValue('LEMONWAY_WEBKIT_URL', '');
         Configuration::updateValue('LEMONWAY_DIRECTKIT_URL_TEST', '');
         Configuration::updateValue('LEMONWAY_WEBKIT_URL_TEST', '');
-        Configuration::updateValue('LEMONWAY_IS_TEST_MODE', 0);
+        Configuration::updateValue('LEMONWAY_IS_TEST_MODE', false);
         
         //METHOD CONFIGURATION
         Configuration::updateValue('LEMONWAY_CSS_URL', 'https://www.lemonway.fr/mercanet_lw.css');
-        Configuration::updateValue('LEMONWAY_ONECLIC_ENABLED', 0);
+        Configuration::updateValue('LEMONWAY_ONECLIC_ENABLED', false);
 
         include(dirname(__FILE__).'/sql/install.php');
         
