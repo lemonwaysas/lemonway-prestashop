@@ -49,7 +49,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.1.3';
+        $this->version = '1.1.4';
         $this->author = 'SIRATECK';
         $this->need_instance = 0;
 
@@ -179,11 +179,11 @@ class Lemonway extends PaymentModule
         Configuration::updateValue('LEMONWAY_WEBKIT_URL', '');
         Configuration::updateValue('LEMONWAY_DIRECTKIT_URL_TEST', '');
         Configuration::updateValue('LEMONWAY_WEBKIT_URL_TEST', '');
-        Configuration::updateValue('LEMONWAY_IS_TEST_MODE', false);
+        Configuration::updateValue('LEMONWAY_IS_TEST_MODE', 0);
         
         //METHOD CONFIGURATION
         Configuration::updateValue('LEMONWAY_CSS_URL', 'https://www.lemonway.fr/mercanet_lw.css');
-        Configuration::updateValue('LEMONWAY_ONECLIC_ENABLED', false);
+        Configuration::updateValue('LEMONWAY_ONECLIC_ENABLED', 0);
 
         include(dirname(__FILE__).'/sql/install.php');
         
