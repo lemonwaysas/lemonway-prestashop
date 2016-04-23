@@ -62,7 +62,8 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     	 * Because we need this funds for credit vendors
     	 * 
     	 */
-    	$amountCom = number_format(($this->module->moduleMktIsInstalled() ? (float)$cart->getOrderTotal(true, 3) : 0), 2, '.', '');
+    	$amountComRaw = !$this->module->moduleMktIsEnabled() ? (float)$cart->getOrderTotal(true, 3) : 0;
+    	$amountCom = number_format($amountComRaw, 2, '.', '');
     	
     	if(!$this->useCard())
     	{
@@ -77,8 +78,8 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 	    			'cancelUrl'=>urlencode($this->context->link->getModuleLink('lemonway', 'validation',  array('action' => 'cancel', 'secure_key' => $secure_key), true)),
 	    			'errorUrl'=>urlencode($this->context->link->getModuleLink('lemonway', 'validation', array('action' => 'error', 'secure_key' => $secure_key), true)),
 	    			'autoCommission'=>0,
-	    			'registerCard'=>$this->registerCard(), //For Atos //@TODO get value from payment form
-	    			'useRegisteredCard'=>$this->registerCard(), //For payline //@TODO get value from payment form
+	    			'registerCard'=>$this->registerCard(), //For Atos 
+	    			'useRegisteredCard'=>$this->registerCard(), //For payline 
 	    	);
 	    	
 		   	try {
