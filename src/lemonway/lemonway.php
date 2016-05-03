@@ -66,7 +66,6 @@ class Lemonway extends PaymentModule
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall my module? You loose your datas !');
 		
         $this->limited_countries = array();
-        $this->limited_currencies = array('EUR');
         
         $this->local_path = _PS_MODULE_DIR_.$this->name.'/';
         
@@ -506,8 +505,6 @@ class Lemonway extends PaymentModule
         $currency_id = $params['cart']->id_currency;
         $currency = new Currency((int)$currency_id);
 
-        if (in_array($currency->iso_code, $this->limited_currencies) == false)
-            return false;
         /* @var $cart Cart */
         $cart = $params['cart'];
         /* @var $customer CustomerCore */
