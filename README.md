@@ -7,12 +7,7 @@ If you want to do any changes follow this steps:
 
 1.  Clone the repo
 ```
-$ git clone git@gitlab.sirateck.com:prestashop-modules/lemonway-presta.git
-```
-  **Note:**  
-  Don't forget to put your ssh public key into your gitlab account.  Else try with http connection:  
-```
-$ git clone git@gitlab.sirateck.com:prestashop-modules/lemonway-presta.git
+$ git clone https://github.com/lemonwaysas/prestashop-lemonway-plugin.git
 ```
 
 2.  Checkout into `develop` branch
@@ -32,10 +27,7 @@ $ git commit -m "fix(webkit): Not display card form selection if customer no hav
 ```
 $ git push
 ```
-
-6. Finally, send merge request
-
-  Go to your **gitlab account** on this project and send a [merge request](http://gitlab.sirateck.com/prestashop-modules/lemonway-presta/merge_requests) to admin users.
+6. Finally, send pull request
 
 ### Build Prestashop package
 
