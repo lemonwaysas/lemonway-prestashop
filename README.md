@@ -56,7 +56,7 @@ Instead you can use `composer.phar` directly but it is less convenient.
 
 ## Wiki
 ---
-You can found some informations about installation,configuration and how to use this module in [Wiki](http://gitlab.sirateck.com/prestashop-modules/lemonway-presta/wikis/home).
+You can found some informations about installation,configuration and how to use this module in [Wiki](https://github.com/lemonwaysas/prestashop-lemonway-plugin/wiki).
 
 ## Demo website
 ---
