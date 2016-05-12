@@ -27,6 +27,7 @@ If you want to do any changes follow this steps:
   ```
   $ git push
   ```
+  
 6. Finally, send pull request
 
 ### Build Prestashop package
