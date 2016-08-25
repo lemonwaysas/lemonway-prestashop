@@ -8,117 +8,134 @@ require_once 'models/SddMandate.php';
 require_once 'models/Wallet.php';
 require_once 'ApiResponse.php';
 require_once 'LemonWayConfig.php';
-class LemonWayKit{
+
+class LemonWayKit {
 	
 	private static $printInputAndOutputXml = false;
 	
-
 	private static function accessConfig(){
 		return array (
-							'directKitUrl' => LemonWayConfig::getDirectkitUrl(),
-							'webkitUrl' => LemonWayConfig::getWebkitUrl(),
-							'wlLogin' => LemonWayConfig::getApiLogin(),
-							'wlPass' => LemonWayConfig::getApiPassword(),
-							'language' => 'fr');//@TODO get good language and filter with available languages in lw.
+			'directKitUrl' 	=> LemonWayConfig::getDirectkitUrl(),
+			'webkitUrl' 	=> LemonWayConfig::getWebkitUrl(),
+			'wlLogin' 		=> LemonWayConfig::getApiLogin(),
+			'wlPass' 		=> LemonWayConfig::getApiPassword(),
+			'language' 		=> 'fr'
+		); // @TODO get good language and filter with available languages in lw.
 	}
 	
 	public function RegisterWallet($params) {
 		$res = self::sendRequest('RegisterWallet', $params, '1.1');
-		if (!isset($res->lwError)){
+		if (!isset($res->lwError)) {
 			$res->wallet = new Wallet($res->lwXml->WALLET);
 		}
 		return $res;
 	}
+
 	public function MoneyIn($params) {
 		$res = self::sendRequest('MoneyIn', $params, '1.1');
-		if (!isset($res->lwError)){
+		if (!isset($res->lwError)) {
 			$res->operations = array(new Operation($res->lwXml->TRANS->HPAY));
 		}
 		return $res;
 	}
+
 	public function UpdateWalletDetails($params) {
 		$res = self::sendRequest('UpdateWalletDetails', $params, '1.0');
-		if (!isset($res->lwError)){
+		if (!isset($res->lwError)) {
 			$res->wallet = new Wallet($res->lwXml->WALLET);
 		}
 		return $res;
 	}
+
 	public function GetWalletDetails($params) {
 		$res = self::sendRequest('GetWalletDetails', $params, '1.5');
-		if (!isset($res->lwError)){
+		if (!isset($res->lwError)) {
 			$res->wallet = new Wallet($res->lwXml->WALLET);
 		}
 		return $res;
 	}
+
 	public function MoneyIn3DInit($params) {
 		return self::sendRequest('MoneyIn3DInit', $params, '1.1');
 	}
+
 	public function MoneyIn3DConfirm($params) {
 		return self::sendRequest('MoneyIn3DConfirm', $params, '1.1');
 	}
+
 	public function MoneyInWebInit($params) {
 		return self::sendRequest('MoneyInWebInit', $params, '1.3');
 	}
+
 	public function RegisterCard($params) {
 		return self::sendRequest('RegisterCard', $params, '1.1');
 	}
+
 	public function UnregisterCard($params) {
 		return self::sendRequest('UnregisterCard', $params, '1.0');
 	}
+
 	public function MoneyInWithCardId($params) {
 		$res = self::sendRequest('MoneyInWithCardId', $params, '1.1');
-		if (!isset($res->lwError)){
+		if (!isset($res->lwError)) {
 			$res->operations = array(new Operation($res->lwXml->TRANS->HPAY));
 		}
 		return $res;
 	}
+
 	public function MoneyInValidate($params) {
 		return self::sendRequest('MoneyInValidate', $params, '1.0');
 	}
+
 	public function SendPayment($params) {
 		$res = self::sendRequest('SendPayment', $params, '1.0');
-		if (!isset($res->lwError)){
+		if (!isset($res->lwError)) {
 			$res->operations = array(new Operation($res->lwXml->TRANS->HPAY));
 		}
 		return $res;
 	}
+
 	public function RegisterIBAN($params) {
 		$res = self::sendRequest('RegisterIBAN', $params, '1.1');
-		if (!isset($res->lwError)){
+		if (!isset($res->lwError)) {
 			$res->iban = new Iban($res->lwXml->IBAN);
 		}
 		return $res;
 	}
+
 	public function MoneyOut($params) {
 		$res = self::sendRequest('MoneyOut', $params, '1.3');
-		if (!isset($res->lwError)){
+		if (!isset($res->lwError)) {
 			$res->operations = array(new Operation($res->lwXml->TRANS->HPAY));
 		}
 		return $res;
 	}
+
 	public function GetPaymentDetails($params) {
 		$res = self::sendRequest('GetPaymentDetails', $params, '1.0');
-		if (!isset($res->lwError)){
+		if (!isset($res->lwError)) {
 			$res->operations = array();
-			foreach ($res->lwXml->TRANS->HPAY as $HPAY){
+			foreach ($res->lwXml->TRANS->HPAY as $HPAY) {
 				$res->operations[] = new Operation($HPAY);
 			}
 		}
 		return $res;
 	}
+
 	public function GetMoneyInTransDetails($params) {
 		$res = self::sendRequest('GetMoneyInTransDetails', $params, '1.8');
-		if (!isset($res->lwError)){
+		if (!isset($res->lwError)) {
 			$res->operations = array();
-			foreach ($res->lwXml->TRANS->HPAY as $HPAY){
+			foreach ($res->lwXml->TRANS->HPAY as $HPAY) {
 				$res->operations[] = new Operation($HPAY);
 			}
 		}
 		return $res;
 	}
+
 	public function GetMoneyOutTransDetails($params) {
 		$res = self::sendRequest('GetMoneyOutTransDetails', $params, '1.4');
-		if (!isset($res->lwError)){
+		if (!isset($res->lwError)) {
 			$res->operations = array();
 			foreach ($res->lwXml->TRANS->HPAY as $HPAY){
 				$res->operations[] = new Operation($HPAY);
@@ -126,6 +143,7 @@ class LemonWayKit{
 		}
 		return $res;
 	}
+
 	public function UploadFile($params) {
 		$res = self::sendRequest('UploadFile', $params, '1.1');
 		if (!isset($res->lwError)){
@@ -133,27 +151,35 @@ class LemonWayKit{
 		}
 		return $res;
 	}
+
 	public function GetKycStatus($params) {
 		return self::sendRequest('GetKycStatus', $params, '1.5');
 	}
+
 	public function GetMoneyInIBANDetails($params) {
 		return self::sendRequest('GetMoneyInIBANDetails', $params, '1.4');
 	}
+
 	public function RefundMoneyIn($params) {
 		return self::sendRequest('RefundMoneyIn', $params, '1.2');
 	}
+
 	public function GetBalances($params) {
 		return self::sendRequest('GetBalances', $params, '1.0');
 	}
+
 	public function MoneyIn3DAuthenticate($params) {
 		return self::sendRequest('MoneyIn3DAuthenticate', $params, '1.0');
 	}
+
 	public function MoneyInIDealInit($params) {
 		return self::sendRequest('MoneyInIDealInit', $params, '1.0');
 	}
+
 	public function MoneyInIDealConfirm($params) {
 		return self::sendRequest('MoneyInIDealConfirm', $params, '1.0');
 	}
+
 	public function RegisterSddMandate($params) {
 		$res = self::sendRequest('RegisterSddMandate', $params, '1.0');
 		if (!isset($res->lwError)){
@@ -161,15 +187,19 @@ class LemonWayKit{
 		}
 		return $res;
 	}
+
 	public function UnregisterSddMandate($params) {
 		return self::sendRequest('UnregisterSddMandate', $params, '1.0');
 	}
+
 	public function MoneyInSddInit($params) {
 		return self::sendRequest('MoneyInSddInit', $params, '1.0');
 	}
+
 	public function GetMoneyInSdd($params) {
 		return self::sendRequest('GetMoneyInSdd', $params, '1.0');
 	}
+
 	public function GetMoneyInChequeDetails($params) {
 		return self::sendRequest('GetMoneyInChequeDetails', $params, '1.4');
 	}
@@ -207,6 +237,7 @@ class LemonWayKit{
 			print '<br/>DEBUG INTPUT END<br/>';
 		}
 	}
+
 	private function sendRequest($methodName, $params, $version){
 		
 		$accessConfig = self::accessConfig();
@@ -220,7 +251,7 @@ class LemonWayKit{
 		if (isset($_SERVER['REMOTE_ADDR']))
 			$ip = $_SERVER['REMOTE_ADDR'];
 			
-		$xml_soap = '<?xml version="1.0" encoding="utf-8"?><soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope"><soap12:Body><'.$methodName.' xmlns="Service_mb">';
+		$xml_soap = '<?xml version="1.0" encoding="utf-8"?><soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope"><soap12:Body><'.$methodName.' xmlns="Service_mb_xml">';
 		
 		foreach ($params as $key => $value) {
 			$xml_soap .= '<'.$key.'>'.$value.'</'.$key.'>';
@@ -235,12 +266,13 @@ class LemonWayKit{
 		$xml_soap .= '</'.$methodName.'></soap12:Body></soap12:Envelope>';
 		self::printDirectkitInput($xml_soap);
 						
-		$headers = array("Content-type: text/xml;charset=utf-8",
-						"Accept: application/xml",
-						"Cache-Control: no-cache",
-						"Pragma: no-cache",
-						'SOAPAction: "Service_mb/'.$methodName.'"',
-						"Content-length: ".strlen($xml_soap),
+		$headers = array(
+			"Content-type: text/xml;charset=utf-8",
+			"Accept: application/xml",
+			"Cache-Control: no-cache",
+			"Pragma: no-cache",
+			'SOAPAction: "Service_mb_xml/'.$methodName.'"',
+			"Content-length: ".strlen($xml_soap)
 		);
 		
 		$ch = curl_init();

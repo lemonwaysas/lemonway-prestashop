@@ -39,19 +39,20 @@ class Lemonway extends PaymentModule
      */
     protected $local_path = null;
     
-    public static $statuesLabel = array(1 => "Document uniquement reçu",
-    		2  => "Document vérifié et accepté",
-    		3  => "Document vérifié mais non accepté",
-    		4  => "Document remplacé par un autre document",
-    		5  => "Validité du document expiré");
+    public static $statuesLabel = array(
+        1 => "Document uniquement reçu",
+		2 => "Document vérifié et accepté",
+		3 => "Document vérifié mais non accepté",
+		4 => "Document remplacé par un autre document",
+		5 => "Validité du document expiré"
+    );
 
-    public function __construct()
-    {
-        $this->name = 'lemonway';
-        $this->tab = 'payments_gateways';
-        $this->version = '1.1.7';
-        $this->author = 'SIRATECK';
-        $this->need_instance = 0;
+    public function __construct() {
+        $this->name             = 'lemonway';
+        $this->tab              = 'payments_gateways';
+        $this->version          = '1.1.8';
+        $this->author           = 'SIRATECK';
+        $this->need_instance    = 0;
 
         /**
          * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
@@ -63,7 +64,7 @@ class Lemonway extends PaymentModule
         $this->displayName = $this->l('Lemonway');
         $this->description = $this->l('Through its API, Lemon Way offers you state-of-the-art payment technology. Beyond their technological expertise, Lemon Way also offers a multitude of complementary regulation and management services.');
 
-        $this->confirmUninstall = $this->l('Are you sure you want to uninstall my module? You loose your datas !');
+        $this->confirmUninstall = $this->l('Are you sure you want to uninstall my module? You loose your datas!');
 		
         $this->limited_countries = array();
         
@@ -123,7 +124,7 @@ class Lemonway extends PaymentModule
      * @param bool $invoice
      * @return boolean
      */
-    protected function _addStatus($key,$translations,$color='royalblue',$hidden=false,$send_mail=false,$delivery=false,$logable=false,$invoice=false)
+    protected function _addStatus($key, $translations, $color='royalblue', $hidden=false, $send_mail=false, $delivery=false, $logable=false, $invoice=false)
     {
     	if (!Configuration::get($key))
     	{
@@ -189,10 +190,10 @@ class Lemonway extends PaymentModule
         //Prepare status values
         $key = 'LEMONWAY_PENDING_OS';
         
-        $translationsAdminLemonway = array('en'=>'Lemonway','fr'=>'Lemonway');
+        $translationsAdminLemonway = array('en' => 'Lemonway', 'fr' => 'Lemonway');
         $this->installModuleTab('AdminLemonway', $translationsAdminLemonway, 0);
         
-        $translationsStatus = array('en'=>'Pending payment validation from Lemonway','fr'=>'En attente de validation par Lemonway');
+        $translationsStatus = array('en' => 'Pending payment validation from Lemonway', 'fr'=> 'En attente de validation par Lemonway');
 		$translationsAdminMoneyOut = array('en'=>'Money out','fr'=>'Virements bancaire');
 		
 		
@@ -385,7 +386,7 @@ class Lemonway extends PaymentModule
                 				'prefix' => '<i class="icon icon-cloud-upload"></i>',
                 				'desc' => $this->l(''),
                 				'name' => 'LEMONWAY_DIRECTKIT_URL',
-                				'label' => $this->l('DIRECTKIT URL'),
+                				'label' => $this->l('DIRECTKIT XML URL'),
                 		),
                 		array(
                 				'col' => 6,
@@ -401,7 +402,7 @@ class Lemonway extends PaymentModule
                 				'prefix' => '<i class="icon icon-cloud-upload"></i>',
                 				'desc' => $this->l(''),
                 				'name' => 'LEMONWAY_DIRECTKIT_URL_TEST',
-                				'label' => $this->l('DIRECTKIT URL TEST'),
+                				'label' => $this->l('DIRECTKIT XML URL TEST'),
                 		),
                 		array(
                 				'col' => 6,
