@@ -58,16 +58,8 @@ Instead you can use `composer.phar` directly but it is less convenient.
 ---
 You can found some informations about installation,configuration and how to use this module in [Wiki](https://github.com/lemonwaysas/prestashop-lemonway-plugin/wiki).
 
-## Demo website
----
-#### Frontend
-http://lw.presta.sirateck.com/
-#### Backend
-http://lw.presta.sirateck.com/admin3624wol4n  
-kassim@sirateck.com / aqwzsx123
 
-
-## LICENCE (TMP ??)
+## LICENCE
 ---
 ```
 Copyright 2015 Lemonway
