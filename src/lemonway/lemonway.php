@@ -310,7 +310,7 @@ class Lemonway extends PaymentModule
     	);
     	
     	
-    	$container['form']['input'][] = array(
+    	$switch = array(
     			'type' => 'switch',
     			'label' => $this->l('Enable Oneclic'),
     			'name' => 'LEMONWAY_ONECLIC_ENABLED',
@@ -329,6 +329,36 @@ class Lemonway extends PaymentModule
     					)
     			)
     	);
+    	
+    	//Backward compatibility with version < 1.6.
+    	//Switch type not exists
+    	if(version_compare(_PS_VERSION_,"1.6.0.0" == -1)){
+    		$switch = array(
+    				'type' => 'select',
+	    			'label' => $this->l('Enable Oneclic'),
+	    			'name' => 'LEMONWAY_ONECLIC_ENABLED',
+	    			'is_bool' => true,
+	    			'desc' => $this->l('Display oneclic form on payment step'),
+    				'options' => array(
+    						'query' => array(
+    								array(
+    										'id' => 1,
+    										'label' => $this->l('Enabled')
+    								),
+    								array(
+    										'id' => 0,
+    										'label' => $this->l('Disabled')
+    								)
+    						),
+    						'id' => 'id',
+    						'name' => 'label'
+    				),
+    	
+    		);
+    	}
+    	 
+    	 
+    	$container['form']['input'][] = $switch;
     	
     	$container['form']['input'][] = array(
     			'col' => 6,
@@ -350,7 +380,7 @@ class Lemonway extends PaymentModule
      */
     protected function getApiConfigForm()
     {
-        return array(
+    	$form_config = array(
             'form' => array(
                 'legend' => array(
                 'title' => $this->l('API CONFIGURATION'),
@@ -411,7 +441,14 @@ class Lemonway extends PaymentModule
                 				'name' => 'LEMONWAY_WEBKIT_URL_TEST',
                 				'label' => $this->l('WEBKIT URL TEST'),
                 		),
-                    array(
+                ),
+                'submit' => array(
+                    'title' => $this->l('Save'),
+                ),
+            ),
+        );
+    	
+    	$switch = array(
                         'type' => 'switch',
                         'label' => $this->l('Enable test mode'),
                         'name' => 'LEMONWAY_IS_TEST_MODE',
@@ -429,13 +466,40 @@ class Lemonway extends PaymentModule
                                 'label' => $this->l('Disabled')
                             )
                         ),
-                    ),
-                ),
-                'submit' => array(
-                    'title' => $this->l('Save'),
-                ),
-            ),
-        );
+           );
+    	
+    	//Backward compatibility with version < 1.6.
+    	//Switch type not exists
+    	if(version_compare(_PS_VERSION_,"1.6.0.0" == -1)){
+    		$switch = array(
+    				'type' => 'select',
+    				'label' => $this->l('Enable test mode'),
+    				'name' => 'LEMONWAY_IS_TEST_MODE',
+    				'is_bool' => true,
+    				'desc' => $this->l('Call requests in test API Endpoint'),
+    				'options' => array(
+						'query' => array(
+							array(
+    								'id' => 1,
+    								'label' => $this->l('Enabled')
+    						),
+    						array(
+    								'id' => 0,
+    								'label' => $this->l('Disabled')
+    						)
+						),
+						'id' => 'id',
+						'name' => 'label'
+					),
+
+    		);
+    	}
+    	
+    	
+    	$form_config['form']['input'][] = $switch;
+    	
+    	
+    	return $form_config;
     }
 
     /**
