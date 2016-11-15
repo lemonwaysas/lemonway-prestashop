@@ -50,7 +50,7 @@ class Lemonway extends PaymentModule
     public function __construct() {
         $this->name             = 'lemonway';
         $this->tab              = 'payments_gateways';
-        $this->version          = '1.1.9';
+        $this->version          = '1.1.10';
         $this->author           = 'SIRATECK';
         $this->need_instance    = 0;
 
@@ -333,7 +333,7 @@ class Lemonway extends PaymentModule
     	
     	//Backward compatibility with version < 1.6.
     	//Switch type not exists
-    	if(version_compare(_PS_VERSION_,"1.6.0.0" == -1)){
+    	if(version_compare(_PS_VERSION_, "1.6.0.0") == -1){
     		$switch = array(
     				'type' => 'select',
 	    			'label' => $this->l('Enable Oneclic'),
@@ -358,7 +358,6 @@ class Lemonway extends PaymentModule
     		);
     	}
     	 
-    	 
     	$container['form']['input'][] = $switch;
     	
     	$container['form']['input'][] = array(
@@ -370,8 +369,6 @@ class Lemonway extends PaymentModule
     			'is_number' => true,
     			'desc' => '',
     	);
-    	
-    	
     	
     	return $container;
     }
@@ -471,7 +468,7 @@ class Lemonway extends PaymentModule
     	
     	//Backward compatibility with version < 1.6.
     	//Switch type not exists
-    	if(version_compare(_PS_VERSION_,"1.6.0.0" == -1)){
+    	if(version_compare(_PS_VERSION_, "1.6.0.0") == -1){
     		$switch = array(
     				'type' => 'select',
     				'label' => $this->l('Enable test mode'),
