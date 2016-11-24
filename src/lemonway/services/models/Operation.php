@@ -1,141 +1,110 @@
 <?php
-
-class Operation {
-
-	/**
-     * type {p2p, moneyin, moneyout}
-     * @var string
-     */
-    public $type;
-	
-	/**
-     * ID number
-     * @var string
-     */
-    public $ID;
-	
-	/**
-     * MLABEL iban number or card number
-     * @var string
-     */
-    public $MLABEL;
-	
-	/**
-     * SEN sender wallet (debited wallet)
-     * @var string
-     */
-	public $SEN;
-	
-	/**
-     * REC receiver wallet (credited wallet)
-     * @var string
-     */
-	public $REC;
-	
-	/**
-     * DEB debited amount, xx.xx
-     * @var string
-     */
-	public $DEB;
-	
-	/**
-     * CRED credited amount, xx.xx
-     * @var string
-     */
-	public $CRED;
-	
-	/**
-     * COM fees automatically sent to merchant wallet
-     * @var string
-     */
-	public $COM;
-	
-	/**
-     * MSG comment
-     * @var string
-     */
-	public $MSG;
-	
-	/**
-     * STATUS {0,3,4}
-     * @var string
-     */
-	public $STATUS;
-	
-	/**
-     * INT_MSG internal error message with codes
-     * @var string
-     */
-	public $INT_MSG;
-	
-	public $EXTRA;
-	
-	function __construct($hpayXml) {
-		$this->ID = $hpayXml->ID;
-		$this->SEN = $hpayXml->SEN;
-		$this->REC = $hpayXml->REC;
-		$this->DEB = $hpayXml->DEB;
-		$this->CRED = $hpayXml->CRED;
-		$this->COM = $hpayXml->COM;
-		$this->STATUS = $hpayXml->STATUS;
-		$this->MLABEL = $hpayXml->MLABEL;
-		$this->INT_MSG = $hpayXml->INT_MSG;
-		$this->EXTRA = new EXTRA($hpayXml->EXTRA);
-	}
-}
-
 /**
- * Detailed information regarding Card payment
- */
-class EXTRA{
-	/**
-     * IS3DS indicates if payment was 3D Secure
-     * @var bool
-     */
-	public $IS3DS;
-	
-	/**
-     * CTRY country of card
-     * @var string
-     */
-	public $CTRY;
-	
-	/**
-     * AUTH authorization number
-     * @var string
-     */
-	public $AUTH;
-	
+* 2007-2016 PrestaShop
+*
+* NOTICE OF LICENSE
+*
+* This source file is subject to the Academic Free License (AFL 3.0)
+* that is bundled with this package in the file LICENSE.txt.
+* It is also available through the world-wide-web at this URL:
+* http://opensource.org/licenses/afl-3.0.php
+* If you did not receive a copy of the license and are unable to
+* obtain it through the world-wide-web, please send an email
+* to license@prestashop.com so we can send you a copy immediately.
+*
+* DISCLAIMER
+*
+* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+* versions in the future. If you wish to customize PrestaShop for your
+* needs please refer to http://www.prestashop.com for more information.
+*
+*  @author    PrestaShop SA <contact@prestashop.com>
+*  @copyright 2007-2016 PrestaShop SA
+*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+*  International Registered Trademark & Property of PrestaShop SA
+*/
 
-	/**
-	 * Number of registered card
-	 * @var string
-	 * @since api version 1.8
-	 */
-	public $NUM;
-	
-	/**
-	 * Expiration date of registered card
-	 * @var string
-	 * @since api version 1.8
-	 */
-	public $EXP;
-	
-	/**
-	 * Type of card
-	 * @var string
-	 * @since api version 1.8
-	 */
-	public $TYP;
-	
-	function __construct($extraXml) {
-		$this->AUTH = $extraXml->AUTH;
-		$this->IS3DS = $extraXml->IS3DS;
-		$this->CTRY = $extraXml->CTRY;
-		$this->NUM = $extraXml->NUM;
-		$this->EXP = $extraXml->EXP;
-		$this->TYP = $extraXml->TYP;
-	}
+class Operation
+{
+    /**
+    * type {p2p, moneyin, moneyout}
+    * @var string
+    */
+    public $type;
+    
+    /**
+    * ID number
+    * @var string
+    */
+    public $ID;
+    
+    /**
+    * MLABEL iban number or card number
+    * @var string
+    */
+    public $MLABEL;
+    
+    /**
+    * SEN sender wallet (debited wallet)
+    * @var string
+    */
+    public $SEN;
+    
+    /**
+    * REC receiver wallet (credited wallet)
+    * @var string
+    */
+    public $REC;
+    
+    /**
+    * DEB debited amount, xx.xx
+    * @var string
+    */
+    public $DEB;
+    
+    /**
+    * CRED credited amount, xx.xx
+    * @var string
+    */
+    public $CRED;
+    
+    /**
+    * COM fees automatically sent to merchant wallet
+    * @var string
+    */
+    public $COM;
+    
+    /**
+    * MSG comment
+    * @var string
+    */
+    public $MSG;
+    
+    /**
+    * STATUS {0,3,4}
+    * @var string
+    */
+    public $STATUS;
+    
+    /**
+    * INT_MSG internal error message with codes
+    * @var string
+    */
+    public $INT_MSG;
+    
+    public $EXTRA;
+    
+    public function __construct($hpayXml)
+    {
+        $this->ID = $hpayXml->ID;
+        $this->SEN = $hpayXml->SEN;
+        $this->REC = $hpayXml->REC;
+        $this->DEB = $hpayXml->DEB;
+        $this->CRED = $hpayXml->CRED;
+        $this->COM = $hpayXml->COM;
+        $this->STATUS = $hpayXml->STATUS;
+        $this->MLABEL = $hpayXml->MLABEL;
+        $this->INT_MSG = $hpayXml->INT_MSG;
+        $this->EXTRA = new Extra($hpayXml->EXTRA);
+    }
 }
-
-?>
