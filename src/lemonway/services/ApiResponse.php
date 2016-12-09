@@ -31,8 +31,7 @@ class ApiResponse
     public function __construct($xmlResponse)
     {
         $this->lwXml = $xmlResponse;
-        if (isset($xmlResponse->E))
-        {
+        if (isset($xmlResponse->E)) {
             $this->lwError = new LwError($xmlResponse->E->Code, $xmlResponse->E->Msg);
         }
     }

@@ -24,8 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-if (!defined('_PS_VERSION_'))
-{
+if (!defined('_PS_VERSION_')) {
     exit;
 }
 
@@ -54,7 +53,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.1.11';
+        $this->version = '1.1.12';
         $this->author = 'SIRATECK';
         $this->need_instance = 0;
 
@@ -77,8 +76,7 @@ class Lemonway extends PaymentModule
         $this->local_path = _PS_MODULE_DIR_ . $this->name . '/';
         
         /* Backward compatibility */
-        if (_PS_VERSION_ < '1.5')
-        {
+        if (_PS_VERSION_ < '1.5') {
             require(_PS_MODULE_DIR_ . $this->name . '/backward_compatibility/backward.php');
         }
     }
@@ -88,28 +86,22 @@ class Lemonway extends PaymentModule
         @copy(_PS_MODULE_DIR_ . $this->name . '/logo.png', _PS_IMG_DIR_ . 't/' . $tabClass . '.png');
         /* @var $tab TabCore */
         $tab = new Tab();
-        foreach (Language::getLanguages(false) as $language)
-        {
-            if(isset($translations[Tools::strtolower($language['iso_code'])]))
-            {
+        foreach (Language::getLanguages(false) as $language) {
+            if (isset($translations[Tools::strtolower($language['iso_code'])])) {
                 $tab->name[(int)$language['id_lang']] = $translations[Tools::strtolower($language['iso_code'])];
-            }
-            else
-            {
+            } else {
                 $tab->name[(int)$language['id_lang']] = $translations['en'];
             }
         }
 
         $tab->class_name = $tabClass;
-        if(is_null($moduleName))
-        {
+        if (is_null($moduleName)) {
             $moduleName = $this->name;
         }
 
         $tab->module = $moduleName;
         $tab->id_parent = $idTabParent;
-        if (!$tab->save())
-        {
+        if (!$tab->save()) {
             return false;
         }
 
@@ -138,22 +130,23 @@ class Lemonway extends PaymentModule
     * @param bool $invoice
     * @return boolean
     */
-    protected function addStatus($key, $translations, $color = 'royalblue', $hidden = false, $delivery = false,
-        $logable = false, $invoice = false)
-    {
-        if (!Configuration::get($key))
-        {
+    protected function addStatus(
+        $key,
+        $translations,
+        $color = 'royalblue',
+        $hidden = false,
+        $delivery = false,
+        $logable = false,
+        $invoice = false
+        ) {
+        if (!Configuration::get($key)) {
 
             $os = new OrderState();
             $os->name = array();
-            foreach (Language::getLanguages(false) as $language)
-            {
-                if(isset($translations[Tools::strtolower($language['iso_code'])]))
-                {
+            foreach (Language::getLanguages(false) as $language) {
+                if (isset($translations[Tools::strtolower($language['iso_code'])])) {
                     $os->name[(int)$language['id_lang']] = $translations[Tools::strtolower($language['iso_code'])];
-                }
-                else
-                {
+                } else {
                     $os->name[(int)$language['id_lang']] = $translations['en'];
                 }
             }
@@ -164,14 +157,13 @@ class Lemonway extends PaymentModule
             $os->delivery = $delivery;
             $os->logable = $logable;
             $os->invoice = $invoice;
-            if ($os->add())
-            {
+            if ($os->add()) {
                 Configuration::updateValue($key, $os->id);
-                copy(dirname(__FILE__) . '/views/img/icon.gif', dirname(__FILE__) . '/../../img/os/' . (int)$os->id
-                    . '.gif');
-            }
-            else
-            {
+                copy(
+                    dirname(__FILE__) . '/views/img/icon.gif',
+                    dirname(__FILE__) . '/../../img/os/' . (int)$os->id . '.gif'
+                );
+            } else {
                 return false;
             }
         }
@@ -185,8 +177,7 @@ class Lemonway extends PaymentModule
     */
     public function install()
     {
-        if (extension_loaded('curl') == false)
-        {
+        if (extension_loaded('curl') == false) {
             $this->_errors[] = $this->l('You have to enable the cURL extension on your server to install this module');
             return false;
         }
@@ -227,8 +218,9 @@ class Lemonway extends PaymentModule
             'fr'=>'Virements bancaire'
         );
         
-        $adminLemonwayId = Db::getInstance()->getValue("SELECT `id_tab` FROM " . _DB_PREFIX_
-            . "tab WHERE `class_name`='AdminLemonway'");
+        $adminLemonwayId = Db::getInstance()->getValue(
+            "SELECT `id_tab` FROM " . _DB_PREFIX_ . "tab WHERE `class_name`='AdminLemonway'"
+        );
         
         return parent::install() &&
             $this->registerHook('header') &&
@@ -284,8 +276,7 @@ class Lemonway extends PaymentModule
         /**
         * If values have been submitted in the form, process.
         */
-        if (((bool)Tools::isSubmit('submitLemonwayModule')) == true)
-        {
+        if (((bool)Tools::isSubmit('submitLemonwayModule')) == true) {
             $this->postProcess();
         }
 
@@ -368,8 +359,7 @@ class Lemonway extends PaymentModule
         
         //Backward compatibility with version < 1.6.
         //Switch type not exists
-        if(version_compare(_PS_VERSION_, "1.6.0.0") == -1)
-        {
+        if (version_compare(_PS_VERSION_, "1.6.0.0") == -1) {
             $switch = array(
                 'type' => 'select',
                 'label' => $this->l('Enable Oneclic'),
@@ -505,8 +495,7 @@ class Lemonway extends PaymentModule
         //Backward compatibility with version < 1.6.
         //Switch type not exists
 
-        if(version_compare(_PS_VERSION_, "1.6.0.0") == -1)
-        {
+        if (version_compare(_PS_VERSION_, "1.6.0.0") == -1) {
             $switch = array(
                 'type' => 'select',
                 'label' => $this->l('Enable test mode'),
@@ -561,10 +550,8 @@ class Lemonway extends PaymentModule
     {
         $form_values = $this->getConfigFormValues();
 
-        foreach (array_keys($form_values) as $key)
-        {
-            if($key == 'LEMONWAY_API_PASSWORD' && trim(Tools::getValue($key)) == "")
-            {
+        foreach (array_keys($form_values) as $key) {
+            if ($key == 'LEMONWAY_API_PASSWORD' && trim(Tools::getValue($key)) == "") {
                 continue;
             }
 
@@ -577,8 +564,7 @@ class Lemonway extends PaymentModule
     */
     public function hookBackOfficeHeader()
     {
-        if (Tools::getValue('module_name') == $this->name)
-        {
+        if (Tools::getValue('module_name') == $this->name) {
             $this->context->controller->addJS($this->_path . 'views/js/back.js');
         }
 
@@ -608,8 +594,7 @@ class Lemonway extends PaymentModule
         $card_exp = "";
         $card = $this->getCustomerCard($customer->id);
         
-        if($card)
-        {
+        if ($card) {
             $card_num = $card['card_num'];
             $card_type = $card['card_type'];
             $card_exp = $card['card_exp'];
@@ -634,15 +619,13 @@ class Lemonway extends PaymentModule
     */
     public function hookPaymentReturn($params)
     {
-        if ($this->active == false)
-        {
+        if ($this->active == false) {
             return;
         }
 
         $order = $params['objOrder'];
 
-        if ($order->getCurrentOrderState()->id != Configuration::get('PS_OS_ERROR'))
-        {
+        if ($order->getCurrentOrderState()->id != Configuration::get('PS_OS_ERROR')) {
             $this->smarty->assign('status', 'ok');
         }
 
@@ -658,8 +641,7 @@ class Lemonway extends PaymentModule
     
     public function getCustomerCard($id_customer)
     {
-        if(is_null($this->current_card))
-        {
+        if (is_null($this->current_card)) {
             $query = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_oneclic` lo WHERE lo.`id_customer` = '
             . (int)$id_customer;
             $this->current_card = Db::getInstance()->getRow($query);
@@ -671,13 +653,11 @@ class Lemonway extends PaymentModule
     public function insertOrUpdateCard($id_customer, $data)
     {
         $oldCard = $this->getCustomerCard($id_customer);
-        if($oldCard)
-        {
+
+        if ($oldCard) {
             $data = array_merge($oldCard, $data);
             $data['date_upd'] = date('Y-m-d H:i:s');
-        }
-        else
-        {
+        } else {
             $data['date_add'] = date('Y-m-d H:i:s');
         }
         
@@ -689,12 +669,9 @@ class Lemonway extends PaymentModule
         $params = array("wallet"=>$wallet);
 
         $kit = new LemonWayKit();
-        try
-        {
+        try {
             $res = $kit->getWalletDetails($params);
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             throw $e;
         }
 
@@ -703,8 +680,9 @@ class Lemonway extends PaymentModule
     
     public function getWkToken($id_cart)
     {
-        return Db::getInstance()->getValue('SELECT `wktoken` FROM `' . _DB_PREFIX_
-            . 'lemonway_wktoken` lw WHERE lw.`id_cart` = ' . (int)$id_cart);
+        return Db::getInstance()->getValue(
+            'SELECT `wktoken` FROM `' . _DB_PREFIX_ . 'lemonway_wktoken` lw WHERE lw.`id_cart` = ' . (int)$id_cart
+        );
     }
     
     public function checkIfCartHasWkToken($id_cart)
@@ -726,8 +704,7 @@ class Lemonway extends PaymentModule
         . (int)pSQL($id_cart);
         
         //If cart haven't wkToken we insert it
-        if (!$this->checkIfCartHasWkToken($id_cart))
-        {
+        if (!$this->checkIfCartHasWkToken($id_cart)) {
             $query = 'INSERT INTO `' . _DB_PREFIX_ . 'lemonway_wktoken` (`id_cart`,`wktoken`) VALUES (\''
                 . (int)pSQL($id_cart) . '\',\'' . $wkToken . '\') ';
         }
@@ -744,9 +721,10 @@ class Lemonway extends PaymentModule
     
     public function getCartIdFromToken($wktoken)
     {
-        if($id_cart = Db::getInstance()->getValue('SELECT `id_cart` FROM `' . _DB_PREFIX_
-            . 'lemonway_wktoken` lw WHERE lw.`wktoken` = \'' . pSQL($wktoken) . "'"))
-        {
+        if ($id_cart = Db::getInstance()->getValue(
+            'SELECT `id_cart` FROM `' . _DB_PREFIX_ . 'lemonway_wktoken` lw WHERE lw.`wktoken` = \''
+            . pSQL($wktoken) . "'"
+        )) {
             return $id_cart;
         }
 

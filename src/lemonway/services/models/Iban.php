@@ -71,20 +71,16 @@ class Iban
     public function __construct($node)
     {
         $this->ID = $node->ID;
-        if (isset($node->STATUS))
-        {
+        if (isset($node->STATUS)) {
             $this->STATUS = $node->STATUS;
         }
-        if (isset($node->S))
-        {
+        if (isset($node->S)) {
             $this->STATUS = $node->S;
         }
-        if (isset($node->DATA))
-        {
+        if (isset($node->DATA)) {
             $this->IBAN = $node->DATA;
         }
-        if (isset($node->SWIFT))
-        {
+        if (isset($node->SWIFT)) {
             $this->BIC = $node->SWIFT;
         }
     }

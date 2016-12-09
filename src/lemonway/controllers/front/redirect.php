@@ -83,8 +83,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         $amountComRaw = !$this->module->moduleMktIsEnabled() ? (float)$cart->getOrderTotal(true, 3) : 0;
         $amountCom = number_format($amountComRaw, 2, '.', '');
         
-        if(!$this->useCard())
-        {
+        if (!$this->useCard()) {
             //call directkit to get Webkit Token
             $params = array(
                 'wkToken' => $wkToken,
@@ -110,23 +109,19 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 'useRegisteredCard' => $this->registerCard(), //For payline
             );
 
-            try
-            {
+            try {
                 $res = $kit->moneyInWebInit($params);
 
                 /**
                 * Oops, an error occured.
                 */
-                if(isset($res->lwError))
-                {
+                if (isset($res->lwError)) {
                     throw new Exception((string)$res->lwError->MSG, (int)$res->lwError->CODE);
                 }
 
-                if($customer->id && isset($res->lwXml->MONEYINWEB->CARD) && $this->registerCard())
-                {
+                if ($customer->id && isset($res->lwXml->MONEYINWEB->CARD) && $this->registerCard()) {
                     $card = $this->module->getCustomerCard($customer->id);
-                    if(!$card)
-                    {
+                    if (!$card) {
                         $card = array();
                     }
 
@@ -136,9 +131,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     $this->module->insertOrUpdateCard($customer->id, $card);
                 }
 
-            }
-            catch (Exception $e)
-            {
+            } catch (Exception $e) {
                 $this->addError($e->getMessage());
                 return $this->displayError();
             }
@@ -146,21 +139,22 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             $moneyInToken = (string)$res->lwXml->MONEYINWEB->TOKEN;
 
             $language = $this->getLang();
-            Tools::redirect(LemonWayConfig::getWebkitUrl() . '?moneyintoken=' . $moneyInToken . '&p='
-                . urlencode(LemonWayConfig::getCssUrl()) . '&lang=' . $language);
-        }
-        else
-        {
-            if(($card = $this->module->getCustomerCard($customer->id)) && $customer->isLogged())
-            {
-                //call directkit for MoneyInWithCardId
+            Tools::redirect(
+                LemonWayConfig::getWebkitUrl() . '?moneyintoken=' . $moneyInToken . '&p='
+                . urlencode(LemonWayConfig::getCssUrl()) . '&lang=' . $language
+            );
+        } else {
+            if (($card = $this->module->getCustomerCard($customer->id)) && $customer->isLogged()) {
+                //Call directkit for MoneyInWithCardId
                 $params = array(
                     'wkToken' => $wkToken,
                     'wallet'=> LemonWayConfig::getWalletMerchantId(),
                     'amountTot' => number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
                     'amountCom'=> $amountCom,
-                    'message'=> sprintf($this->module->l('Money In with Card Id for cart %s. Customer: %s'),
-                        (string)$cart->id),
+                    'message'=> sprintf(
+                        $this->module->l('Money In with Card Id for cart %s. Customer: %s'),
+                        (string)$cart->id
+                    ),
                     'comment' => $comment,
                     'autoCommission' => 0,
                     'cardId' => $card['id_card'],
@@ -169,28 +163,24 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     'delayedDays' => 6 //not used because isPreAuth always false
                 );
 
-                try
-                {
-                    $res = $kit->moneyInWithCardId($params); 
-                }
-                catch (Exception $e)
-                {
+                try {
+                    $res = $kit->moneyInWithCardId($params);
+                } catch (Exception $e) {
                     $this->addError($e->getMessage());
                     return $this->displayError();
                 }
 
-                if (isset($res->lwError))
-                {
-                    $this->addError('An error occurred while trying to pay with your registered card', "Error code: "
-                        . $res->lwError->CODE . " Message: " . $res->lwError->MSG);
+                if (isset($res->lwError)) {
+                    $this->addError(
+                        'An error occurred while trying to pay with your registered card',
+                        "Error code: " . $res->lwError->CODE . " Message: " . $res->lwError->MSG
+                    );
                     return $this->displayError();
                 }
 
                 /* @var $op Operation */
-                foreach ($res->operations as $op)
-                {
-                    if($op->STATUS == "3")
-                    {
+                foreach ($res->operations as $op) {
+                    if ($op->STATUS == "3") {
                         $payment_status = Configuration::get('PS_OS_PAYMENT');
                         $message = Tools::getValue('response_msg');
                         $module_name = $this->module->displayName;
@@ -201,32 +191,27 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                         ), $currency_id, false, $secure_key);
                         
                         $order_id = Order::getOrderByCartId((int)$cart->id);
-                        if($order_id)
-                        {
+                        if ($order_id) {
                             $module_id = $this->module->id;
-                            return Tools::redirect('index.php?controller=order-confirmation&id_cart=' . $cart->id
-                                . '&id_module=' . $module_id . '&id_order=' . $order_id . '&key='. $secure_key);
-                        }
-                        else
-                        {
+                            return Tools::redirect(
+                                'index.php?controller=order-confirmation&id_cart=' . $cart->id
+                                . '&id_module=' . $module_id . '&id_order=' . $order_id . '&key='. $secure_key
+                            );
+                        } else {
                             $this->addError("Error while saving order!");
                             return $this->displayError();
                         }
                         
                         break;
-                    }
-                    else
-                    {
+                    } else {
                         $this->addError($op->MSG);
                         return $this->displayError();
                     }
                 }
-            }
-            else
-            {
+            } else {
                 $this->addError('Customer not logged or card not found!');
                 return $this->displayError();
-            } 
+            }
         }
     }
     
@@ -247,8 +232,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     */
     protected function getLang()
     {
-        if (in_array($this->context->language->iso_code, $this->supportedLangs))
-        {
+        if (in_array($this->context->language->iso_code, $this->supportedLangs)) {
             return $this->context->language->iso_code;
         }
         
@@ -268,8 +252,10 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         /**
         * Create the breadcrumb for your ModuleFrontController.
         */
-        $this->context->smarty->assign('path', '<a href="'
-            . $this->context->link->getPageLink('order', null, null, 'step=3') . '">' . $this->module->l('Payment')
+        $this->context->smarty->assign(
+            'path',
+            '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
+            . $this->module->l('Payment')
             . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error'));
         
         return $this->setTemplate('error.tpl');

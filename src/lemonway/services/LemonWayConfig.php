@@ -34,8 +34,7 @@ class LemonWayConfig
     public static function getDirectkitUrl()
     {
         $url = Configuration::get('LEMONWAY_DIRECTKIT_URL', null);
-        if(LemonWayConfig::isTestMode())
-        {
+        if (LemonWayConfig::isTestMode()) {
             $url = Configuration::get('LEMONWAY_DIRECTKIT_URL_TEST', null);
         }
 
@@ -45,8 +44,7 @@ class LemonWayConfig
     public static function getWebkitUrl()
     {
         $url = Configuration::get('LEMONWAY_WEBKIT_URL', null);
-        if(LemonWayConfig::isTestMode())
-        {
+        if (LemonWayConfig::isTestMode()) {
             $url = Configuration::get('LEMONWAY_WEBKIT_URL_TEST', null);
         }
 

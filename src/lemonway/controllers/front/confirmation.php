@@ -29,8 +29,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
     public function postProcess()
     {
         if ((Tools::isSubmit('cart_id') == false) || (Tools::isSubmit('secure_key') == false)
-            || Tools::isSubmit('action') == false)
-        {
+            || Tools::isSubmit('action') == false) {
             return false;
         }
         
@@ -45,8 +44,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         * Restore the context from the $cart_id & the $customer_id to process the validation properly.
         */
         /* Context::getContext()->cart = $cart;
-        if(!Context::getContext()->cart->id) 
-        {
+        if(!Context::getContext()->cart->id) {
             die;
         }
 
@@ -59,7 +57,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         * You should not do it this way in your own module.
         */
         $payment_status = Configuration::get('LEMONWAY_PENDING_OS'); // Default value for a payment that succeed.
-        $message = $this->module->l("Order in pending validation payment."); 
+        $message = $this->module->l("Order in pending validation payment.");
         // You can add a comment directly into the order so the merchant will see it in the BO.
         
         /**
@@ -76,21 +74,31 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 * If the order has been validated we try to retrieve it
                 */
                 $order_id = Order::getOrderByCartId((int)$cart->id);
-                if(!$order_id)
-                {
-                    $this->module->validateOrder($cart_id, $payment_status, $cart->getOrderTotal(), $module_name,
-                        $message, array(), $currency_id, false, $secure_key);
+                if (!$order_id) {
+                    $this->module->validateOrder(
+                        $cart_id,
+                        $payment_status,
+                        $cart->getOrderTotal(),
+                        $module_name,
+                        $message,
+                        array(
+                        ),
+                        $currency_id,
+                        false,
+                        $secure_key
+                    );
                     $order_id = Order::getOrderByCartId((int)$cart->id);
                 }
 
-                if($order_id && ($secure_key == $customer->secure_key))
-                {
+                if ($order_id && ($secure_key == $customer->secure_key)) {
                     /**
                     * The order has been placed so we redirect the customer on the confirmation page.
                     */
                     $module_id = $this->module->id;
-                    Tools::redirect('index.php?controller=order-confirmation&id_cart=' . $cart_id
-                        . '&id_module=' .$module_id . '&id_order=' . $order_id . '&key=' . $secure_key);
+                    Tools::redirect(
+                        'index.php?controller=order-confirmation&id_cart=' . $cart_id
+                        . '&id_module=' .$module_id . '&id_order=' . $order_id . '&key=' . $secure_key
+                    );
                 }
 
                 break;
@@ -104,12 +112,14 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
 
             case 'error':
                 $order_id = Order::getOrderByCartId((int)$cart->id);
-                if($order_id  && ($secure_key == $customer->secure_key))
-                {
+                if ($order_id  && ($secure_key == $customer->secure_key)) {
                     $module_id = $this->module->id;
-                    return Tools::redirect('index.php?controller=order-confirmation&id_cart=' . $cart_id
-                        . '&id_module=' . $module_id . '&id_order=' . $order_id . '&key=' . $secure_key);
+                    return Tools::redirect(
+                        'index.php?controller=order-confirmation&id_cart=' . $cart_id
+                        . '&id_module=' . $module_id . '&id_order=' . $order_id . '&key=' . $secure_key
+                    );
                 }
+
                 /**
                  * An error occured and is shown on a new page.
                  */

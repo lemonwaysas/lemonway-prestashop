@@ -117,8 +117,7 @@ class IbanCore extends ObjectModel
         $sql .= ' ORDER BY iban.`date_add` DESC';
         
         $res = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
-        if (!$res)
-        {
+        if (!$res) {
             return array();
         }
         

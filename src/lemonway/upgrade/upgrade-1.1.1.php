@@ -24,8 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-if (!defined('_PS_VERSION_'))
-{
+if (!defined('_PS_VERSION_')) {
     exit;
 }
 
@@ -45,8 +44,7 @@ function upgrade_module_1_1_1()
     UNIQUE KEY `id_cart` (`id_cart`)
     ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
-    if (Db::getInstance()->execute($query) == false)
-    {
+    if (Db::getInstance()->execute($query) == false) {
         return false;
     }
 

@@ -58,8 +58,8 @@ class WalletCore extends ObjectModel
     public $date_upd;
 
     /**
-     * @see ObjectModel::$definition
-     */
+    * @see ObjectModel::$definition
+    */
     public static $definition = array(
         'table' => 'lemonway_wallet',
         'primary' => 'id_wallet',
@@ -92,8 +92,7 @@ class WalletCore extends ObjectModel
             'customer_firstname' => array(
                 'type' => self::TYPE_STRING,
                 'validate' => 'isName',
-                'required'=>true,
-                'size'=>32
+                'required'=>true, 'size'=>32
             ),
             'customer_lastname' => array(
                 'type' => self::TYPE_STRING,
@@ -142,8 +141,7 @@ class WalletCore extends ObjectModel
             ),
             'is_company' => array(
                 'type' => self::TYPE_BOOL,
-                'validate' => 'isBool'
-            ),
+                'validate' => 'isBool'),
             'company_name' => array(
                 'type' => self::TYPE_STRING,
                 'validate' => 'isGenericName',
@@ -190,8 +188,7 @@ class WalletCore extends ObjectModel
             'is_onetime_customer' => array(
                 'type' => self::TYPE_BOOL,
                 'validate' => 'isBool',
-                'required'=>false
-            ),
+                'required'=>false),
             'is_default' => array(
                 'type' => self::TYPE_BOOL,
                 'validate' => 'isBool',
@@ -218,14 +215,12 @@ class WalletCore extends ObjectModel
         $fields = $this->formatFields(self::FORMAT_COMMON);
 
         // For retro compatibility
-        if (Shop::isTableAssociated($this->def['table']))
-        {
+        if (Shop::isTableAssociated($this->def['table'])) {
             $fields = array_merge($fields, $this->getFieldsShop());
         }
 
         // Ensure that we get something to insert
-        if (!$fields && isset($this->id) && Validate::isUnsignedId($this->id))
-        {
+        if (!$fields && isset($this->id) && Validate::isUnsignedId($this->id)) {
             $fields[$this->def['primary']] = $this->id;
         }
 
@@ -237,20 +232,17 @@ class WalletCore extends ObjectModel
         $query = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_wallet` lw WHERE lw.`id_customer` = ' . (int)$id_customer;
         $result = Db::getInstance()->getRow($query);
 
-        if (!$result)
-        {
+        if (!$result) {
             return false;
         }
 
         $this->id = $result['id_wallet'];
-        foreach ($result as $key => $value)
-        {
-            if (property_exists($this, $key))
-            {
+        foreach ($result as $key => $value) {
+            if (property_exists($this, $key)) {
                 $this->{$key} = $value;
             }
         }
-
+        
         return $this;
     }
 }

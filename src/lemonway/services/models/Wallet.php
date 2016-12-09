@@ -89,28 +89,22 @@ class Wallet
         $this->NAME = $WALLET->NAME;
         $this->EMAIL = $WALLET->EMAIL;
         $this->kycDocs = array();
-        if (isset($WALLET->DOCS))
-        {
-            foreach ($WALLET->DOCS->DOC as $DOC)
-            {
+        if (isset($WALLET->DOCS)) {
+            foreach ($WALLET->DOCS->DOC as $DOC) {
                 $this->kycDocs[] = new KycDoc($DOC);
             }
         }
 
         $this->ibans = array();
-        if (isset($WALLET->IBANS))
-        {
-            foreach ($WALLET->IBANS->IBAN as $IBAN)
-            {
+        if (isset($WALLET->IBANS)) {
+            foreach ($WALLET->IBANS->IBAN as $IBAN) {
                 $this->ibans[] = new Iban($IBAN);
             }
         }
 
         $this->sddMandates = array();
-        if (isset($WALLET->SDDMANDATES))
-        {
-            foreach ($WALLET->SDDMANDATES->SDDMANDATE as $SDDMANDATE)
-            {
+        if (isset($WALLET->SDDMANDATES)) {
+            foreach ($WALLET->SDDMANDATES->SDDMANDATE as $SDDMANDATE) {
                 $this->sddMandates[] = new SddMandate($SDDMANDATE);
             }
         }

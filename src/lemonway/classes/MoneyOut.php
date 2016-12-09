@@ -37,7 +37,7 @@ class MoneyOut extends ObjectModel
     public $amount_to_pay;
     public $date_add;
     public $date_upd;
-
+    
     /**
     * @see ObjectModel::$definition
     */
@@ -111,22 +111,19 @@ class MoneyOut extends ObjectModel
     {
         $field_owner = 'id_customer';
         
-        if($is_admin)
-        {
+        if ($is_admin) {
             $field_owner = 'id_employee';
         }
 
         $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_moneyout` wt WHERE wt.`' . $field_owner . '` = ';
         $sql .= $id_customer . ' ORDER BY wt.`date_add` DESC';
         
-        if($limit > 0)
-        {
+        if ($limit > 0) {
             $sql .= " LIMIT 0, " . pSQL((int)$limit);
         }
 
         $res = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
-        if (!$res)
-        {
+        if (!$res) {
             return array();
         }
 

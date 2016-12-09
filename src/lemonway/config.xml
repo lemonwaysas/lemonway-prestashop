@@ -2,8 +2,10 @@
 <module>
 	<name>lemonway</name>
 	<displayName><![CDATA[Lemonway]]></displayName>
-	<version><![CDATA[1.1.11]]></version>
-	<description><![CDATA[Through its API, Lemon Way offers you state-of-the-art payment technology. Beyond their technological expertise, Lemon Way also offers a multitude of complementary regulation and management services.]]></description>
+	<version><![CDATA[1.1.12]]></version>
+	<description><![CDATA[Through its API, Lemon Way offers you state-of-the-art payment technology. Beyond
+         their technological expertise, Lemon Way also offers a multitude of complementary regulation and management 
+         services.]]></description>
 	<author><![CDATA[SIRATECK]]></author>
 	<tab><![CDATA[payments_gateways]]></tab>
 	<is_configurable>1</is_configurable>
