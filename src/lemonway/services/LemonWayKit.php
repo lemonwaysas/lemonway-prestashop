@@ -44,9 +44,10 @@ class LemonWayKit
         return array(
             'directKitUrl'  => LemonWayConfig::getDirectkitUrl(),
             'webkitUrl'     => LemonWayConfig::getWebkitUrl(),
+            'isTestMode' => LemonWayConfig::isTestMode(),
             'wlLogin'       => LemonWayConfig::getApiLogin(),
             'wlPass'        => LemonWayConfig::getApiPassword(),
-            'language'      => 'fr'
+            'language'      => 'en'
         ); // @TODO get good language and filter with available languages in lw.
     }
     
@@ -361,12 +362,11 @@ class LemonWayKit
         curl_setopt($ch, CURLOPT_URL, $accessConfig['directKitUrl']);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $xml_soap);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$accessConfig['isTestMode']);
 
         $response = curl_exec($ch);
 
@@ -379,14 +379,29 @@ class LemonWayKit
             {
                 case 200:
                     //General parsing
-                    $response = html_entity_decode($response);
-                    $response = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response);
-                    $response = str_replace('xmlns="Service_mb_xml"', '', $response); //suppress absolute uri warning
-                    $xml = new SimpleXMLElement($response);
-                    $content = $xml->soapBody->{$methodName.'Response'}->{$methodName.'Result'};
+                    //Cleanup XML
+                    $response = (string)str_replace('<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">', '', $response);
+                    $response = (string)str_replace('</soap:Envelope>', '', $response);
+                    libxml_use_internal_errors(true);
+                    $xml = new \SimpleXMLElement($response);
 
-                    self::printDirectkitOutput($content);
-                    
+                    //Retrieve result
+                    $content = '';
+
+                    switch($methodName) {
+                        case 'UnregisterSddMandate':
+                            $content = $xml->{$methodName . 'Response'}->{'UnRegisterSddMandateResult'};
+                            break;
+
+                        case 'MoneyInWithCardId':
+                            $content = $xml->{$methodName . 'Response'}->{'MoneyInResult'};
+                            break;
+
+                        default:
+                            $content = $xml->{$methodName . 'Response'}->{$methodName . 'Result'};
+                            break;
+                    }
+
                     return new ApiResponse($content);
 
                 case 400:
@@ -412,7 +427,7 @@ class LemonWayKit
         }
     }
         
-    public function printCardForm($moneyInToken, $cssUrl = '', $language = 'fr')
+    public function printCardForm($moneyInToken, $cssUrl = '', $language = 'en')
     {
         $accessConfig = self::accessConfig();
 
@@ -424,21 +439,29 @@ class LemonWayKit
             . '&lang=' . $language
         );
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$accessConfig['isTestMode']);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
         $server_output = curl_exec($ch);
         if (curl_errno($ch)) {
-            print(curl_error($ch)); //TODO : handle error
+            throw new Exception(curl_error($ch));
         } else {
             $returnCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
             switch($returnCode)
             {
                 case 200:
                     curl_close($ch);
-                    print($server_output);
+                    $parsedUrl = parse_url($accessConfig['webkitUrl']);
+                    $root = strstr($accessConfig['webkitUrl'], $parsedUrl['path'], true);
+                    $server_output = preg_replace(
+                        "/src=\"([a-zA-Z\/\.]*)\"/i",
+                        "src=\"" . $root . "$1\"",
+                        $server_output
+                    );
+                    return $server_output;
                     break;
                 default:
-                    print($returnCode); //TODO : handle error
+                    throw new Exception($returnCode);
                     break;
             }
         }

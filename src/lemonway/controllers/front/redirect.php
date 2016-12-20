@@ -43,7 +43,8 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         'fl',
         'ci',
         'pl',
-        'ne'
+        'ne',
+        'ru'
     );
 
     protected $defaultLang = 'en';
