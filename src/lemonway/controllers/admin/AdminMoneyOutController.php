@@ -154,11 +154,11 @@ class AdminMoneyOutController extends ModuleAdminController
             $wallet = $wallet_detail->wallet;
 
             $params = array(
-                "wallet"=>$moneyOut->id_lw_wallet,
-                "amountTot"=>number_format((float)$moneyOut->amount_to_pay, 2, '.', ''),
-                'amountCom'=>number_format((float)0, 2, '.', ''),
-                "message"=>$this->module->l("Moneyout from Prestashop module"),
-                "ibanId"=>$moneyOut->id_lw_iban,
+                "wallet" => $moneyOut->id_lw_wallet,
+                "amountTot" => number_format((float)$moneyOut->amount_to_pay, 2, '.', ''),
+                'amountCom' => number_format((float)0, 2, '.', ''),
+                "message" => Configuration::get('PS_SHOP_NAME') . " - " . $this->module->l("Moneyout from Prestashop module"),
+                "ibanId" => $moneyOut->id_lw_iban,
                 "autCommission" => 0,
             );
 
