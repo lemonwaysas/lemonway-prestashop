@@ -81,7 +81,8 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         * Because we need this funds for credit vendors
         * 
         */
-        $amountComRaw = !$this->module->moduleMktIsEnabled() ? (float)$cart->getOrderTotal(true, 3) : 0;
+        //$amountComRaw = !$this->module->moduleMktIsEnabled() ? (float)$cart->getOrderTotal(true, 3) : 0;
+        $amountComRaw = 0;
         $amountCom = number_format($amountComRaw, 2, '.', '');
         
         if (!$this->useCard()) {
@@ -105,7 +106,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     'action' => 'error',
                     'secure_key' => $secure_key
                 ), true)),
-                'autoCommission' => 0,
+                'autoCommission' => 1,
                 'registerCard' => $this->registerCard(), //For Atos
                 'useRegisteredCard' => $this->registerCard(), //For payline
             );
@@ -157,7 +158,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                         (string)$cart->id
                     ),
                     'comment' => $comment,
-                    'autoCommission' => 0,
+                    'autoCommission' => 1,
                     'cardId' => $card['id_card'],
                     'isPreAuth' => 0,
                     'specialConfig' => '',
