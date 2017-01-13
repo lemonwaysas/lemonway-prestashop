@@ -336,6 +336,8 @@ class LemonWayKit
         "http://www.w3.org/2003/05/soap-envelope"><soap12:Body><' . $methodName . ' xmlns="Service_mb_xml">';
         
         foreach ($params as $key => $value) {
+            $value = str_replace('&', urlencode ('&'), $value);
+            $value = str_replace('<', urlencode ('<'), $value);
             $xml_soap .= '<' . $key . '>' . $value . '</' . $key . '>';
         }
 
