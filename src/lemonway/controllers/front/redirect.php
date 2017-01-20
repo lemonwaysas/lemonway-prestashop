@@ -74,8 +74,8 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         * It' is necessary to send a new wkToken for each requests
         */
         $wkToken = $this->module->saveWkToken($cart->id);
-        $comment = Configuration::get('PS_SHOP_NAME') . " - " . $cart->id . " - " . $customer->lastname . " " .
-         $customer->firstname . " - " . $customer->email;
+        $comment = urlencode(Configuration::get('PS_SHOP_NAME')) . " - " . $cart->id . " - " .
+         urlencode($customer->lastname) . " " . urlencode($customer->firstname) . " - " . $customer->email;
         
         /**
         * Check if module mkt is installed, in this case, we don't send amount commission

@@ -53,7 +53,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.2.0';
+        $this->version = '1.2.2';
         $this->author = 'SIRATECK';
         $this->need_instance = 0;
 
@@ -69,7 +69,7 @@ class Lemonway extends PaymentModule
          their technological expertise, Lemon Way also offers a multitude of complementary regulation and management 
          services.');
 
-        $this->confirmUninstall = $this->l('Are you sure you want to uninstall my module? You loose your datas!');
+        $this->confirmUninstall = $this->l('Are you sure you want to uninstall? You will lose your datas!');
         
         $this->limited_countries = array();
         
