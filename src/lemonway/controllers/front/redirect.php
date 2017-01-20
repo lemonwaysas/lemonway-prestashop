@@ -154,16 +154,9 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     'wallet'=> LemonWayConfig::getWalletMerchantId(),
                     'amountTot' => number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
                     'amountCom'=> $amountCom,
-                    'message'=> Configuration::get('PS_SHOP_NAME') . " - " . sprintf(
-                        $this->module->l('Money In with Card Id for cart %s. Customer: %s'),
-                        (string)$cart->id
-                    ),
-                    'comment' => $comment,
+                    'comment' => $comment .  " (Money In with Card Id)",
                     'autoCommission' => 1,
-                    'cardId' => $card['id_card'],
-                    'isPreAuth' => 0,
-                    'specialConfig' => '',
-                    'delayedDays' => 6 //not used because isPreAuth always false
+                    'cardId' => $card['id_card']
                 );
 
                 try {
