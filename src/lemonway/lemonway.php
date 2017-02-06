@@ -1,27 +1,27 @@
 <?php
 /**
-* 2007-2016 PrestaShop
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author    PrestaShop SA <contact@prestashop.com>
-*  @copyright 2007-2016 PrestaShop SA
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
+ * 2007-2017 PrestaShop
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ * @author    PrestaShop SA <contact@prestashop.com>
+ * @copyright 2007-2017 PrestaShop SA
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * International Registered Trademark & Property of PrestaShop SA
 */
 
 if (!defined('_PS_VERSION_')) {
@@ -53,7 +53,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.2.3';
+        $this->version = '1.2.4';
         $this->author = 'SIRATECK';
         $this->need_instance = 0;
 
@@ -177,6 +177,10 @@ class Lemonway extends PaymentModule
     */
     public function install()
     {
+        if (Shop::isFeatureActive()) {
+            Shop::setContext(Shop::CONTEXT_ALL);
+        }
+
         if (extension_loaded('curl') == false) {
             $this->_errors[] = $this->l('You have to enable the cURL extension on your server to install this module');
             return false;
@@ -193,7 +197,10 @@ class Lemonway extends PaymentModule
         Configuration::updateValue('LEMONWAY_IS_TEST_MODE', false);
         
         //METHOD CONFIGURATION
-        Configuration::updateValue('LEMONWAY_CSS_URL', 'https://www.lemonway.fr/mercanet_lw.css');
+        Configuration::updateValue(
+            'LEMONWAY_CSS_URL',
+            'https://webkit.lemonway.fr/css/mercanet/mercanet_lw_custom.css'
+        );
         Configuration::updateValue('LEMONWAY_ONECLIC_ENABLED', false);
 
         include(dirname(__FILE__) . '/sql/install.php');
@@ -551,11 +558,17 @@ class Lemonway extends PaymentModule
         $form_values = $this->getConfigFormValues();
 
         foreach (array_keys($form_values) as $key) {
-            if ($key == 'LEMONWAY_API_PASSWORD' && trim(Tools::getValue($key)) == "") {
+             $value = Tools::getValue($key);
+
+            if ($key == 'LEMONWAY_API_PASSWORD' && trim($value) == "") {
                 continue;
             }
 
-            Configuration::updateValue($key, Tools::getValue($key));
+            if ($key != 'LEMONWAY_API_PASSWORD') {
+                $value = trim($value);
+            }
+
+            Configuration::updateValue($key, $value);
         }
     }
 
@@ -643,7 +656,7 @@ class Lemonway extends PaymentModule
     {
         if (is_null($this->current_card)) {
             $query = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_oneclic` lo WHERE lo.`id_customer` = '
-            . (int)$id_customer;
+            . (int)pSQL($id_customer);
             $this->current_card = Db::getInstance()->getRow($query);
         }
 
@@ -661,6 +674,13 @@ class Lemonway extends PaymentModule
             $data['date_add'] = date('Y-m-d H:i:s');
         }
         
+        // Escape data
+        foreach ($data as $key => $value) {
+            $data[$key] = pSQL($value);
+        }
+        $data['id_customer'] = (int)$data['id_customer'];
+        $data['id_card'] = (int)$data['id_card'];
+
         Db::getInstance()->insert('lemonway_oneclic', $data, false, true, Db::REPLACE);
     }
     
@@ -681,7 +701,7 @@ class Lemonway extends PaymentModule
     public function getWkToken($id_cart)
     {
         return Db::getInstance()->getValue(
-            'SELECT `wktoken` FROM `' . _DB_PREFIX_ . 'lemonway_wktoken` lw WHERE lw.`id_cart` = ' . (int)$id_cart
+            'SELECT `wktoken` FROM `' . _DB_PREFIX_ . 'lemonway_wktoken` lw WHERE lw.`id_cart` = ' . (int)pSQL($id_cart)
         );
     }
     
@@ -700,13 +720,13 @@ class Lemonway extends PaymentModule
         $wkToken = $this->generateUniqueCartId($id_cart);
         
         //Default  update query
-        $query = 'UPDATE `' . _DB_PREFIX_ . 'lemonway_wktoken` SET `wktoken` = \'' . $wkToken . "' WHERE `id_cart` = "
-        . (int)pSQL($id_cart);
+        $query = 'UPDATE `' . _DB_PREFIX_ . 'lemonway_wktoken` SET `wktoken` = \'' . pSQL($wkToken) .
+         "' WHERE `id_cart` = " . (int)pSQL($id_cart);
         
         //If cart haven't wkToken we insert it
         if (!$this->checkIfCartHasWkToken($id_cart)) {
             $query = 'INSERT INTO `' . _DB_PREFIX_ . 'lemonway_wktoken` (`id_cart`,`wktoken`) VALUES (\''
-                . (int)pSQL($id_cart) . '\',\'' . $wkToken . '\') ';
+                . (int)pSQL($id_cart) . '\',\'' . pSQL($wkToken) . '\') ';
         }
 
         Db::getInstance()->execute($query);
