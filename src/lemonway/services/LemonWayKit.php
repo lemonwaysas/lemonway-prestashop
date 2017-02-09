@@ -337,12 +337,12 @@ class LemonWayKit
         "http://www.w3.org/2003/05/soap-envelope"><soap12:Body><' . $methodName . ' xmlns="Service_mb_xml">';
         
         foreach ($params as $key => $value) {
-            $xml_soap .= '<' . $key . '>' . $value . '</' . $key . '>';
+            $xml_soap .= '<' . $key . '>' . $this->cleanRequest($value) . '</' . $key . '>';
         }
 
         $xml_soap .= '<version>' . $version . '</version>';
-        $xml_soap .= '<wlPass>' . $accessConfig['wlPass'] . '</wlPass>';
-        $xml_soap .= '<wlLogin>' . $accessConfig['wlLogin'] . '</wlLogin>';
+        $xml_soap .= '<wlPass>' . $this->cleanRequest($accessConfig['wlPass']) . '</wlPass>';
+        $xml_soap .= '<wlLogin>' . $this->cleanRequest($accessConfig['wlLogin']) . '</wlLogin>';
         $xml_soap .= '<language>' . $accessConfig['language'] . '</language>';
         $xml_soap .= '<walletIp>' . $ip . '</walletIp>';
         $xml_soap .= '<walletUa>' . $ua . '</walletUa>';
@@ -356,7 +356,7 @@ class LemonWayKit
             "Cache-Control: no-cache",
             "Pragma: no-cache",
             'SOAPAction: "Service_mb_xml/' . $methodName . '"',
-            "Content-length: " . Tools::strlen($xml_soap)
+            "Content-length: " . strlen($xml_soap)
         );
         
         $ch = curl_init();
@@ -472,5 +472,14 @@ class LemonWayKit
                     throw new Exception($returnCode);
             }
         }
+    }
+
+    private function cleanRequest($str)
+    {
+        $str = str_replace('&', htmlentities('&'), $str);
+        $str = str_replace('<', htmlentities('<'), $str);
+        $str = str_replace('>', htmlentities('>'), $str);
+
+        return $str;
     }
 }
