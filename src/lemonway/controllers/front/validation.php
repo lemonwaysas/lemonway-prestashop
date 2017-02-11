@@ -1,32 +1,31 @@
 <?php
 /**
-* 2007-2016 PrestaShop
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author    PrestaShop SA <contact@prestashop.com>
-*  @copyright 2007-2016 PrestaShop SA
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
+ * 2007-2017 PrestaShop
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ * @author    PrestaShop SA <contact@prestashop.com>
+ * @copyright 2007-2017 PrestaShop SA
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * International Registered Trademark & Property of PrestaShop SA
 */
 
 class LemonwayValidationModuleFrontController extends ModuleFrontController
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -48,39 +47,32 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         /**
         * If the module is not active anymore, no need to process anything.
         */
-        if ($this->module->active == false)
-        {
+        if (!$this->module->active) {
             die;
         }
         
-        if ((Tools::isSubmit('response_wkToken') == false) || Tools::isSubmit('action') == false)
-        {
+        if ((Tools::isSubmit('response_wkToken') == false) || Tools::isSubmit('action') == false) {
             die;
         }
 
         $action = Tools::getValue('action');
         $cart_id = $this->module->getCartIdFromToken(Tools::getValue('response_wkToken'));
         
-        if($this->isGet()) //Is redirection from lemonway
-        {
-            if ((Tools::isSubmit('secure_key') == false))
-            {
+        if ($this->isGet()) { //Is redirection from Lemonway
+            if ((Tools::isSubmit('secure_key') == false)) {
                 die;
             }
 
             Tools::redirect($this->context->link->getModuleLink('lemonway', 'confirmation', array(
                 'action' => $action,
                 'secure_key' => Tools::getValue('secure_key'),
-                'cart_id'=>$cart_id
+                'cart_id'=> $cart_id
             ), true));
-        }
-        elseif($this->isPost()) //Is instant payment notification
-        {
+        } elseif ($this->isPost()) { //Is instant payment notification
             //wait for GET redirection finish in front
             sleep(4);
 
-            if(Tools::isSubmit('response_code') == false)
-            {
+            if (Tools::isSubmit('response_code') == false) {
                 die;
             }
             
@@ -92,8 +84,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
             * Restore the context from the $cart_id & the $customer_id to process the validation properly.
             */
             Context::getContext()->cart = new Cart((int)$cart_id);
-            if(!Context::getContext()->cart->id)
-            {
+            if (!Context::getContext()->cart->id) {
                 die;
             }
 
@@ -108,19 +99,16 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
             //Default message;
             $message = Tools::getValue('response_msg');
 
-            if ($this->isValidOrder($action, $response_code) === true)
-            {
+            if ($this->isValidOrder($action, $response_code) === true) {
                 switch ($action)
                 {
                     case 'return':
                         $payment_status = Configuration::get('PS_OS_PAYMENT');
                         $message = Tools::getValue('response_msg');
 
-                        if(($customer_id =Context::getContext()->customer->id) && $register_card)
-                        {
+                        if (($customer_id = Context::getContext()->customer->id) && $register_card) {
                             $card = $this->module->getCustomerCard($customer_id);
-                            if(!$card)
-                            {
+                            if (!$card) {
                                 $card = array();
                             }
 
@@ -130,7 +118,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                             $card['card_exp'] = $this->getMoneyInTransDetails()->EXTRA->EXP;
 
                             $this->module->insertOrUpdateCard($customer_id, $card);
-
                         }
 
                         break;
@@ -153,22 +140,27 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 
             $module_name = $this->module->displayName;
             $currency_id = (int)Context::getContext()->currency->id;
-        }
-        else
-        {
+        } else {
             //@TODO throw error for not http method supported
             die;
         }
 
-        if (!Context::getContext()->cart->OrderExists())
-        {
-            $this->module->validateOrder($cart_id, $payment_status, $amount, $module_name, $message, array(),
-                $currency_id, false, $secure_key);
+        if (!Context::getContext()->cart->OrderExists()) {
+            $this->module->validateOrder(
+                $cart_id,
+                $payment_status,
+                $amount,
+                $module_name,
+                $message,
+                array(
+                ),
+                $currency_id,
+                false,
+                $secure_key
+            );
             //Logger::AddLog('New order added.');
             die('New order added.');
-        }
-        else
-        {
+        } else {
             $order_id = (int)Order::getOrderByCartId($cart_id);
             $history = new OrderHistory();
             $history->id_order = (int)$order_id;
@@ -186,8 +178,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
     */
     protected function getMoneyInTransDetails()
     {
-        if(is_null($this->moneyin_trans_details))
-        {
+        if (is_null($this->moneyin_trans_details)) {
             // Call directkit to get Webkit Token
             $params = array('transactionMerchantToken'=>Tools::getValue('response_wkToken'));
           
@@ -195,18 +186,14 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
             /* @var $kit LemonWayKit */
             $kit = new LemonWayKit();
 
-            try
-            {
+            try {
                 $res = $kit->getMoneyInTransDetails($params);
-            }
-            catch (Exception $e)
-            {
+            } catch (Exception $e) {
                 Logger::AddLog($e->getMessage());
                 throw $e;
             }
 
-            if (isset($res->lwError))
-            {
+            if (isset($res->lwError)) {
                 throw new Exception((string)$res->lwError->MSG, (int)$res->lwError->CODE);
             }
 
@@ -218,8 +205,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 
     protected function isValidOrder($action, $response_code)
     {
-        if($response_code != "0000")
-        {
+        if ($response_code != "0000") {
             return false;
         }
 
@@ -229,18 +215,15 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
             "cancel"=>"0"
         );
 
-        if(!isset($actionToStatus[$action]))
-        {
+        if (!isset($actionToStatus[$action])) {
             return false;
         }
 
         /* @var $operation Operation */
         $operation = $this->getMoneyInTransDetails();
 
-        if($operation)
-        {
-            if($operation->STATUS == $actionToStatus[$action])
-            {
+        if ($operation) {
+            if ($operation->STATUS == $actionToStatus[$action]) {
                 return true;
             }
         }

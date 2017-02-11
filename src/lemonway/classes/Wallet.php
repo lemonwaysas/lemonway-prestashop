@@ -1,27 +1,27 @@
 <?php
 /**
-* 2007-2016 PrestaShop
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author    PrestaShop SA <contact@prestashop.com>
-*  @copyright 2007-2016 PrestaShop SA
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
+ * 2007-2017 PrestaShop
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ * @author    PrestaShop SA <contact@prestashop.com>
+ * @copyright 2007-2017 PrestaShop SA
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * International Registered Trademark & Property of PrestaShop SA
 */
 
 class WalletCore extends ObjectModel
@@ -58,8 +58,8 @@ class WalletCore extends ObjectModel
     public $date_upd;
 
     /**
-     * @see ObjectModel::$definition
-     */
+    * @see ObjectModel::$definition
+    */
     public static $definition = array(
         'table' => 'lemonway_wallet',
         'primary' => 'id_wallet',
@@ -92,8 +92,7 @@ class WalletCore extends ObjectModel
             'customer_firstname' => array(
                 'type' => self::TYPE_STRING,
                 'validate' => 'isName',
-                'required'=>true,
-                'size'=>32
+                'required'=>true, 'size'=>32
             ),
             'customer_lastname' => array(
                 'type' => self::TYPE_STRING,
@@ -142,8 +141,7 @@ class WalletCore extends ObjectModel
             ),
             'is_company' => array(
                 'type' => self::TYPE_BOOL,
-                'validate' => 'isBool'
-            ),
+                'validate' => 'isBool'),
             'company_name' => array(
                 'type' => self::TYPE_STRING,
                 'validate' => 'isGenericName',
@@ -190,8 +188,7 @@ class WalletCore extends ObjectModel
             'is_onetime_customer' => array(
                 'type' => self::TYPE_BOOL,
                 'validate' => 'isBool',
-                'required'=>false
-            ),
+                'required'=>false),
             'is_default' => array(
                 'type' => self::TYPE_BOOL,
                 'validate' => 'isBool',
@@ -218,14 +215,12 @@ class WalletCore extends ObjectModel
         $fields = $this->formatFields(self::FORMAT_COMMON);
 
         // For retro compatibility
-        if (Shop::isTableAssociated($this->def['table']))
-        {
+        if (Shop::isTableAssociated($this->def['table'])) {
             $fields = array_merge($fields, $this->getFieldsShop());
         }
 
         // Ensure that we get something to insert
-        if (!$fields && isset($this->id) && Validate::isUnsignedId($this->id))
-        {
+        if (!$fields && isset($this->id) && Validate::isUnsignedId($this->id)) {
             $fields[$this->def['primary']] = $this->id;
         }
 
@@ -234,23 +229,21 @@ class WalletCore extends ObjectModel
 
     public function getByCustomerId($id_customer)
     {
-        $query = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_wallet` lw WHERE lw.`id_customer` = ' . (int)$id_customer;
+        $query = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_wallet` lw ' .
+        'WHERE lw.`id_customer` = ' . (int)pSQL($id_customer);
         $result = Db::getInstance()->getRow($query);
 
-        if (!$result)
-        {
+        if (!$result) {
             return false;
         }
 
         $this->id = $result['id_wallet'];
-        foreach ($result as $key => $value)
-        {
-            if (property_exists($this, $key))
-            {
+        foreach ($result as $key => $value) {
+            if (property_exists($this, $key)) {
                 $this->{$key} = $value;
             }
         }
-
+        
         return $this;
     }
 }

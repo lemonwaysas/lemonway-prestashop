@@ -1,27 +1,27 @@
 <?php
 /**
-* 2007-2016 PrestaShop
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author    PrestaShop SA <contact@prestashop.com>
-*  @copyright 2007-2016 PrestaShop SA
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
+ * 2007-2017 PrestaShop
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ * @author    PrestaShop SA <contact@prestashop.com>
+ * @copyright 2007-2017 PrestaShop SA
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * International Registered Trademark & Property of PrestaShop SA
 */
 
 require_once _PS_MODULE_DIR_ . 'lemonway/classes/MoneyOut.php';
@@ -95,8 +95,7 @@ class AdminMoneyOutController extends ModuleAdminController
     public function initToolbar()
     {
         parent::initToolbar();
-        if(isset($this->toolbar_btn['new']))
-        {
+        if (isset($this->toolbar_btn['new'])) {
             $this->toolbar_btn['new']['desc'] = $this->l('Do new Money out');
         }
     }
@@ -105,8 +104,7 @@ class AdminMoneyOutController extends ModuleAdminController
     {
         parent::initPageHeaderToolbar();
 
-        if (empty($this->display))
-        {
+        if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_moneyout'] = array(
                 'href' => self::$currentIndex.'&addlemonway_moneyout&token=' . $this->token,
                 'desc' => $this->l('Do new Money out', null, null, false),
@@ -114,14 +112,12 @@ class AdminMoneyOutController extends ModuleAdminController
             );
         }
 
-        if ($this->display == 'add')
-        {
+        if ($this->display == 'add') {
             unset($this->page_header_toolbar_btn['save']);
         }
 
         if (Context::getContext()->shop->getContext() != Shop::CONTEXT_SHOP
-            && isset($this->page_header_toolbar_btn['new_moneyout']) && Shop::isFeatureActive())
-        {
+            && isset($this->page_header_toolbar_btn['new_moneyout']) && Shop::isFeatureActive()) {
             unset($this->page_header_toolbar_btn['new_moneyout']);
         }
     }
@@ -135,8 +131,7 @@ class AdminMoneyOutController extends ModuleAdminController
     {
         parent::initToolbarTitle();
         
-        if($this->display == 'add')
-        {
+        if ($this->display == 'add') {
             $this->toolbar_title = array();
             $this->toolbar_title[] = $this->l('Do a Money out', null, null, false);
             $this->addMetaTitle($this->l('Do a Money out', null, null, false));
@@ -144,29 +139,27 @@ class AdminMoneyOutController extends ModuleAdminController
     }
     
     /**
-     * 
      * @param MoneyOut $moneyOut
      * @return boolean
      */
     public function beforeAdd($moneyOut)
     {
-        try
-        {
+        try {
             $wallet_detail = $this->getWalletDetails();
 
-            if(is_null($wallet_detail))
-            {
+            if (is_null($wallet_detail)) {
                 throw new PrestaShopException($this->module->l('Can\'t retrieve Wallet details'));
             }
 
             $wallet = $wallet_detail->wallet;
 
             $params = array(
-                "wallet"=>$moneyOut->id_lw_wallet,
-                "amountTot"=>number_format((float)$moneyOut->amount_to_pay, 2, '.', ''),
-                'amountCom'=>number_format((float)0, 2, '.', ''),
-                "message"=>$this->module->l("Moneyout from Prestashop module"),
-                "ibanId"=>$moneyOut->id_lw_iban,
+                "wallet" => $moneyOut->id_lw_wallet,
+                "amountTot" => number_format((float)$moneyOut->amount_to_pay, 2, '.', ''),
+                'amountCom' => number_format((float)0, 2, '.', ''),
+                "message" => Configuration::get('PS_SHOP_NAME') . " - " .
+                 $this->module->l("Moneyout from Prestashop module"),
+                "ibanId" => $moneyOut->id_lw_iban,
                 "autCommission" => 0,
             );
 
@@ -174,28 +167,21 @@ class AdminMoneyOutController extends ModuleAdminController
             $kit = new LemonWayKit();
             $apiResponse = $kit->moneyOut($params);
 
-            if($apiResponse->lwError)
-            {
+            if ($apiResponse->lwError) {
                 throw new PrestaShopException((string)$apiResponse->lwError->MSG, (int)$apiResponse->lwError->CODE);
             }
 
-            if(count($apiResponse->operations))
-            {
+            if (count($apiResponse->operations)) {
                 /* @var $op Operation */
                 $op = current($apiResponse->operations);
-                if($op->ID)
-                {
+                if ($op->ID) {
                     $moneyOut->new_bal = (float)$wallet->BAL - (float)$moneyOut->amount_to_pay;
                     return true;
-                }
-                else
-                {
+                } else {
                     throw new PrestaShopException($this->module->l("An error occurred. Please contact support."));
                 }
             }
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             throw $e;
         }
 
@@ -203,13 +189,13 @@ class AdminMoneyOutController extends ModuleAdminController
     }
 
     /**
-     * Object creation
-     *
-     * @return ObjectModel|false
-     * @throws PrestaShopException
-     */
+    * Object creation
+    *
+    * @return ObjectModel|false
+    * @throws PrestaShopException
+    */
     public function processAdd()
-    {   
+    {
         return parent::processAdd();
     }
     
@@ -220,12 +206,11 @@ class AdminMoneyOutController extends ModuleAdminController
 
     
     public function renderForm()
-    {       
+    {
         $this->display = 'add';
         $wallet_detail = $this->getWalletDetails();
 
-        if(is_null($wallet_detail))
-        {
+        if (is_null($wallet_detail)) {
             return;
         }
 
@@ -376,25 +361,20 @@ class AdminMoneyOutController extends ModuleAdminController
     }
 
     /**
-     * @return Apiresponse
-     */
+    * @return Apiresponse
+    */
     public function getWalletDetails()
     {
-        if(is_null($this->walletDetails))
-        {
-            try
-            {
+        if (is_null($this->walletDetails)) {
+            try {
                 $res = $this->module->getWalletDetails(LemonWayConfig::getWalletMerchantId());
-            }
-            catch (Exception $e)
-            {
+            } catch (Exception $e) {
                 Logger::AddLog($e->getMessage());
                 $this->errors[] = Tools::displayError($e->getMessage());
                 return null;
             }
             
-            if (isset($res->lwError))
-            {
+            if (isset($res->lwError)) {
                 $this->errors[] =
                     sprintf(Tools::displayError("Error: %s. Code: %s"), $res->lwError->MSG, $res->lwError->CODE);
                 return null;
