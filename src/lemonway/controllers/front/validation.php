@@ -164,7 +164,20 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
             $order_id = (int)Order::getOrderByCartId($cart_id);
             $history = new OrderHistory();
             $history->id_order = (int)$order_id;
-            $history->changeIdOrderState(Configuration::get('PS_OS_PAYMENT'), (int)$order_id);
+
+            $amount_paid = Tools::ps_round((float)$amount, 2);
+            $cart_total_paid = (float)Tools::ps_round(
+                (float)Context::getContext()->cart->getOrderTotal(true, Cart::BOTH),
+                2
+            );
+            if (number_format($cart_total_paid, _PS_PRICE_COMPUTE_PRECISION_)
+                != number_format($amount_paid, _PS_PRICE_COMPUTE_PRECISION_)) {
+                $id_order_state = Configuration::get('PS_OS_ERROR');
+            } else {
+                $id_order_state = Configuration::get('PS_OS_PAYMENT');
+            }
+
+            $history->changeIdOrderState($id_order_state, (int)$order_id);
 
             $history->save();
 
