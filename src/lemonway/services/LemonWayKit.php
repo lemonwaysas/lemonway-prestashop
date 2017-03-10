@@ -356,7 +356,7 @@ class LemonWayKit
             "Cache-Control: no-cache",
             "Pragma: no-cache",
             'SOAPAction: "Service_mb_xml/' . $methodName . '"',
-            "Content-length: " . strlen($xml_soap)
+            "Content-length: " . Tools::strlen($xml_soap)
         );
         
         $ch = curl_init();
