@@ -34,5 +34,5 @@
 <div class="tab-content">
 <div class="tab-pane active" id="about_us">{include file='./about_us.tpl'}</div>
 <div class="tab-pane" id="access_api">{$api_configuration_form}</div>
-<div class="tab-pane" id="method_cb">{$method_cb_configuration_form}</div>
+<div class="tab-pane" id="method_cb">{$method_creditcard_configuration_form}</div>
 </div>

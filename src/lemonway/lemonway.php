@@ -50,8 +50,8 @@ class Lemonway extends PaymentModule
     );
     
     public static $subMethods = array(
-    		'creditcard' => array(),
-    		'check' => array()
+    		'creditcard' => array("code"=>'creditcard',"title"=>'Credit Card','template'=>'../front/methods/creditcard.tpl'),
+    		'check' => array("code"=>'check',"title"=>'Check','template'=>'../front/methods/check.tpl')
     );
 
     public function __construct()
@@ -207,6 +207,7 @@ class Lemonway extends PaymentModule
             'https://webkit.lemonway.fr/css/mercanet/mercanet_lw_custom.css'
         );
         Configuration::updateValue('LEMONWAY_ONECLIC_ENABLED', false);
+        Configuration::updateValue('LEMONWAY_CREDITCARD_ENABLED',false);
 
         include(dirname(__FILE__) . '/sql/install.php');
         
@@ -258,6 +259,7 @@ class Lemonway extends PaymentModule
         //METHOD CONFIGURATION
         Configuration::deleteByName('LEMONWAY_CSS_URL');
         Configuration::deleteByName('LEMONWAY_ONECLIC_ENABLED');
+        Configuration::deleteByName('LEMONWAY_CREDITCARD_ENABLED');
 
         //Do Not delete this configuration
         //Configuration::deleteByName('LEMONWAY_PENDING_OS');
@@ -294,8 +296,8 @@ class Lemonway extends PaymentModule
 
         $this->context->smarty->assign('module_dir', $this->_path);
         $this->context->smarty->assign('api_configuration_form', $this->renderForm('api_configuration'));
-        foreach (self::$subMethods as $method){
-        	$configurationKey = "method_{$method}_configuration";
+        foreach (self::$subMethods as $methodCode=>$method){
+        	$configurationKey = "method_{$methodCode}_configuration";
         	$this->context->smarty->assign($configurationKey.'_form', $this->renderForm($configurationKey));
         }
         $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/configure.tpl');
@@ -336,7 +338,7 @@ class Lemonway extends PaymentModule
     					$this->getApiConfigForm()
     			));
     			break;
-    		case 'method_cb_configuration':
+    		case 'method_creditcard_configuration':
     			$form = $helper->generateForm(array(
     					$this->getMethodConfigForm()
     			));
@@ -392,9 +394,51 @@ class Lemonway extends PaymentModule
             )
         );
         
+        $switchEnabled = array(
+        		'type' => 'switch',
+        		'label' => $this->l('Enable this method'),
+        		'name' => 'LEMONWAY_CREDITCARD_ENABLED',
+        		'is_bool' => true,
+        		'desc' => $this->l('Display this method form on payment step'),
+        		'values' => array(
+        				array(
+        						'id' => 'active_on',
+        						'value' => true,
+        						'label' => $this->l('Enabled')
+        				),
+        				array(
+        						'id' => 'active_off',
+        						'value' => false,
+        						'label' => $this->l('Disabled')
+        				)
+        		)
+        );
+        
         //Backward compatibility with version < 1.6.
         //Switch type not exists
         if (version_compare(_PS_VERSION_, "1.6.0.0") == -1) {
+        	$switchEnabled = array(
+        			'type' => 'select',
+        			'label' => $this->l('Enable this method'),
+        			'name' => 'LEMONWAY_CREDITCARD_ENABLED',
+        			'is_bool' => true,
+        			'desc' => $this->l('Display this method form on payment step'),
+        			'options' => array(
+        					'query' => array(
+        							array(
+        									'id' => 1,
+        									'label' => $this->l('Enabled')
+        							),
+        							array(
+        									'id' => 0,
+        									'label' => $this->l('Disabled')
+        							)
+        					),
+        					'id' => 'id',
+        					'name' => 'label'
+        			),
+        	);
+        	
             $switch = array(
                 'type' => 'select',
                 'label' => $this->l('Enable Oneclic'),
@@ -417,7 +461,8 @@ class Lemonway extends PaymentModule
                 ),
             );
         }
-
+        
+        $container['form']['input'][] = $switchEnabled;
         $container['form']['input'][] = $switch;
         
         $container['form']['input'][] = array(
@@ -573,6 +618,7 @@ class Lemonway extends PaymentModule
             'LEMONWAY_DIRECTKIT_URL_TEST' => Configuration::get('LEMONWAY_DIRECTKIT_URL_TEST', null),
             'LEMONWAY_WEBKIT_URL_TEST' => Configuration::get('LEMONWAY_WEBKIT_URL_TEST', null),
             'LEMONWAY_IS_TEST_MODE' => Configuration::get('LEMONWAY_IS_TEST_MODE', null),
+        	'LEMONWAY_CREDITCARD_ENABLED' => Configuration::get('LEMONWAY_CREDITCARD_ENABLED',null),
             'LEMONWAY_CSS_URL' => Configuration::get('LEMONWAY_CSS_URL', null),
             'LEMONWAY_ONECLIC_ENABLED' => Configuration::get('LEMONWAY_ONECLIC_ENABLED', null),
         );
@@ -598,6 +644,40 @@ class Lemonway extends PaymentModule
 
             Configuration::updateValue($key, $value);
         }
+    }
+    
+    protected function prepareMethodData($method){
+    	$data = array();
+    	switch ($method){
+    		case 'creditcard':
+    			/* @var $customer CustomerCore */
+    			$customer = $this->context->customer;
+    			
+    			$card_num = "";
+    			$card_type = "";
+    			$card_exp = "";
+    			$card = $this->getCustomerCard($customer->id);
+    			
+    			if ($card) {
+    				$card_num = $card['card_num'];
+    				$card_type = $card['card_type'];
+    				$card_exp = $card['card_exp'];
+    			}
+    			
+    			$customer_has_card = $card && !empty($card_num);
+    			$data = array(	'oneclic_allowed' => LemonWayConfig::getOneclicEnabled() && $customer->isLogged(),
+					            'customer_has_card' => $customer_has_card,
+					            'card_num' => $card_num,
+					            'card_type' => $card_type,
+					            'card_exp' => $card_exp
+    					
+    			);
+    			break;
+    		case 'check':
+    			break;
+    		default:
+    	}
+    	return $data;
     }
 
     /**
@@ -627,8 +707,17 @@ class Lemonway extends PaymentModule
     */
     public function hookPayment($params)
     {
+    	
+    	$methodsEnabled = array();
+    	foreach (self::$subMethods as $method=>$info){
+    		//@TODO check if method is enbaled
+    		$info['data'] = $this->prepareMethodData($method);
+    		$methodsEnabled[] = $info;
+    		
+    	}
+    	
         /* @var $customer CustomerCore */
-        $customer = $this->context->customer;
+       /*  $customer = $this->context->customer;
         
         $card_num = "";
         $card_type = "";
@@ -641,15 +730,16 @@ class Lemonway extends PaymentModule
             $card_exp = $card['card_exp'];
         }
 
-        $customer_has_card = $card && !empty($card_num);
-        
+        $customer_has_card = $card && !empty($card_num); */
+
         $this->smarty->assign(array(
             'module_dir' => $this->_path,
-            'oneclic_allowed' => LemonWayConfig::getOneclicEnabled() && $customer->isLogged(),
+        	'methodsEnabled'=>$methodsEnabled,
+            /* 'oneclic_allowed' => LemonWayConfig::getOneclicEnabled() && $customer->isLogged(),
             'customer_has_card' => $customer_has_card,
             'card_num' => $card_num,
             'card_type' => $card_type,
-            'card_exp' => $card_exp
+            'card_exp' => $card_exp */
         ));
 
         return $this->display(__FILE__, 'views/templates/hook/payment.tpl');
