@@ -25,10 +25,14 @@
 
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist">
-	<li class="active"><a href="#access_api" role="tab" data-toggle="tab">Api configuration</a></li>
+	<li class="active"><a href="#about_us" role="tab" data-toggle="tab">{l s='About us' mod='lemonway'}</a></li>
+	<li class=""><a href="#access_api" role="tab" data-toggle="tab">{l s='Api configuration' mod='lemonway'}</a></li>
+	<li class=""><a href="#method_cb" role="tab" data-toggle="tab">{l s='Credit Card configuration' mod='lemonway'}</a></li>
 </ul>
 
 <!-- Tab panes -->
 <div class="tab-content">
-	<div class="tab-pane active" id="access_api">{include file='./api_configuration.tpl'}</div>
+<div class="tab-pane active" id="about_us">{include file='./about_us.tpl'}</div>
+<div class="tab-pane" id="access_api">{$api_configuration_form}</div>
+<div class="tab-pane" id="method_cb">{$method_cb_configuration_form}</div>
 </div>

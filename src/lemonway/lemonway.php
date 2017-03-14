@@ -48,6 +48,11 @@ class Lemonway extends PaymentModule
         4 => "Document remplacé par un autre document",
         5 => "Validité du document expiré"
     );
+    
+    public static $subMethods = array(
+    		'creditcard' => array(),
+    		'check' => array()
+    );
 
     public function __construct()
     {
@@ -288,41 +293,64 @@ class Lemonway extends PaymentModule
         }
 
         $this->context->smarty->assign('module_dir', $this->_path);
-
+        $this->context->smarty->assign('api_configuration_form', $this->renderForm('api_configuration'));
+        foreach (self::$subMethods as $method){
+        	$configurationKey = "method_{$method}_configuration";
+        	$this->context->smarty->assign($configurationKey.'_form', $this->renderForm($configurationKey));
+        }
         $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/configure.tpl');
 
-        return $output . $this->renderForm();
+        return $output;// . $this->renderForm();
     }
 
     /**
     * Create the form that will be displayed in the configuration of your module.
     */
-    protected function renderForm()
+    protected function renderForm($type)
     {
-        $helper = new HelperForm();
+    	$helper = new HelperForm();
+    	
+    	$helper->show_toolbar = false;
+    	$helper->table = $this->table;
+    	$helper->module = $this;
+    	$helper->default_form_language = $this->context->language->id;
+    	$helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
+    	
+    	$helper->identifier = $this->identifier;
+    	$helper->submit_action = 'submitLemonwayModule';
+    	$helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false)
+    	.'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
+    	$helper->token = Tools::getAdminTokenLite('AdminModules');
+    	
+    	$helper->tpl_vars = array(
+    			'fields_value' => $this->getConfigFormValues(), /* Add values for your inputs */
+    			'languages' => $this->context->controller->getLanguages(),
+    			'id_language' => $this->context->language->id,
+    	);
+    	
+    	$form = '';
+    	
+    	switch ($type){
+    		case 'api_configuration':
+    			$form = $helper->generateForm(array(
+    					$this->getApiConfigForm()
+    			));
+    			break;
+    		case 'method_cb_configuration':
+    			$form = $helper->generateForm(array(
+    					$this->getMethodConfigForm()
+    			));
+    			break;
+    		default:
+    			$form = $helper->generateForm(array(
+    					$this->getApiConfigForm(),
+    					$this->getMethodConfigForm()
+    			));
+    			
+    	}
+    	
+    	return $form;
 
-        $helper->show_toolbar = false;
-        $helper->table = $this->table;
-        $helper->module = $this;
-        $helper->default_form_language = $this->context->language->id;
-        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
-
-        $helper->identifier = $this->identifier;
-        $helper->submit_action = 'submitLemonwayModule';
-        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false)
-        .'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
-        $helper->token = Tools::getAdminTokenLite('AdminModules');
-
-        $helper->tpl_vars = array(
-            'fields_value' => $this->getConfigFormValues(), /* Add values for your inputs */
-            'languages' => $this->context->controller->getLanguages(),
-            'id_language' => $this->context->language->id,
-        );
-
-        return $helper->generateForm(array(
-            $this->getApiConfigForm(),
-            $this->getMethodConfigForm()
-        ));
     }
     
     /**
