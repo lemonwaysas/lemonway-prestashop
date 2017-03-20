@@ -710,36 +710,19 @@ class Lemonway extends PaymentModule
     	
     	$methodsEnabled = array();
     	foreach (self::$subMethods as $method=>$info){
-    		//@TODO check if method is enbaled
-    		$info['data'] = $this->prepareMethodData($method);
-    		$methodsEnabled[] = $info;
+    		//Check if method is enbaled
+    		$key = 'LEMONWAY_' . strtoupper($method) . '_ENABLED';
+    		if(Configuration::get($key)){
+    			$info['data'] = $this->prepareMethodData($method);
+    			$methodsEnabled[] = $info;
+    		}
+    		
     		
     	}
-    	
-        /* @var $customer CustomerCore */
-       /*  $customer = $this->context->customer;
-        
-        $card_num = "";
-        $card_type = "";
-        $card_exp = "";
-        $card = $this->getCustomerCard($customer->id);
-        
-        if ($card) {
-            $card_num = $card['card_num'];
-            $card_type = $card['card_type'];
-            $card_exp = $card['card_exp'];
-        }
-
-        $customer_has_card = $card && !empty($card_num); */
 
         $this->smarty->assign(array(
             'module_dir' => $this->_path,
         	'methodsEnabled'=>$methodsEnabled,
-            /* 'oneclic_allowed' => LemonWayConfig::getOneclicEnabled() && $customer->isLogged(),
-            'customer_has_card' => $customer_has_card,
-            'card_num' => $card_num,
-            'card_type' => $card_type,
-            'card_exp' => $card_exp */
         ));
 
         return $this->display(__FILE__, 'views/templates/hook/payment.tpl');
