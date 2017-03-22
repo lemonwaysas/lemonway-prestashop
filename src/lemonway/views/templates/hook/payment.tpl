@@ -24,5 +24,5 @@
  *}
  
 {foreach from=$methodsEnabled item='method'}
-	{include file=$method['template'] data=$method['data']}
+	{include file=$method->getTemplate() method=$method}
 {/foreach}

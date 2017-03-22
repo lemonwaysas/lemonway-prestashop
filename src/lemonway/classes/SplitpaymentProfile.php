@@ -26,10 +26,24 @@
 
 class SplitpaymentProfile extends ObjectModel
 {
+
+	/**
+	 * Period units
+	 *
+	 * @var string
+	 */
+	const PERIOD_UNIT_DAY = 'day';
+	const PERIOD_UNIT_WEEK = 'week';
+	const PERIOD_UNIT_SEMI_MONTH = 'semi_month';
+	const PERIOD_UNIT_MONTH = 'month';
+	const PERIOD_UNIT_YEAR = 'year';
+	
+	
     public $name;
     public $period_unit;
     public $period_frequency;
     public $period_max_cycles;
+    public $active = true;
     
     /**
      * @see ObjectModel::$definition
@@ -51,13 +65,82 @@ class SplitpaymentProfile extends ObjectModel
             ),
             'period_frequency' => array(
                 'type' => self::TYPE_INT,
-                'required'=>true
+                'required'=>true,
+            	'validate' => 'isInt'
             ),
             'period_max_cycles' => array(
                 'type' => self::TYPE_INT,
-                'required'=>true
-            )
+                'required'=>true,
+            	'validate' => 'isInt'
+            ),
+        	'active' => array(
+        		'type' => self::TYPE_BOOL,
+        		'validate' => 'isBool',
+        		'required'=>false
+        	)
         ),
     );
+    
+    public static function getProfiles($mustActive = true){
+    	$sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_splitpayment_profile` sp '; 
+    	
+    	if($mustActive)
+    		$sql .=	'WHERE sp.`active` = ' . pSQL(true);
+    	
+    	$res = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+    	if (!$res) {
+    		return array();
+    	}
+    	
+    	return $res;
+    }
+
+
+    /**
+     * Getter for available period units
+     *
+     * @param bool $withLabels
+     * @return array
+     */
+    public static function getAllPeriodUnits($withLabels = true)
+    {
+    	$units = array(
+    			self::PERIOD_UNIT_DAY,
+    			self::PERIOD_UNIT_WEEK,
+    			self::PERIOD_UNIT_SEMI_MONTH,
+    			self::PERIOD_UNIT_MONTH,
+    			self::PERIOD_UNIT_YEAR
+    	);
+    
+    	if ($withLabels) {
+    		$result = array();
+    		foreach ($units as $unit) {
+    			$result[] = array('value'=>$unit,'name'=>self::getPeriodUnitLabel($unit));
+    		}
+    		return $result;
+    	}
+    	return $units;
+    }
+    
+    /**
+     * Render label for specified period unit
+     *
+     * @param string $unit
+     */
+    public static function getPeriodUnitLabel($unit)
+    {
+    	switch ($unit) {
+    		case self::PERIOD_UNIT_DAY:  return self::l('Day');
+    		case self::PERIOD_UNIT_WEEK: return self::l('Week');
+    		case self::PERIOD_UNIT_SEMI_MONTH: return self::l('Two Weeks');
+    		case self::PERIOD_UNIT_MONTH: return self::l('Month');
+    		case self::PERIOD_UNIT_YEAR:  return self::l('Year');
+    	}
+    	return $unit;
+    }
+    
+    public static function l($string){
+    	return Translate::getModuleTranslation('lemonway',$string,'splitpaymentprofile');
+    }
 
 }

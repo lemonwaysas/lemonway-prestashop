@@ -79,12 +79,25 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         $amountComRaw = 0;
         $amountCom = number_format($amountComRaw, 2, '.', '');
         
+        $amountTotRaw = $cart->getOrderTotal(true, 3);
+        $amountTot = number_format((float)$amountTotRaw, 2, '.', '');
+        
+        $methodCode = Tools::getValue('method_code'); 
+        
+        if(!$this->methodIsAllowed($methodCode)){
+        	$this->addError($this->l('Payment method is not allowed!'));
+        	return $this->displayError();
+        }
+        
+        //If is X times method, we split the payment
+        
+        
         if (!$this->useCard()) {
             //call directkit to get Webkit Token
             $params = array(
                 'wkToken' => $wkToken,
                 'wallet' => LemonWayConfig::getWalletMerchantId(),
-                'amountTot' => number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
+                'amountTot' => $amountTot,
                 'amountCom' => $amountCom, //because money is transfered in merchant wallet
                 'comment' => $comment,
                 'returnUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
@@ -145,7 +158,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 $params = array(
                     'wkToken' => $wkToken,
                     'wallet'=> LemonWayConfig::getWalletMerchantId(),
-                    'amountTot' => number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
+                    'amountTot' => $amountTot,
                     'amountCom'=> $amountCom,
                     'comment' => $comment .  " (Money In with Card Id)",
                     'autoCommission' => 1,
@@ -207,7 +220,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     
     protected function registerCard()
     {
-        return Tools::getValue('lw_oneclic') === 'register_card';
+        return Tools::getValue('lw_oneclic') === 'register_card' || !empty(Tools::getValue('splitpayment_profile_id')) ;
     }
     
     protected function useCard()
@@ -249,5 +262,27 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error'));
         
         return $this->setTemplate('error.tpl');
+    }
+    
+    protected function methodIsAllowed($methodCode){
+    	$methodCode = strtoupper($methodCode);
+    	
+    	if(!Configuration::get('LEMONWAY_' . $methodCode . '_ENABLED')){
+    		return false;
+    	}
+    	
+    	switch($methodCode){
+    		
+    		case "creditcard_xtimes":
+    			if(!in_array(Tools::getValue('splitpayment_profile_id'),$this->module->getSplitpaymentProfiles())){
+    				return false;
+    			}
+    			
+    		default:
+    			return true;
+    		
+    	}
+    	
+    	return false;
     }
 }

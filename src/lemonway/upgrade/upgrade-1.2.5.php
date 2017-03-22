@@ -44,6 +44,7 @@ function upgrade_module_1_2_5($module)
 				`period_unit` varchar(30) NOT NULL,
 				`period_frequency` int(10) UNSIGNED NOT NULL ,
 				`period_max_cycles` int(10) UNSIGNED NOT NULL ,
+				`active` tinyint(1) UNSIGNED  NOT NULL DEFAULT \'1\',
 				PRIMARY KEY  (`id_profile`)
     		) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;
     		
@@ -66,6 +67,7 @@ function upgrade_module_1_2_5($module)
 	}
 	
 	addAdminTab($module);
+	updateNewConfigurationKeyValue();
 
 	return true;
 }
@@ -83,4 +85,9 @@ function addAdminTab($module){
 	
 	$module->installModuleTab('AdminSplitpaymentProfile', $translationsAdminSplitpaymentProfile, $adminLemonwayId);
 	
+}
+
+function updateNewConfigurationKeyValue(){
+	$oldconf = Configuration::get('LEMONWAY_ONECLIC_ENABLED');
+	Configuration::updateValue('LEMONWAY_CREDITCARD_ONECLIC_ENABLED', $oldconf);
 }
