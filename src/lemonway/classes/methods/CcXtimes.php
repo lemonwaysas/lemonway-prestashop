@@ -6,6 +6,8 @@ class CcXtimes extends Cc{
 	protected $code = 'cc_xtimes';
 	protected $splitpaymentProfiles = null;
 	
+	protected  $isSplitpayment = true;
+	
 	protected function prepareData(){
 		parent::prepareData();
 

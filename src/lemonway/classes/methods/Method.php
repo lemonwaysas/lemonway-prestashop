@@ -8,6 +8,8 @@ abstract class Method{
 	protected $context=null;
 	protected $module=null;
 	
+	protected  $isSplitpayment = false;
+	
 	
 	public function __construct(){
 		if(!$this->code){
@@ -57,8 +59,15 @@ abstract class Method{
 		return Configuration::get('LEMONWAY_' . $this->code . '_' . strtoupper($key));
 	}
 	
+	/**
+	 * @return Lemonway
+	 */
 	public function getModule(){
 		return $this->module;
+	}
+	
+	public function isSplitPayment(){
+		return $this->isSplitpayment;
 	}
 	
 }

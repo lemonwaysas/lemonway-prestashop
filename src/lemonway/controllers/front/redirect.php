@@ -24,6 +24,7 @@
  * International Registered Trademark & Property of PrestaShop SA
 */
 
+
 class LemonwayRedirectModuleFrontController extends ModuleFrontController
 {
     protected $supportedLangs = array(
@@ -46,7 +47,12 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     {
         parent::__construct();
         require_once _PS_MODULE_DIR_ . $this->module->name . '/services/LemonWayKit.php';
+        foreach (Lemonway::$subMethods as $method){
+        	$classname = $method['classname'];
+        	require_once _PS_MODULE_DIR_ . $this->module->name . "/classes/methods/{$classname}.php";
+        }
     }
+
     
     /**
     * Do whatever you have to before redirecting the customer on the website of your payment processor.
@@ -89,7 +95,51 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         	return $this->displayError();
         }
         
+        /* @var $methodInstance Method */
+        $methodInstance = $this->module->methodFactory($methodCode);
+        
+        $baseCallbackParams = array(
+        		'secure_key' => $secure_key,
+        		'payment_method' => $methodCode,
+        );
+        
+       
+
         //If is X times method, we split the payment
+        if(strpos($methodInstance->getCode(),'XTIMES') !== false && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))){
+        	$profile = new SplitpaymentProfile($splitPaypentProfileId);
+        	if($profile){
+        		
+        		$splitpayments = $profile->splitPaymentAmount($amountTotRaw);
+        		$firstSplit = $splitpayments[0];
+        		$amountTot = number_format((float)$firstSplit['amountToPay'], 2, '.', '');
+        		
+        		//Add prodile Id to base callbackparamters
+        		$baseCallbackParams['splitpayment_profile_id'] = $splitPaypentProfileId;
+        		
+        	}
+        	else{
+        		$this->addError($this->l('Split payment profile not found!'));
+        		return $this->displayError();
+        	}
+        }
+        
+        $returnlCallbackParams = array_merge($baseCallbackParams,array(
+        		'register_card' => (int)$this->registerCard(),
+        		'action' => 'return'
+        
+        ));
+        
+        $cancelCallbackParams = array_merge($baseCallbackParams,array(
+        		'action' => 'cancel'
+        
+        ));
+        
+        $errorCallbackParams = array_merge($baseCallbackParams,array(
+        		'action' => 'error'
+        
+        ));
+
         
         
         if (!$this->useCard()) {
@@ -100,19 +150,9 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 'amountTot' => $amountTot,
                 'amountCom' => $amountCom, //because money is transfered in merchant wallet
                 'comment' => $comment,
-                'returnUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
-                    'register_card' => (int)$this->registerCard(),
-                    'action' => 'return',
-                    'secure_key' => $secure_key
-                ), true)),
-                'cancelUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
-                    'action' => 'cancel',
-                    'secure_key' => $secure_key
-                ), true)),
-                'errorUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
-                    'action' => 'error',
-                    'secure_key' => $secure_key
-                ), true)),
+                'returnUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', $returnlCallbackParams, true)),
+                'cancelUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', $cancelCallbackParams, true)),
+                'errorUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', $errorCallbackParams, true)),
                 'autoCommission' => 1,
                 'registerCard' => $this->registerCard(), //For Atos
                 'useRegisteredCard' => $this->registerCard(), //For payline
@@ -183,14 +223,17 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 /* @var $op Operation */
                 foreach ($res->operations as $op) {
                     if ($op->STATUS == "3") {
-                        $payment_status = Configuration::get('PS_OS_PAYMENT');
+                        $id_order_state = Configuration::get('PS_OS_PAYMENT');
+                        if(strpos($methodInstance->getCode(),'XTIMES')){
+                        	$id_order_state = Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
+                        }
                         $message = Tools::getValue('response_msg');
-                        $module_name = $this->module->displayName;
+                        
                         $currency_id = (int)$this->context->currency->id;
                         //$amount = number_format((float)$cart->getOrderTotal(true, 3), 2, '.', '');
-                        $amount = number_format(((float)$op->CRED + (float)$op->COM), 2, '.', '');
+                        //$amount = number_format(((float)$op->CRED + (float)$op->COM), 2, '.', '');
                         
-                        $this->module->validateOrder($cart->id, $payment_status, $amount, $module_name, $message, array(
+                        $this->module->validateOrder($cart->id, $id_order_state, $amountTot, $methodInstance->getTitle(), $message, array(
                         ), $currency_id, false, $secure_key);
                         
                         $order_id = Order::getOrderByCartId((int)$cart->id);
@@ -220,7 +263,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     
     protected function registerCard()
     {
-        return Tools::getValue('lw_oneclic') === 'register_card' || !empty(Tools::getValue('splitpayment_profile_id')) ;
+        return Tools::getValue('lw_oneclic') === 'register_card' || is_numeric(Tools::getValue('splitpayment_profile_id')) ;
     }
     
     protected function useCard()

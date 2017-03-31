@@ -142,5 +142,74 @@ class SplitpaymentProfile extends ObjectModel
     public static function l($string){
     	return Translate::getModuleTranslation('lemonway',$string,'splitpaymentprofile');
     }
+    
+    /**
+     * Return Amount splitted
+     * @param float $amount
+     */
+    public function splitPaymentAmount($amount)
+    {
+    	$paymentsSplit = array();
+
+    	$maxCycles = (int)$this->period_max_cycles;  
+    	$periodFrequency = (int)$this->period_frequency;
+    	$periodUnit = $this->period_unit;
+    				
+    	$todayDate = new \DateTime();
+    				
+    	if($maxCycles < 1){
+    		throw new Exception("Period max cycles is equals zero or negative for Payment Profile ID: ".$this->getId());
+    	}
+    		
+    					
+    	$part = (int)($amount / $maxCycles);
+    	$fmod = fmod($amount, $maxCycles);
+    					
+    	for ($i=0;$i<=($maxCycles-1);$i++)
+    	{
+    		$j = $i - 1;
+    		$todayClone = clone $todayDate;
+    		$format = 'Y-m-d';
+    		$freqByCycles = $periodFrequency+$j;
+    		$interval = null;
+    		
+    		switch ($periodUnit)
+    		{
+    			case self::PERIOD_UNIT_MONTH:
+    			{
+    				$interval = new \DateInterval("P" . $freqByCycles . "M");
+    				break;
+    			}
+    			case self::PERIOD_UNIT_DAY:
+    			{
+    				$interval = new \DateInterval("P" . $freqByCycles . "D");
+    				break;
+    			}
+    			case self::PERIOD_UNIT_SEMI_MONTH:
+    			{
+    				$interval = new \DateInterval("P" .$freqByCycles * 2 . "W");
+    				break;
+    			}
+    			case self::PERIOD_UNIT_WEEK:
+    			{
+    				$interval = new \DateInterval("P" .$freqByCycles . "W");
+    				break;
+    			}
+    			case self::PERIOD_UNIT_YEAR:
+    			{
+    				$interval = new \DateInterval("P" .$freqByCycles . "Y");
+    				break;
+    			}
+    		}
+    		
+    		$dateToPay = $todayClone->add($interval)->format($format);
+    						
+    		$amountToPay = $i==0 ? ($part + $fmod) : $part;
+    		$paymentsSplit[] = array('dateToPay'=>$dateToPay,'amountToPay'=>$amountToPay);
+    	}
+    					
+    	return $paymentsSplit;
+    
+    }
 
 }

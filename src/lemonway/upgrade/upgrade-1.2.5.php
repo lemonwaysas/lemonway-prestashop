@@ -68,6 +68,8 @@ function upgrade_module_1_2_5($module)
 	
 	addAdminTab($module);
 	updateNewConfigurationKeyValue();
+	
+	$module->addStatusSplitpayment();
 
 	return true;
 }

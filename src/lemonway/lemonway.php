@@ -36,6 +36,11 @@ require_once 'classes/methods/Check.php';
 
 class Lemonway extends PaymentModule
 {
+	
+	const DEBUG_MODE = true;
+	const LEMONWAY_PENDING_OS = 'LEMONWAY_PENDING_OS';
+	const LEMONWAY_SPLIT_PAYMENT_OS = 'LEMONWAY_SPLIT_PAYMENT_OS';
+	
     protected $config_form = false;
     protected $current_card = null;
     protected $splitpaymentProfiles = null;
@@ -149,7 +154,10 @@ class Lemonway extends PaymentModule
         $hidden = false,
         $delivery = false,
         $logable = false,
-        $invoice = false
+        $invoice = false,
+    	$pdf_invoice = false,
+    	$paid = false,
+    	$send_email = false
         ) {
         if (!Configuration::get($key)) {
 
@@ -165,10 +173,14 @@ class Lemonway extends PaymentModule
 
             $os->color = $color;
             $os->hidden = $hidden;
-            $os->send_email = $hidden;
+            $os->send_email = $send_email;
             $os->delivery = $delivery;
             $os->logable = $logable;
             $os->invoice = $invoice;
+            $os->pdf_invoice = $pdf_invoice;
+            $os->paid = $paid;
+            $os->module_name = $this->name;
+            
             if ($os->add()) {
                 Configuration::updateValue($key, $os->id);
                 copy(
@@ -181,6 +193,15 @@ class Lemonway extends PaymentModule
         }
 
         return true;
+    }
+    
+    public function addStatusSplitpayment(){
+    	$translationsStatus = array(
+    			'en' => 'Split Payment accepted',
+    			'fr'=> 'Paiement en plusieurs fois accepté'
+    	);
+    	
+    	$this->addStatus(self::LEMONWAY_SPLIT_PAYMENT_OS,$translationsStatus,'#32CD32',false,false,true,true,true,false,true);
     }
 
     /**
@@ -228,7 +249,7 @@ class Lemonway extends PaymentModule
         include(dirname(__FILE__) . '/sql/install.php');
         
         //Prepare status values
-        $key = 'LEMONWAY_PENDING_OS';
+        $key = self::LEMONWAY_PENDING_OS;
         
         $translationsAdminLemonway = array(
             'en' => 'Lemonway',
@@ -238,8 +259,8 @@ class Lemonway extends PaymentModule
         $this->installModuleTab('AdminLemonway', $translationsAdminLemonway, 0);
         
         $translationsStatus = array(
-            'en' => 'Pending payment validation from Lemonway',
-            'fr'=> 'En attente de validation par Lemonway'
+            'en' => 'Pending payment validation',
+            'fr'=> 'En attente de validation'
         );
 
         $translationsAdminMoneyOut = array(
@@ -394,16 +415,15 @@ class Lemonway extends PaymentModule
     							}
     								
     						}
-    				
-    						Configuration::updateValue($key, implode(',', $values));
-    				}else{
-    					if(!empty($value))
-    						Configuration::updateValue($key, $value);
+    						$value = mplode(',', $values);
+    						
     				}
     				break;
     			default:
-    				Configuration::updateValue($key, $value);
     		}
+    		
+    		if(!empty($value))
+    			Configuration::updateValue($key, $value);
    
     	}
     }
@@ -427,7 +447,7 @@ class Lemonway extends PaymentModule
         * If values have been submitted in the form, process.
         */
         if (((bool)Tools::isSubmit('submitLemonwayApiConfig')) == true) {
-            $this->postProcess('api');
+            $this->postProcess('API');
         }
         
         foreach (self::$subMethods as $methodCode=>$method){
@@ -439,7 +459,7 @@ class Lemonway extends PaymentModule
         
 
         $this->context->smarty->assign('module_dir', $this->_path);
-        $this->context->smarty->assign('api_configuration_form', $this->renderForm('api'));
+        $this->context->smarty->assign('api_configuration_form', $this->renderForm('API'));
         
         $methodForms  =array();
         foreach (self::$subMethods as $methodCode=>$method){
@@ -483,7 +503,7 @@ class Lemonway extends PaymentModule
     	$form = '';
     	
     	switch ($type){
-    		case 'api':
+    		case 'API':
     			$form = $helper->generateForm(array(
     					$this->getApiConfigForm()
     			));
@@ -822,48 +842,14 @@ class Lemonway extends PaymentModule
     	}
     	return $this->splitpaymentProfiles;
     }
-
     
-    /* protected function prepareMethodData($method){
-    	$data = array();
-    	switch ($method){
-    		case 'cc':
-    		case 'cc_xtimes':
-    			
-    			$customer = $this->context->customer;
-    			
-    			$card_num = "";
-    			$card_type = "";
-    			$card_exp = "";
-    			$card = $this->getCustomerCard($customer->id);
-    			
-    			if ($card) {
-    				$card_num = $card['card_num'];
-    				$card_type = $card['card_type'];
-    				$card_exp = $card['card_exp'];
-    			}
-    			
-    			$customer_has_card = $card && !empty($card_num);
-    			$data = array(	'oneclic_allowed' => LemonWayConfig::getOneclicEnabled($method) && $customer->isLogged(),
-					            'customer_has_card' => $customer_has_card,
-					            'card_num' => $card_num,
-					            'card_type' => $card_type,
-					            'card_exp' => $card_exp
-    					
-    			);
-    			
-    			if($method == 'cc_xtimes'){
-    				$data['splitpayments_profiles'] = $this->getSplitpaymentProfiles();
-    				$data['splitpayments_profiles_length'] = count($data['splitpayments_profiles']);
-    			}
-    			
-    			break;
-    		case 'check':
-    			break;
-    		default:
-    	}
-    	return $data;
-    } */
+    public function methodFactory($methodCode){
+    	//Create method instance and return it
+    	$methodClassName =  self::$subMethods[$methodCode]['classname'];
+    	return new $methodClassName();
+    }
+
+
 
     /**
     * Add the CSS & JavaScript files you want to be loaded in the BO.
@@ -896,8 +882,7 @@ class Lemonway extends PaymentModule
     	foreach (self::$subMethods as $method){
     		
     		//Create method instance
-    		$methodClassName =  $method['classname'];
-    		$methodInstance = new $methodClassName();
+    		$methodInstance = $this->methodFactory($method['code']);
 
     		//Check if method is enbaled
     		if($methodInstance->isValid()){
