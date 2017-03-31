@@ -52,6 +52,7 @@ function upgrade_module_1_2_5($module)
 				`id_splitpayment` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 				`id_order` int(10) UNSIGNED NOT NULL ,
 				`customer_id` int(10) UNSIGNED NOT NULL ,
+	    		`id_splitpayment_profile` int(10) UNSIGNED NOT NULL ,
 				`token` text NOT NULL ,
 				`total_amount` decimal(12,4) NOT NULL,
 				`amount_to_pay` decimal(12,4) NOT NULL,

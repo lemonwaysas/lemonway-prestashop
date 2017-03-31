@@ -209,7 +209,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 false,
                 $secure_key
             );
-            if(Lemonway::DEBUG)
+            if(Lemonway::DEBUG_MODE)
             	Logger::AddLog('New order added.');
             
             if($methodInstance->isSplitPayment()){
@@ -264,7 +264,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
             
             $history->sendEmail($order, $templateVars);
             
-            if(Lemonway::DEBUG)
+            if(Lemonway::DEBUG_MODE)
             	Logger::AddLog("Order {$order_id} updated.");
             
         }

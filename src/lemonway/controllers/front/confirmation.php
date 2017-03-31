@@ -36,8 +36,9 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         $action = Tools::getValue('action');
         $cart_id = Tools::getValue('cart_id');
         $secure_key = Tools::getValue('secure_key');
+        /* @var $methodInstance Method */
         $methodInstance = $this->module->methodFactory(Tools::getValue('payment_method'));
-       
+        
 
         $cart = new Cart((int)$cart_id);
         $customer = new Customer((int)$cart->id_customer);
@@ -46,7 +47,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         
         
         //If is X times method, we split the payment
-        if(strpos($methodInstance->getCode(),'XTIMES') !== false && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))){
+        if($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))){
         	$profile = new SplitpaymentProfile($splitPaypentProfileId);
         	if($profile){
         

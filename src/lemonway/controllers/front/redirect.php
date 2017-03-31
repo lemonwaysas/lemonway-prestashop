@@ -106,7 +106,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
        
 
         //If is X times method, we split the payment
-        if(strpos($methodInstance->getCode(),'XTIMES') !== false && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))){
+        if($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))){
         	$profile = new SplitpaymentProfile($splitPaypentProfileId);
         	if($profile){
         		
@@ -224,7 +224,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 foreach ($res->operations as $op) {
                     if ($op->STATUS == "3") {
                         $id_order_state = Configuration::get('PS_OS_PAYMENT');
-                        if(strpos($methodInstance->getCode(),'XTIMES')){
+                        if($methodInstance->isSplitPayment()){
                         	$id_order_state = Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
                         }
                         $message = Tools::getValue('response_msg');
