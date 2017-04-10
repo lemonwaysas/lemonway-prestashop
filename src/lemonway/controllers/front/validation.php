@@ -85,8 +85,10 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         		'payment_method' => $methodInstance->getCode(),
         );
         
+        $profile = new SplitpaymentProfile();
         //If is X times method, we split the payment
         if($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))){
+        	
         	$profile = new SplitpaymentProfile($splitPaypentProfileId);
         	if($profile){
         
@@ -223,12 +225,16 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 	            $invoiceCollection = $order->getInvoicesCollection();
 	            $lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
 	
-	           $order->addOrderPayment($amount_paid,  $methodInstance->getTitle(), Tools::getValue('response_transactionId'), null, null, $lastInvoice);
+	           $order->addOrderPayment($amount_paid,  $methodInstance->getTitle(), Tools::getValue('response_transactionId'), null, null, ($lastInvoice ? $lastInvoice : null));
 	            
 	           
             }
             
         } else {
+        	
+        	if($methodInstance->isSplitPayment() && !$profile){
+        		throw new Exception("Wrong date for split payment");
+        	}
 
         	$order = new Order($order_id);
         	
@@ -256,9 +262,17 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 	            } catch (Exception $e) {
 	            	Logger::AddLog($e->getMessage(),4);
 	            }
+	            
+	            //get credit card token from oneclic table
+	            //Because splitpayment method always save the card data
+	            $card = $this->module->getCustomerCard($order->id_customer);
+	            
+	            //Save deadlines
+	            $profile->generateDeadlines($order, $card['id_card'], $methodInstance->getCode(),true,true);
 	           
             
             }
+            
             
             $templateVars = array();
             
@@ -273,6 +287,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         
         die('OK');
     }
+    
 
     /**
     * 

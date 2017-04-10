@@ -47,10 +47,6 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     {
         parent::__construct();
         require_once _PS_MODULE_DIR_ . $this->module->name . '/services/LemonWayKit.php';
-        foreach (Lemonway::$subMethods as $method){
-        	$classname = $method['classname'];
-        	require_once _PS_MODULE_DIR_ . $this->module->name . "/classes/methods/{$classname}.php";
-        }
     }
 
     
@@ -89,14 +85,15 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         $amountTot = number_format((float)$amountTotRaw, 2, '.', '');
         
         $methodCode = Tools::getValue('method_code'); 
+        /* @var $methodInstance Method */
+        $methodInstance = $this->module->methodFactory($methodCode);
         
-        if(!$this->methodIsAllowed($methodCode)){
+        if(!$methodInstance->isAllowed()){
         	$this->addError($this->l('Payment method is not allowed!'));
         	return $this->displayError();
         }
         
-        /* @var $methodInstance Method */
-        $methodInstance = $this->module->methodFactory($methodCode);
+        
         
         $baseCallbackParams = array(
         		'secure_key' => $secure_key,

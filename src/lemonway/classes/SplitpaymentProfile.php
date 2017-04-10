@@ -23,6 +23,7 @@
 * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
 * International Registered Trademark & Property of PrestaShop SA
 */
+require_once 'SplitpaymentDeadline.php';
 
 class SplitpaymentProfile extends ObjectModel
 {
@@ -141,6 +142,57 @@ class SplitpaymentProfile extends ObjectModel
 
 	public static function l($string){
 		return Translate::getModuleTranslation('lemonway',$string,'splitpaymentprofile');
+	}
+	
+	/**
+	 *
+	 * @param OrderCore $order
+	 * @param string $token
+	 * @param string $methodCode
+	 * @param boolean $completeFirst valid the first deadline
+	 * @param boolean $add save deadlines in db
+	 *
+	 * @return array
+	 */
+	public function generateDeadlines($order,$token,$methodCode,$completeFirst = false,$add = false){
+	
+		$deadlines = array();
+		
+		if(!$this->id) return $deadlines;
+		
+	
+		$splitpayments = $this->splitPaymentAmount($order->total_paid);
+	
+		foreach ($splitpayments as $index=>$split){
+			
+			$completeFirst = $completeFirst && ($index == 0);
+				
+			$splitDealine =  new SplitpaymentDeadline();
+			$splitDealine->id_order = $order->id;
+			$splitDealine->order_reference = $order->reference;
+			$splitDealine->id_splitpayment_profile = $this->id;
+			$splitDealine->id_customer = $order->id_customer;
+				
+			$splitDealine->amount_to_pay = $split['amountToPay'];
+			$splitDealine->date_to_pay = $split['dateToPay'];
+			$splitDealine->attempts = $completeFirst ? 1 : 0;
+	
+				
+			$splitDealine->method_code = $methodCode;
+			$splitDealine->status = $completeFirst ? SplitpaymentDeadline::STATUS_COMPLETE : SplitpaymentDeadline::STATUS_PENDING;
+			$splitDealine->token = $token;
+			$splitDealine->total_amount = $order->total_paid;
+				
+			$deadlines[] = $splitDealine;
+				
+			if($add){
+				if(!$splitDealine->add()){
+					Logger::AddLog('Error during split payment deadline records for order ' . $order->id);
+				}
+			}
+		}
+
+		return $deadlines;
 	}
 
 	/**

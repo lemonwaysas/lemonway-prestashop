@@ -844,6 +844,10 @@ class Lemonway extends PaymentModule
     }
     
     public function methodFactory($methodCode){
+    	return self::methodInstanceFactory($methodCode);
+    }
+    
+    public static function methodInstanceFactory($methodCode){
     	//Create method instance and return it
     	$methodClassName =  self::$subMethods[$methodCode]['classname'];
     	return new $methodClassName();
@@ -922,6 +926,30 @@ class Lemonway extends PaymentModule
         ));
 
         return $this->display(__FILE__, 'views/templates/hook/confirmation.tpl');
+    }
+    
+    /**
+     * This hook is used to add color to splitpayment deadlines results.
+     * @param array $params
+     */
+    public function hookActionAdminSplitpaymentDeadlineListingResultsModifier($params){
+
+    	$list = &$params['list'];
+
+    	foreach ($list as $index=>$tr){
+    		switch ($tr['status']){
+    			case "failed":
+    				$list[$index]['color'] = 'red';
+    				break;
+    			case 'complete':
+    				$list[$index]['color'] = 'green';
+    				break;
+    			case 'pending':
+    				$list[$index]['color'] = 'orange';
+    				break;
+    		}
+    	}
+    	
     }
     
     public function getCustomerCard($id_customer)

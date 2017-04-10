@@ -51,7 +51,8 @@ function upgrade_module_1_2_5($module)
 	    	CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'lemonway_splitpayment_deadline` (
 				`id_splitpayment` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 				`id_order` int(10) UNSIGNED NOT NULL ,
-				`customer_id` int(10) UNSIGNED NOT NULL ,
+	    		`order_reference` VARCHAR(9) NOT NULL,
+				`id_customer` int(10) UNSIGNED NOT NULL ,
 	    		`id_splitpayment_profile` int(10) UNSIGNED NOT NULL ,
 				`token` text NOT NULL ,
 				`total_amount` decimal(12,4) NOT NULL,
@@ -60,6 +61,9 @@ function upgrade_module_1_2_5($module)
 				`method_code` varchar(150) NOT NULL,
 				`attempts` int(4) UNSIGNED NOT NULL DEFAULT \'0\' ,
 				`status` varchar(60) NOT NULL DEFAULT \'pending\',
+	    		`paid_at` datetime,
+	    		`date_add` datetime NOT NULL,
+  				`date_upd` datetime NOT NULL,
 				PRIMARY KEY  (`id_splitpayment`)
     		) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
@@ -67,26 +71,39 @@ function upgrade_module_1_2_5($module)
 		return false;
 	}
 	
-	addAdminTab($module);
+	
+	
 	updateNewConfigurationKeyValue();
 	
 	$module->addStatusSplitpayment();
-
-	return true;
-}
-
-function addAdminTab($module){
-	
-	$adminLemonwayId = Db::getInstance()->getValue(
-			"SELECT `id_tab` FROM " . _DB_PREFIX_ . "tab WHERE `class_name`='AdminLemonway'"
-			);
 	
 	$translationsAdminSplitpaymentProfile = array(
 			'en'=>'Split payment profile',
 			'fr'=>'Profil de paiement en plusieurs fois'
 	);
 	
-	$module->installModuleTab('AdminSplitpaymentProfile', $translationsAdminSplitpaymentProfile, $adminLemonwayId);
+	addAdminTab($module,'AdminSplitpaymentProfile', $translationsAdminSplitpaymentProfile); 
+	
+	$translationsAdminSplitpaymentDeadline = array(
+			'en'=>'Split payment deadline',
+			'fr'=>'Échéances de paiement en plusieurs fois'
+	);
+	
+	addAdminTab($module,'AdminSplitpaymentDeadline', $translationsAdminSplitpaymentDeadline);
+	
+	$module->registerHook('actionAdminSplitpaymentDeadlineListingResultsModifier');
+
+	return true;
+}
+
+function addAdminTab($module,$tabClass, $translations){
+	
+	$adminLemonwayId = Db::getInstance()->getValue(
+			"SELECT `id_tab` FROM " . _DB_PREFIX_ . "tab WHERE `class_name`='AdminLemonway'"
+			);
+	
+	
+	$module->installModuleTab($tabClass, $translations, $adminLemonwayId,$module->name);
 	
 }
 

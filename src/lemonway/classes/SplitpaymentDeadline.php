@@ -23,7 +23,7 @@
 * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
 * International Registered Trademark & Property of PrestaShop SA
 */
-
+require_once _PS_MODULE_DIR_ . 'lemonway/services/LemonWayKit.php';
 class SplitpaymentDeadline extends ObjectModel
 {
 
@@ -36,7 +36,8 @@ class SplitpaymentDeadline extends ObjectModel
 
 
 	public $id_order;
-	public $customer_id;
+	public $order_reference;
+	public $id_customer;
 	public $id_splitpayment_profile;
 	public $token;
 	public $total_amount;
@@ -45,26 +46,35 @@ class SplitpaymentDeadline extends ObjectModel
 	public $method_code;
 	public $attempts;
 	public $status;
+	public $paid_at;
 	
 	/** @var string Object creation date */
 	public $date_add;
 	
 	/** @var string Object last modification date */
 	public $date_upd;
-
+	
+	public function __construct($id = null, $id_lang = null, $id_shop = null){
+		parent::__construct($id, $id_lang, $id_shop);
+		$this->module =  Module::getInstanceByName('lemonway');
+	}
 
 	/**
 	 * @see ObjectModel::$definition
 	 */
 	public static $definition = array(
 			'table' => 'lemonway_splitpayment_deadline',
-			'primary' => 'id_profile',
+			'primary' => 'id_splitpayment',
 			'multilang' => false,
 			'multilang_shop' => false,
 			'fields' => array(
 					'id_order' => array(
 							'type' => self::TYPE_INT,
 							'validate' => 'isUnsignedId',
+							'required' => true
+					),
+					'order_reference' => array(
+							'type' => self::TYPE_STRING,
 							'required' => true
 					),
 					'id_customer' => array(
@@ -109,10 +119,160 @@ class SplitpaymentDeadline extends ObjectModel
 							'type' => self::TYPE_STRING,
 							'required'=>true
 					),
+					'paid_at' => array('type' => self::TYPE_DATE, 'validate' => 'isDate'),
 					'date_add' => array('type' => self::TYPE_DATE, 'validate' => 'isDate'),
 					'date_upd' => array('type' => self::TYPE_DATE, 'validate' => 'isDate'),
 			),
 	);
+	
+	public static function allIsPaid($order){
+		
+		if(is_int($order)){
+			$order = new Order($order);
+		}
+		
+		$deadlines = new PrestaShopCollection('SplitpaymentDeadline');
+		$deadlines->where('id_order', '=', $order->id);
+		
+		foreach ($deadlines as $deadline){
+			if($deadline->status != self::STATUS_COMPLETE){
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	public function pay($update = false){
+		
+		if(!$this->canPaid()){
+			$message = Tools::displayError('Can\'t pay this pslitpayment.');
+			throw new Exception($message);
+		}
+		
+		/* @var $methodInstance Method */
+		$methodInstance = $this->module->methodFactory($this->method_code);
+		$order = new Order($this->id_order);
+		$customer = new Customer($this->id_customer);
+		
+		if (Validate::isLoadedObject($order) && Validate::isLoadedObject($customer) ) {
+			$kit = new LemonWayKit();
+			 
+			$comment = Configuration::get('PS_SHOP_NAME') . " - " . $order->reference . " - " .
+					$customer->lastname . " " . $customer->firstname . " - " . $customer->email;
+					 
+			//Call directkit for MoneyInWithCardId to execute this split payment
+			$params = array(
+					'wkToken' => $order->id,
+					'wallet'=> LemonWayConfig::getWalletMerchantId(),
+					'amountTot' => number_format($this->amount_to_pay, 2, '.', ''),
+					'amountCom'=> number_format(0, 2, '.', ''),
+					'comment' => $comment .  " (Splitpayment #".$this->id.")",
+					'autoCommission' => 1,
+					'cardId' => $this->token
+			);
+			
+			try {
+				 
+				$this->attempts++;
+				$res = $kit->moneyInWithCardId($params);
+				 
+			
+				if (isset($res->lwError)) {
+					$this->status = SplitpaymentDeadline::STATUS_FAILED;
+					$message = Tools::displayError('An error occurred while trying to pay split payment.' . " Error code: " . $res->lwError->CODE . " Message: " . $res->lwError->MSG);
+					throw new Exception($message, $res->lwError->CODE);
+			
+				}
+				else{
+			
+					Logger::AddLog(print_r($res,true));
+					/* @var $op Operation */
+					foreach ($res->operations as $op) {
+							
+						if ($op->STATUS == "3") {
+			
+							$this->status = SplitpaymentDeadline::STATUS_COMPLETE;
+									
+							/* @var $invoiceCollection PrestaShopCollectionCore */
+							$invoiceCollection = $order->getInvoicesCollection();
+		
+							$lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
+							try {
+								$order->addOrderPayment($this->amount_to_pay,  $methodInstance->getTitle(),$op->ID, null, null, $lastInvoice);
+									
+							} catch (Exception $e) {
+								Logger::AddLog($e->getMessage(),4);
+							}
+								
+							//@TODO change order state if is the last split payment
+							//$id_order_state = Configuration::get('PS_OS_PAYMENT');
+							// change order state if is the last split payment
+							/* if(SplitpaymentDeadline::allIsPaid($order)){
+							$id_order_state = Configuration::get('PS_OS_PAYMENT');
+							} */
+
+							break;
+			
+			
+						} else {
+							$this->status = SplitpaymentDeadline::STATUS_FAILED;
+							$message = Tools::displayError($op->MSG);
+							throw new Exception($message);
+			
+						}
+					}
+				}
+				 
+				 
+				 
+			} catch (Exception $e) {
+				$this->status = SplitpaymentDeadline::STATUS_FAILED;
+				if($update){
+					$this->update();
+				}
+				throw $e;
+			}
+			
+			//Update attempts, state ,etc ..
+			if($update){
+				$this->update();	 
+			}
+		}
+	}
+	
+	
+    /**
+     * Updates the current object in the database
+     *
+     * @param bool $null_values
+     *
+     * @return bool
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
+	public function update($null_values = false)
+	{
+		
+		if($this->status == self::STATUS_COMPLETE && ($this->paid_at == null || $this->paid_at == '0000-00-00 00:00:00')){
+			$this->paid_at =  date('Y-m-d H:i:s');
+		}
+		else{
+			$this->paid_at = null;
+			$null_values = true;
+		}
+	
+		return parent::update($null_values);
+	}
+	
+	public function getMaxAttempts(){
+		return self::MAX_ATTEMPTS;	
+	}
+	
+	public function canPaid(){
+		return $this->attempts <= $this->getMaxAttempts() && $this->status != self::STATUS_COMPLETE;
+	}
+	
 
 
 	/**
@@ -137,6 +297,14 @@ class SplitpaymentDeadline extends ObjectModel
 			return $result;
 		}
 		return $statues;
+	}
+	
+	public static function getStatuesKeyValue(){
+		return array(
+						self::STATUS_COMPLETE=>self::getStatusLabel(self::STATUS_COMPLETE),
+						self::STATUS_FAILED=>self::getStatusLabel(self::STATUS_FAILED),
+						self::STATUS_PENDING=>self::getStatusLabel(self::STATUS_PENDING),
+				);
 	}
 
 	/**

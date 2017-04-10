@@ -70,4 +70,28 @@ abstract class Method{
 		return $this->isSplitpayment;
 	}
 	
+	
+	public function isAllowed(){
+		 
+		if(!$this->isActive()){
+			return false;
+		}
+		 
+		switch( $this->getCode()){
+	
+			case "creditcard_xtimes":
+				if(!in_array(Tools::getValue('splitpayment_profile_id'),$this->getModule()->getSplitpaymentProfiles())){
+					return false;
+				}
+				else{
+					return true;
+				}
+				 
+			default:
+				return true;
+	
+		}
+		 
+		return false;
+	}
 }
