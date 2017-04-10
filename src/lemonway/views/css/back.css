@@ -88,7 +88,7 @@
 	padding-left: 15px;
 }
 
-.Lemonway-content .ul-spaced li {
+.Lemonway-content .ul-spaced li, .Lemonway-content .ol-spaced li {
 	margin-bottom: 5px;
 }
 

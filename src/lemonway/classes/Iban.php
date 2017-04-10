@@ -113,7 +113,7 @@ class IbanCore extends ObjectModel
     public static function getCustomerIbans($id_customer)
     {
         $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_iban` iban ' .
-        'WHERE iban.`id_customer` = ' . pSQL($id_customer);
+        'WHERE iban.`id_customer` = ' .(int)pSQL($id_customer);
         $sql .= ' ORDER BY iban.`date_add` DESC';
         
         $res = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);

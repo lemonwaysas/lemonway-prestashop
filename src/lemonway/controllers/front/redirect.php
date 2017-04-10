@@ -61,8 +61,6 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         $secure_key = $this->context->customer->secure_key;
         $kit = new LemonWayKit();
         
-        $params = array();
-        
         /**
         * Generate a new wkToken for this cart ID
         * It' is necessary to send a new wkToken for each requests
@@ -149,7 +147,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 'returnUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', $returnlCallbackParams, true)),
                 'cancelUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', $cancelCallbackParams, true)),
                 'errorUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', $errorCallbackParams, true)),
-                'autoCommission' => 1,
+                'autoCommission' => 0,
                 'registerCard' => $this->registerCard(), //For Atos
                 'useRegisteredCard' => $this->registerCard(), //For payline
             );
@@ -197,7 +195,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     'amountTot' => $amountTot,
                     'amountCom'=> $amountCom,
                     'comment' => $comment .  " (Money In with Card Id)",
-                    'autoCommission' => 1,
+                    'autoCommission' => 0,
                     'cardId' => $card['id_card']
                 );
 

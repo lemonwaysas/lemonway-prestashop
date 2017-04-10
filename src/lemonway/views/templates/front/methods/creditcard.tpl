@@ -23,7 +23,8 @@
  *}
 <div class="row">
 	<div class="col-xs-12 col-md-12">
-		<form
+		<div class="Lemonway_payment_form">
+		<form class="placeOrderForm"
 			action="{$link->getModuleLink('lemonway', 'redirect', array(), true)|escape:'htmlall':'UTF-8'}"
 			method="POST">
 			<input type="hidden" value="{$method->getCode()}" name="method_code">
@@ -99,7 +100,7 @@
 							{/if}
 							</div>
 						{/if}
-						<div class="lemonway-payment-button-submit-container">
+						<div class="lemonway-payment-button-submit-container Lemonway_payment_btn">
 							<button type="submit" name="lwPay"
 								class="button btn btn-default">
 								<span> {$method->getTitle()} <i
@@ -123,5 +124,6 @@
 
 			</p>-->
 		</form>
+		</div>
 	</div>
 </div>

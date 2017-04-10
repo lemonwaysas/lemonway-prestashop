@@ -65,28 +65,18 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         /**
         * Restore the context from the $cart_id & the $customer_id to process the validation properly.
         */
-        /* Context::getContext()->cart = $cart;
+        Context::getContext()->cart = $cart;
         if(!Context::getContext()->cart->id) {
             die;
         }
 
         Context::getContext()->customer = $customer;
         Context::getContext()->currency = new Currency((int)Context::getContext()->cart->id_currency);
-        Context::getContext()->language = new Language((int)Context::getContext()->customer->id_lang);*/
+        Context::getContext()->language = new Language((int)Context::getContext()->customer->id_lang);
         
-        /**
-        * Since it's an example we are validating the order right here,
-        * You should not do it this way in your own module.
-        */
         $payment_status = Configuration::get(Lemonway::LEMONWAY_PENDING_OS); // Default value for a payment that succeed.
         $message = $this->module->l("Order in pending validation payment.");
-        // You can add a comment directly into the order so the merchant will see it in the BO.
-        
-        /**
-        * Converting cart into a valid order
-        */
-        
-        //$module_name = $this->module->displayName;
+                
         $currency_id = (int)Context::getContext()->currency->id;
         
         switch ($action)
@@ -97,7 +87,9 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 */
                 $order_id = Order::getOrderByCartId((int)$cart->id);
                 if (!$order_id) {
-                	
+                	/**
+                	 * Converting cart into a valid order
+                	 */
                     $this->module->validateOrder(
                         $cart_id,
                         $payment_status,

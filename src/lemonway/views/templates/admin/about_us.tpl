@@ -24,7 +24,7 @@
 
 <div class="panel">
 	<div class="row Lemonway-header">
-		<svg class="col-xs-6 col-md-3 text-center" id="payment-logo"  width="275px" height="65px" viewBox="0 0 275 65" x="0px" y="0px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
+		<svg class="col-xs-6 col-md-3 text-center" id="payment-logo" width="275px" height="65px" viewBox="0 0 275 65" x="0px" y="0px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
 			<g id="Homepage" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
 			<g id="Desktop-HD" sketch:type="MSArtboardGroup" transform="translate(-94.000000, -648.000000)" fill="#57ED7D"> 
 			<g id="header-2" sketch:type="MSLayerGroup" transform="translate(0.000000, 632.000000)">
@@ -34,10 +34,11 @@
 			</g>
 		</svg>
 		<div class="col-xs-6 col-md-6 text-center text-muted">
-			{l s='Secured payment solutions for Internet marketplaces, eCommerce, and crowdfunding. Payment API. BackOffice management. Compliance. Regulatory reporting.' mod='lemonway'}
+			{l s='Secured payment solution for all Prestashop E-commerce websites' mod='lemonway'}
+            <h2 style="color: black;">{l s='1.2% of commission on all your transactions' mod='lemonway'}</h2>
 		</div>
 		<div class="col-xs-12 col-md-3 text-center">
-			<a href="https://www.lemonway.fr/contact.html" target="_blank" class="btn btn-primary" id="create-account-btn">{l s='Create an account' mod='lemonway'}</a><br />
+			<a href="{l s='https://ecommerce.lemonway.com/en/seller/registration' mod='lemonway'}" target="_blank" class="btn btn-primary" id="create-account-btn">{l s='Sign in' mod='lemonway'}</a><br />
 		</div>
 	</div>
 
@@ -46,38 +47,39 @@
 	<div class="Lemonway-content">
 		<div class="row">
 			<div class="col-md-6">
-				<h5>{l s='A COMPLETE SOLUTION' mod='lemonway'}</h5>
-				<ul class="ul-spaced">
+				<h5>{l s='HOW CAN I CREATE AN ACCOUNT?' mod='lemonway'}</h5>
+				<ol class="ol-spaced">
 					<li>
-						<strong>{l s='PAYMENT API' mod='lemonway'}:</strong>
-						{l s='Create your payment accounts, escrow accounts, or Wallets. Secure your payments with 3D Secure. Plan your transfers. Digitally sign your contracts.' mod='lemonway'}
+						<strong>{l s='Complete the form' mod='lemonway'}</strong>
+                        <a href="{l s='https://ecommerce.lemonway.com/en/seller/registration' mod='lemonway'}" target="_blank" class="btn btn-primary" id="create-account-btn">{l s='Sign in' mod='lemonway'}</a>
 					</li>
 					
 					<li>
-						<strong>{l s='FOLLOW YOUR FLOWS' mod='lemonway'}:</strong>
-						{l s='Control your turnover, manage your cost accounting, export all your payment transactions at any time and in real-time. Manage documents linked to a payment account.' mod='lemonway'}
+						<strong>{l s='Complete your profile in "My Account"' mod='lemonway'}</strong>
 					</li>
 					
 					<li>
-						<strong>{l s='SECURE FUNDS' mod='lemonway'}:</strong>
-						{l s='Lemon Way is a payment institution acredited by the ACPR (French Prudential Supervisory Authority) that specializes in the collection of money for third parties, and the holding of funds in escrow accounts.' mod='lemonway'}
+						<strong>{l s='Test and receive your payments by credit cards with' mod='lemonway'} <a href="{l s='https://lemonway.zendesk.com/hc/en-gb/categories/201471729-Prestashop-1-6' mod='lemonway'}" target="_blank">{l s='our helpdesk' mod='lemonway'}</a></strong>
 					</li>
-				</ul>
+				</ol>
 			</div>
 			
 			<div class="col-md-6">
-				<h5>{l s='PAYMENT FOR ANY ACTIVITY' mod='lemonway'}</h5>
+				<h5>{l s='A TURNKEY SOLUTION' mod='lemonway'}</h5>
 				<dl class="list-unstyled">
-					<dt>{l s='MARKETPLACES' mod='lemonway'}</dt>
-					<dd>{l s='Lemon Way manages the on-boarding of your new merchants, monitors your payment flows, secures undistributed funds, and holds them in an appropriate account.' mod='lemonway'}</dd>
-					<dt>{l s='CROWDFUNDING' mod='lemonway'}</dt>
-					<dd>{l s='Lemon Way is experienced in lending based crowdfunding, equity based crowdfunding, and in donation and reward based crowdfunding. Drive your business in Europe with our EUR, GBP, and CHF solutions.' mod='lemonway'}</dd>
-					<dt>{l s='E-COMMMERCE' mod='lemonway'}</dt>
-					<dd>{l s='Accept multiple payment methods. Add security to your payments when needed with 3D Secure. Increase your revenue and reduce your fraud and chargeback rates.' mod='lemonway'}</dd>
-					<dt>{l s='MOBILE PAYMENT' mod='lemonway'}</dt>
-					<dd>{l s='Launch your mobile innovations with smartphone payment, pay in a click with saved bank card numbers, and streamline your payment methods with our technology.' mod='lemonway'}</dd>
+					<dt>{l s='Secured payments' mod='lemonway'}</dt>
+					<dd>
+                        {l s='Increase your turnover and secure your payments thanks the 3D Secure.' mod='lemonway'}<br/>
+                        {l s='Lemon Way is payment institution licensed by the ACPR. Our mission is to collect money on an escrow account.' mod='lemonway'}
+                    </dd>
+					<dt>{l s='Manage your transactions' mod='lemonway'}</dt>
+					<dd>
+                        {l s='Follow your turnover in real team thanks to our very intuitive and dedicated back office.' mod='lemonway'}<br/>
+                        {l s='One click refund thanks to your back office.' mod='lemonway'}<br/>
+                        {l s='Move your money to your bank account whenever you want and no matter the amount.' mod='lemonway'}
+                    </dd>
 				</dl>
-				<a href="https://www.lemonway.fr" target="_blank">{l s='More info...' mod='lemonway'}</a>
+                <img src="{$module_dir|escape:'html':'UTF-8'}views/img/bo-screenshot.png" class="col-xs-10" id="bo-screenshot" />
 			</div>
 		</div>
 
@@ -85,12 +87,9 @@
 		
 		<div class="row">
 			<div class="col-md-12">
-				<p class="text-muted">{l s='We accept many payment methods . Visa, MasterCard, but also checks and SEPA transfers ...' mod='lemonway'}</p>
-				
 				<div class="row">
-					<img src="{$module_dir|escape:'html':'UTF-8'}views/img/paiement-mode.jpg" class="col-md-3" id="payment-logo" />
-					<div class="col-md-9 text-center">
-						<h6>{l s='For more information, call +33 1 48 18 19 30' mod='lemonway'} {l s='or' mod='lemonway'} <a href="mailto:contact@lemonway.fr">contact@lemonway.fr</a></h6>
+					<div class="text-center">
+						<h2>{l s='For more information, please contact us:' mod='lemonway'} +33 1 48 18 19 30 {l s='or' mod='lemonway'} <a href="mailto:ecommerce@lemonway.com">ecommerce@lemonway.com</a></h2>
 					</div>
 				</div>
 			</div>

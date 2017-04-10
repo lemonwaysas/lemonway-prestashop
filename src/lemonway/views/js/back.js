@@ -22,14 +22,13 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 */
 
-$(function() {
-	
+$(function() 
+{	
 	var iban_select = $('#id_lw_iban');
 	var iban_hidden = $('#iban');
-	if(typeof iban_select != 'undefined')
-	{
-		iban_select.change(function(ev){
-			 
+	if(typeof iban_select != 'undefined'){
+		iban_select.change(function(ev)
+		{	 
 			 if(typeof iban_hidden != 'undefined'){
 				 iban_hidden.val(iban_select.find("option:selected").text());
 			 }
