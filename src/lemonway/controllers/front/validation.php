@@ -58,16 +58,63 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         $action = Tools::getValue('action');
         $cart_id = $this->module->getCartIdFromToken(Tools::getValue('response_wkToken'));
         
+
+        /**
+         * Restore the context from the $cart_id & the $customer_id to process the validation properly.
+         */
+        Context::getContext()->cart = new Cart((int)$cart_id);
+        if (!Context::getContext()->cart->id) {
+        	die;
+        }
+        
+        Context::getContext()->customer = new Customer((int)Context::getContext()->cart->id_customer);
+        Context::getContext()->currency = new Currency((int)Context::getContext()->cart->id_currency);
+        Context::getContext()->language = new Language((int)Context::getContext()->customer->id_lang);
+        
+        /* @var $methodInstance Method */
+        $methodInstance = $this->module->methodFactory(Tools::getValue('payment_method'));
+        $cart_total_paid = (float)Tools::ps_round(
+                (float)Context::getContext()->cart->getOrderTotal(true, Cart::BOTH),
+                2
+            );
+        
+        $redirectParams = array(
+        		'action' => $action,
+        		'secure_key' => Tools::getValue('secure_key'),
+        		'cart_id'=> $cart_id,
+        		'payment_method' => $methodInstance->getCode(),
+        );
+        
+        $profile = new SplitpaymentProfile();
+        //If is X times method, we split the payment
+        if($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))){
+        	
+        	$profile = new SplitpaymentProfile($splitPaypentProfileId);
+        	if($profile){
+        
+        		$splitpayments = $profile->splitPaymentAmount($cart_total_paid);
+        		$firstSplit = $splitpayments[0];
+        		$cart_total_paid =  (float)Tools::ps_round((float)$firstSplit['amountToPay'], 2);
+        	
+        		//Add prodile Id to base callbackparamters
+        		$redirectParams['splitpayment_profile_id'] = $splitPaypentProfileId;
+        		
+        	}
+        	else{
+        		$this->addError($this->l('Split payment profile not found!'));
+        		return $this->displayError();
+        	}
+        }
+        
+        
         if ($this->isGet()) { //Is redirection from Lemonway
-            if ((Tools::isSubmit('secure_key') == false)) {
+            
+        	if ((Tools::isSubmit('secure_key') == false)) {
                 die;
             }
 
-            Tools::redirect($this->context->link->getModuleLink('lemonway', 'confirmation', array(
-                'action' => $action,
-                'secure_key' => Tools::getValue('secure_key'),
-                'cart_id'=> $cart_id
-            ), true));
+            Tools::redirect($this->context->link->getModuleLink('lemonway', 'confirmation', $redirectParams, true));
+            
         } elseif ($this->isPost()) { //Is instant payment notification
             //wait for GET redirection finish in front
             sleep(4);
@@ -78,24 +125,14 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
             
             $response_code = Tools::getValue('response_code');
             $amount = (float)Tools::getValue('response_transactionAmount');
+            $amount_paid = Tools::ps_round((float)$amount, 2);
+            
             $register_card = (bool)Tools::getValue('register_card', false);
-
-            /**
-            * Restore the context from the $cart_id & the $customer_id to process the validation properly.
-            */
-            Context::getContext()->cart = new Cart((int)$cart_id);
-            if (!Context::getContext()->cart->id) {
-                die;
-            }
-
-            Context::getContext()->customer = new Customer((int)Context::getContext()->cart->id_customer);
-            Context::getContext()->currency = new Currency((int)Context::getContext()->cart->id_currency);
-            Context::getContext()->language = new Language((int)Context::getContext()->customer->id_lang);
             
             $secure_key = Context::getContext()->customer->secure_key;
             
             //Default status to error
-            $payment_status = Configuration::get('PS_OS_ERROR');
+            $id_order_state = Configuration::get('PS_OS_ERROR');
             //Default message;
             $message = Tools::getValue('response_msg');
 
@@ -103,7 +140,11 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 switch ($action)
                 {
                     case 'return':
-                        $payment_status = Configuration::get('PS_OS_PAYMENT');
+                        $id_order_state = Configuration::get('PS_OS_PAYMENT');
+                        if($methodInstance->isSplitPayment()){
+                        	$id_order_state = Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
+                        }
+                        
                         $message = Tools::getValue('response_msg');
 
                         if (($customer_id = Context::getContext()->customer->id) && $register_card) {
@@ -123,7 +164,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                         break;
 
                     case 'cancel':
-                        $payment_status = Configuration::get('PS_OS_CANCELED');
+                        $id_order_state = Configuration::get('PS_OS_CANCELED');
 
                         /**
                         * Add a message to explain why the order has not been validated
@@ -138,19 +179,31 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 }
             }
 
-            $module_name = $this->module->displayName;
+           // $module_name = $this->module->displayName;
             $currency_id = (int)Context::getContext()->currency->id;
         } else {
             //@TODO throw error for not http method supported
-            die;
+            die();
         }
+        
+        $isSameAmount = (number_format($cart_total_paid, _PS_PRICE_COMPUTE_PRECISION_)
+        		=== number_format($amount_paid, _PS_PRICE_COMPUTE_PRECISION_));
+        
 
+        if (!$isSameAmount) {
+        	$id_order_state = Configuration::get('PS_OS_ERROR');
+        } 
+        
+        
+        $order_id = (int)Order::getOrderByCartId($cart_id);
+        
         if (!Context::getContext()->cart->OrderExists()) {
+        	
             $this->module->validateOrder(
                 $cart_id,
-                $payment_status,
-                $amount,
-                $module_name,
+                $id_order_state,
+                $amount_paid,
+                $methodInstance->getTitle(),
                 $message,
                 array(
                 ),
@@ -158,32 +211,83 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 false,
                 $secure_key
             );
-            //Logger::AddLog('New order added.');
-            die('New order added.');
-        } else {
-            $order_id = (int)Order::getOrderByCartId($cart_id);
-            $history = new OrderHistory();
-            $history->id_order = (int)$order_id;
-
-            $amount_paid = Tools::ps_round((float)$amount, 2);
-            $cart_total_paid = (float)Tools::ps_round(
-                (float)Context::getContext()->cart->getOrderTotal(true, Cart::BOTH),
-                2
-            );
-            if (number_format($cart_total_paid, _PS_PRICE_COMPUTE_PRECISION_)
-                != number_format($amount_paid, _PS_PRICE_COMPUTE_PRECISION_)) {
-                $id_order_state = Configuration::get('PS_OS_ERROR');
-            } else {
-                $id_order_state = Configuration::get('PS_OS_PAYMENT');
+            if(Lemonway::DEBUG_MODE)
+            	Logger::AddLog('New order added.');
+            
+            if($methodInstance->isSplitPayment()){
+            	
+	            $order_id = (int)Order::getOrderByCartId($cart_id); //Get new order id
+	            
+	            	/* @var $order OrderCore */
+	            $order = new Order($order_id);
+	            
+	            /* @var $invoiceCollection PrestaShopCollectionCore */
+	            $invoiceCollection = $order->getInvoicesCollection();
+	            $lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
+	
+	           $order->addOrderPayment($amount_paid,  $methodInstance->getTitle(), Tools::getValue('response_transactionId'), null, null, ($lastInvoice ? $lastInvoice : null));
+	            
+	           
             }
+            
+        } else {
+        	
+        	if($methodInstance->isSplitPayment() && !$profile){
+        		throw new Exception("Wrong date for split payment");
+        	}
 
-            $history->changeIdOrderState($id_order_state, (int)$order_id);
-
-            $history->save();
-
-            die('Order updated.');
+        	$order = new Order($order_id);
+        	
+  			try{
+  				$history = new OrderHistory();
+  				$history->id_order = (int)$order_id;
+  				
+  				$history->changeIdOrderState($id_order_state, $order,false);
+  				$history->save();
+  			}
+  			catch (Exception $e){
+  				Logger::AddLog($e->getMessage(),4);
+  			}
+          
+            
+            if($methodInstance->isSplitPayment()){
+            	
+            	/* @var $invoiceCollection PrestaShopCollectionCore */
+	            $invoiceCollection = $order->getInvoicesCollection();
+	            
+	            $lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
+	            try {
+	            	$order->addOrderPayment($amount_paid,  $methodInstance->getTitle(), Tools::getValue('response_transactionId'), null, null, $lastInvoice);            	 
+	            	
+	            } catch (Exception $e) {
+	            	Logger::AddLog($e->getMessage(),4);
+	            }
+	            
+	            //get credit card token from oneclic table
+	            //Because splitpayment method always save the card data
+	            $card = $this->module->getCustomerCard($order->id_customer);
+	            
+	            //Save deadlines
+	            $profile->generateDeadlines($order, $card['id_card'], $methodInstance->getCode(),true,true);
+	           
+            
+            }
+            
+            
+            $templateVars = array();
+            
+            $history->sendEmail($order, $templateVars);
+            
+            if(Lemonway::DEBUG_MODE)
+            	Logger::AddLog("Order {$order_id} updated.");
+            
         }
+        
+       
+        
+        die('OK');
     }
+    
 
     /**
     * 

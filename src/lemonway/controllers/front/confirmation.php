@@ -36,9 +36,32 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         $action = Tools::getValue('action');
         $cart_id = Tools::getValue('cart_id');
         $secure_key = Tools::getValue('secure_key');
+        /* @var $methodInstance Method */
+        $methodInstance = $this->module->methodFactory(Tools::getValue('payment_method'));
+        
 
         $cart = new Cart((int)$cart_id);
         $customer = new Customer((int)$cart->id_customer);
+        
+        $cart_total_paid = (float)Tools::ps_round((float)$cart->getOrderTotal(true, Cart::BOTH),2);
+        
+        
+        //If is X times method, we split the payment
+        if($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))){
+        	$profile = new SplitpaymentProfile($splitPaypentProfileId);
+        	if($profile){
+        
+        		$splitpayments = $profile->splitPaymentAmount($cart_total_paid);
+        		$firstSplit = $splitpayments[0];
+        		$cart_total_paid =  (float)Tools::ps_round((float)$firstSplit['amountToPay'], 2);
+        		
+        
+        	}
+        	else{
+        		$this->addError($this->l('Split payment profile not found!'));
+        		return $this->displayError();
+        	}
+        }
 
         /**
         * Restore the context from the $cart_id & the $customer_id to process the validation properly.
@@ -56,7 +79,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         * Since it's an example we are validating the order right here,
         * You should not do it this way in your own module.
         */
-        $payment_status = Configuration::get('LEMONWAY_PENDING_OS'); // Default value for a payment that succeed.
+        $payment_status = Configuration::get(Lemonway::LEMONWAY_PENDING_OS); // Default value for a payment that succeed.
         $message = $this->module->l("Order in pending validation payment.");
         // You can add a comment directly into the order so the merchant will see it in the BO.
         
@@ -64,7 +87,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         * Converting cart into a valid order
         */
         
-        $module_name = $this->module->displayName;
+        //$module_name = $this->module->displayName;
         $currency_id = (int)Context::getContext()->currency->id;
         
         switch ($action)
@@ -75,11 +98,12 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 */
                 $order_id = Order::getOrderByCartId((int)$cart->id);
                 if (!$order_id) {
+                	
                     $this->module->validateOrder(
                         $cart_id,
                         $payment_status,
-                        $cart->getOrderTotal(),
-                        $module_name,
+                    	$cart_total_paid,
+                        $methodInstance->getTitle(),
                         $message,
                         array(
                         ),

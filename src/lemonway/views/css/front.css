@@ -28,37 +28,12 @@
  * to avoid any conflicts with others containers.
  */
 
-#Lemonway_payment_button a {
-	padding: 10px;
-	background-color: #FBFBFB;
+.lemonway-payment{
+	margin-bottom: 10px;
 }
 
-#Lemonway_payment_button a:hover {
-	background-color: #f6f6f6;
-}
-
-#Lemonway_payment_button a:after {
-	display: block;
-	content: "\f054";
-	position: absolute;
-	right: 15px;
-	margin-top: -11px;
-	top: 50%;
-	font-family: "FontAwesome";
-	font-size: 25px;
-	height: 22px;
-	width: 14px;
-	color: #777777;
-}
-
-#Lemonway_payment_button a svg {
-	vertical-align:middle;
-	margin-right:10px;
-}
-
-#Lemonway_payment_form #Lemonway_payment_form_container {
-	background-color: #FBFBFB;
-	display: block;
+.lemonway-payment .lemonway-payment-container{
+	 display: block;
     border: 1px solid #d6d4d4;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -67,7 +42,27 @@
     line-height: 23px;
     color: #333;
     font-weight: bold;
-    padding: 33px 40px 34px 99px;
+    padding: 33px 40px 34px 15px;
     letter-spacing: -1px;
-    position: relative; 
+    position: relative;
+}
+
+.lemonway-payment .lemonway-payment-container img.lemonway-payment-icon{
+	margin-bottom: 5px;
+}
+
+.lemonway-payment .lemonway-payment-container:hover{
+	/*background-color: #f6f6f6;
+	cursor:pointer;*/
+}
+
+.lemonway-payment .lemonway-payment-container button[type="submit"]{
+	font-size: 17px;
+    line-height: 21px;
+    font-weight: bold;
+    padding: 20px;
+}
+
+.lemonway-payment .lemonway-payment-container .lemonway-payment-splitpayment-profiles-container{
+	margin: 10px 10px 10px 0px;
 }

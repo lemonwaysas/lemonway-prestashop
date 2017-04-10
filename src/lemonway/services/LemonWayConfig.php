@@ -71,8 +71,8 @@ class LemonWayConfig
         return Configuration::get('LEMONWAY_CSS_URL', null);
     }
     
-    public static function getOneclicEnabled()
+    public static function getOneclicEnabled($method)
     {
-        return Configuration::get('LEMONWAY_ONECLIC_ENABLED', null);
+        return Configuration::get('LEMONWAY_' . strtoupper($method) . '_ONECLIC_ENABLED', null);
     }
 }
