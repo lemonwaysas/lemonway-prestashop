@@ -123,6 +123,7 @@
 				</a>
 
 			</p>-->
+			<input id="open_basedir" type="hidden" value="{$open_basedir|escape:'htmlall':'UTF-8'}" />
 		</form>
 		</div>
 	</div>

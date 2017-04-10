@@ -77,13 +77,13 @@ class Lemonway extends PaymentModule
         * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
         */
         $this->bootstrap = true;
+        
+        $this->module_key = 'f342e3b756786cb82b45c362cadd2813';
 
         parent::__construct();
 
-        $this->displayName = $this->l('Lemonway');
-        $this->description = $this->l('Through its API, Lemon Way offers you state-of-the-art payment technology. Beyond
-         their technological expertise, Lemon Way also offers a multitude of complementary regulation and management 
-         services.');
+        $this->displayName = $this->l('Lemon Way for E-commerce');
+        $this->description = $this->l('A one minute integration for the cheapest payment solution in Europe. Accept payment by credit cards from all around the world.');
 
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall? You will lose your datas!');
         
@@ -258,8 +258,8 @@ class Lemonway extends PaymentModule
         $this->installModuleTab('AdminLemonway', $translationsAdminLemonway, 0);
         
         $translationsStatus = array(
-            'en' => 'Pending payment validation',
-            'fr'=> 'En attente de validation'
+            'en' => 'Pending payment validation from Lemonway',
+            'fr'=> 'En attente de validation par Lemonway'
         );
 
         $translationsAdminMoneyOut = array(
@@ -301,11 +301,13 @@ class Lemonway extends PaymentModule
         	Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_ONECLIC_ENABLED');
         	Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_ENABLED');
         	Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_TITLE');
+        	Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_SPLITPAYMENTS');
         }
         
         
         //CREDIT CARD X TIMES (split)
-        Configuration::deleteByName('LEMONWAY_CC_XTIMES_SPLITPAYMENTS');
+        Configuration::deleteByName('LEMONWAY_SPLITPAYMENT_IS_RUNNING');
+        Configuration::deleteByName('LEMONWAY_SPLITPAYMENT_OS');
 
         //Do Not delete this configuration
         //Configuration::deleteByName('LEMONWAY_PENDING_OS');
@@ -716,7 +718,7 @@ class Lemonway extends PaymentModule
         $form_config = array(
             'form' => array(
                 'legend' => array(
-                    'title' => $this->l('API CONFIGURATION'),
+                    'title' => $this->l('ACCOUNT CONFIGURATION'),
                     'icon' => 'icon-cogs',
                 ),
                 'input' => array(
@@ -726,28 +728,27 @@ class Lemonway extends PaymentModule
                         'prefix' => '<i class="icon icon-user"></i>',
                         'desc' => $this->l('Production Api login'),
                         'name' => 'LEMONWAY_API_LOGIN',
-                        'label' => $this->l('API LOGIN'),
+                        'label' => $this->l('Login Lemon Way for E-commerce'),
                     ),
                     array(
                         'col' => 3,
                         'type' => 'password',
                         'name' => 'LEMONWAY_API_PASSWORD',
-                        'label' => $this->l('API Password'),
+                        'label' => $this->l('Password Lemon Way for E-commerce'),
                     ),
                     array(
                         'col' => 3,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-google-wallet"></i>',
-                        'desc' => $this->l('It\'s the wallet where your payments are credited. 
-                            You must to create it in BO Lemonway'),
+                        'desc' => $this->l('This information has been sent by email'),
                         'name' => 'LEMONWAY_MERCHANT_ID',
-                        'label' => $this->l('Wallet Merchant ID'),
+                        'label' => $this->l('Your account name'),
                     ),
                     array(
                         'col' => 6,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-cloud-upload"></i>',
-                        'desc' => $this->l(''),
+                        'desc' => $this->l('Leave empty, if this information has not been sent to you by Lemonway'),
                         'name' => 'LEMONWAY_DIRECTKIT_URL',
                         'label' => $this->l('DIRECTKIT XML URL'),
                     ),
@@ -755,7 +756,7 @@ class Lemonway extends PaymentModule
                         'col' => 6,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-cloud-upload"></i>',
-                        'desc' => $this->l(''),
+                        'desc' => $this->l('Leave empty, if this information has not been sent to you by Lemonway'),
                         'name' => 'LEMONWAY_WEBKIT_URL',
                         'label' => $this->l('WEBKIT URL'),
                     ),
@@ -763,7 +764,7 @@ class Lemonway extends PaymentModule
                         'col' => 6,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-cloud-upload"></i>',
-                        'desc' => $this->l(''),
+                        'desc' => $this->l('Leave empty, if this information has not been sent to you by Lemonway'),
                         'name' => 'LEMONWAY_DIRECTKIT_URL_TEST',
                         'label' => $this->l('DIRECTKIT XML URL TEST'),
                     ),
@@ -771,7 +772,7 @@ class Lemonway extends PaymentModule
                         'col' => 6,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-cloud-upload"></i>',
-                        'desc' => $this->l(''),
+                        'desc' => $this->l('Leave empty, if this information has not been sent to you by Lemonway'),
                         'name' => 'LEMONWAY_WEBKIT_URL_TEST',
                         'label' => $this->l('WEBKIT URL TEST'),
                     ),
@@ -785,10 +786,10 @@ class Lemonway extends PaymentModule
 
         $switch = array(
             'type' => 'switch',
-            'label' => $this->l('Enable test mode'),
+            'label' => $this->l('Activate test mode'),
             'name' => 'LEMONWAY_IS_TEST_MODE',
             'is_bool' => true,
-            'desc' => $this->l('Call requests in test API Endpoint'),
+            'desc' => $this->l('YES to go on Test, NO to go on Live'),
             'values' => array(
                 array(
                     'id' => 'active_on',
@@ -897,6 +898,7 @@ class Lemonway extends PaymentModule
         $this->smarty->assign(array(
             'module_dir' => $this->_path,
         	'methodsEnabled'=>$methodsEnabled,
+        	'open_basedir' => (ini_get('open_basedir') == '') ? "1" : "0"
         ));
 
         return $this->display(__FILE__, 'views/templates/hook/payment.tpl');
@@ -967,6 +969,7 @@ class Lemonway extends PaymentModule
         $oldCard = $this->getCustomerCard($id_customer);
 
         if ($oldCard) {
+        	$oldCard['id_oneclic'] = (int)$oldCard['id_oneclic'];
             $data = array_merge($oldCard, $data);
             $data['date_upd'] = date('Y-m-d H:i:s');
         } else {
@@ -985,7 +988,7 @@ class Lemonway extends PaymentModule
     
     public function getWalletDetails($wallet)
     {
-        $params = array("wallet"=>$wallet);
+        $params = array("wallet" => $wallet);
 
         $kit = new LemonWayKit();
         try {
@@ -1024,7 +1027,7 @@ class Lemonway extends PaymentModule
         
         //If cart haven't wkToken we insert it
         if (!$this->checkIfCartHasWkToken($id_cart)) {
-            $query = 'INSERT INTO `' . _DB_PREFIX_ . 'lemonway_wktoken` (`id_cart`,`wktoken`) VALUES (\''
+            $query = 'INSERT INTO `' . _DB_PREFIX_ . 'lemonway_wktoken` (`id_cart`, `wktoken`) VALUES (\''
                 . (int)pSQL($id_cart) . '\',\'' . pSQL($wkToken) . '\') ';
         }
 
@@ -1049,4 +1052,81 @@ class Lemonway extends PaymentModule
 
         throw new Exception($this->l("Cart not found!"), 406);
     } 
+    
+    
+    public function ajaxPlaceOrder()
+    {
+    	$cart = $this->context->cart;
+    	/* @var $customer CustomerCore */
+    	$customer = $this->context->customer;
+    
+    	require_once _PS_MODULE_DIR_.$this->name.'/services/LemonWayKit.php';
+    	$kit = new LemonWayKit();
+    
+    	// Generate a new wkToken for this cart ID
+    	// It's necessary to send a new wkToken for each requests
+    	$wkToken = $this->saveWkToken($cart->id);
+    	$comment = Configuration::get('PS_SHOP_NAME') . " - " . $cart->id . " - " .
+    			$customer->lastname . " " . $customer->firstname . " - " . $customer->email;
+    			$secure_key = $customer->secure_key;
+    			$registerCard = (Tools::getValue('lw_oneclic') === 'register_card');
+    
+    			//call directkit to get Webkit Token
+    			$params = array(
+    					'wkToken' => $wkToken,
+    					'wallet' => LemonWayConfig::getWalletMerchantId(),
+    					'amountTot' => number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
+    					'amountCom' => "0.00",
+    					'comment' => $comment,
+    					'returnUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
+    							'register_card' => (int)$registerCard,
+    							'action' => 'return',
+    							'secure_key' => $secure_key
+    					), true)),
+    					'cancelUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
+    							'action' => 'cancel',
+    							'secure_key' => $secure_key
+    					), true)),
+    					'errorUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
+    							'action' => 'error',
+    							'secure_key' => $secure_key
+    					), true)),
+    					'autoCommission' => 0,
+    					'registerCard' => (int)$registerCard, //For Atos
+    					'useRegisteredCard' => (int)$registerCard, //For payline
+    			);
+    
+    			try {
+    				$res = $kit->moneyInWebInit($params);
+    
+    				//Oops, an error occured.
+    				if (isset($res->lwError)) {
+    					throw new Exception((string)$res->lwError->MSG, (int)$res->lwError->CODE);
+    				}
+    
+    				if ($customer->id && isset($res->lwXml->MONEYINWEB->CARD) && $registerCard) {
+    					$card = $this->getCustomerCard($customer->id);
+    					if (!$card) {
+    						$card = array();
+    					}
+    
+    					$card['id_customer'] = $customer->id;
+    					$card['id_card'] = (string)$res->lwXml->MONEYINWEB->CARD->ID;
+    
+    					$this->insertOrUpdateCard($customer->id, $card);
+    				}
+    			} catch (Exception $e) {
+    				return $this->displayError($e->getMessage() . " - " . $e->getCode());
+    			}
+    
+    			//moneyInToken
+    			$moneyInToken = (string)$res->lwXml->MONEYINWEB->TOKEN;
+    
+    			//language
+    			$language = array_key_exists($this->context->language->iso_code, $this->supportedLangs) ?
+    			$this->supportedLangs[$this->context->language->iso_code] : $this->defaultLang;
+    
+    			$cardForm = $kit->printCardForm($moneyInToken, urlencode(LemonWayConfig::getCssUrl()), $language);
+    			return $cardForm;
+    }
 }
