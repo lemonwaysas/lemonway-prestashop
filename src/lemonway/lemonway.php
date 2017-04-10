@@ -44,6 +44,21 @@ class Lemonway extends PaymentModule
     protected $current_card = null;
     protected $splitpaymentProfiles = null;
     
+    protected $supportedLangs = array(
+    		        'da' => 'da',
+    		        'de' => 'ge',
+    		        'en' => 'en',
+    		        'es' => 'sp',
+    		        'fi' => 'fi',
+    		        'fr' => 'fr',
+    		        'it' => 'it',
+    		        'ko' => 'ko',
+    		        'no' => 'no',
+    		        'pt' => 'po',
+    		        'sv' => 'sw'
+    		    );
+    protected $defaultLang = 'en';
+    
     /**
     * @since 1.5.0.1
     * @var string Module local path (eg. '/home/prestashop/modules/modulename/')
@@ -59,7 +74,7 @@ class Lemonway extends PaymentModule
     );
     
     public static $subMethods = array(
-    		'CC' => array('classname'=>'Cc' ,"code"=>'CC',"title"=>'Credit Card','template'=>'../front/methods/creditcard.tpl'),
+    		'CC' => array('classname'=>'Cc' ,"code"=>'CC',"title"=> 'Credit Card' ,'template'=>'../front/methods/creditcard.tpl'),
     		'CC_XTIMES' => array('classname'=>'CcXtimes', "code"=>'CC_XTIMES',"title"=>'Credit Card (Split Payment)','template'=>'../front/methods/creditcard.tpl'),
     		'CHECK' => array('classname'=>'Check', "code"=>'CHECK',"title"=>'Check','template'=>'../front/methods/check.tpl'),
     		
@@ -307,7 +322,7 @@ class Lemonway extends PaymentModule
         
         //CREDIT CARD X TIMES (split)
         Configuration::deleteByName('LEMONWAY_SPLITPAYMENT_IS_RUNNING');
-        Configuration::deleteByName('LEMONWAY_SPLITPAYMENT_OS');
+       // Configuration::deleteByName('LEMONWAY_SPLIT_PAYMENT_OS');
 
         //Do Not delete this configuration
         //Configuration::deleteByName('LEMONWAY_PENDING_OS');
@@ -416,7 +431,7 @@ class Lemonway extends PaymentModule
     							}
     								
     						}
-    						$value = mplode(',', $values);
+    						$value = implode(',', $values);
     						
     				}
     				break;
@@ -465,7 +480,7 @@ class Lemonway extends PaymentModule
         $methodForms  =array();
         foreach (self::$subMethods as $methodCode=>$method){
         	$configurationKey = $methodCode;
-        	$methodForms[$methodCode] = array('form'=> $this->renderForm($configurationKey),'title'=>$method['title']);
+        	$methodForms[$methodCode] = array('form'=> $this->renderForm($configurationKey),'title'=>$this->l($method['title']));
         	
         	//$this->context->smarty->assign($configurationKey.'_form', $this->renderForm($configurationKey));
         }
@@ -740,9 +755,9 @@ class Lemonway extends PaymentModule
                         'col' => 3,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-google-wallet"></i>',
-                        'desc' => $this->l('This information has been sent by email'),
+                        'desc' => $this->l('This information has been sent by email'). ' (' . $this->l('Wallet ID') . ')',
                         'name' => 'LEMONWAY_MERCHANT_ID',
-                        'label' => $this->l('Your account name'),
+                        'label' => $this->l('Your account name') ,
                     ),
                     array(
                         'col' => 6,
@@ -813,7 +828,7 @@ class Lemonway extends PaymentModule
                 'label' => $this->l('Enable test mode'),
                 'name' => 'LEMONWAY_IS_TEST_MODE',
                 'is_bool' => true,
-                'desc' => $this->l('Call requests in test API Endpoint'),
+                'desc' => $this->l('YES to go on Test, NO to go on Live'),
                 'options' => array(
                     'query' => array(
                         array(

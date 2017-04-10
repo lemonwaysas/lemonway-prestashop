@@ -25,7 +25,7 @@
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist">
 	<li class="active"><a href="#about_us" role="tab" data-toggle="tab">{l s='About us' mod='lemonway'}</a></li>
-	<li class=""><a href="#access_api" role="tab" data-toggle="tab">{l s='Api configuration' mod='lemonway'}</a></li>
+	<li class=""><a href="#access_api" role="tab" data-toggle="tab">{l s='Account configuration' mod='lemonway'}</a></li>
 	{foreach from=$methodForms item=method key=methodCode}
 	<li class=""><a href="#method_{$methodCode}" role="tab" data-toggle="tab">{$method['title']}</a></li>
 	{/foreach}

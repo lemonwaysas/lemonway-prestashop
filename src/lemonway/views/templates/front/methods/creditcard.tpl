@@ -103,7 +103,7 @@
 						<div class="lemonway-payment-button-submit-container Lemonway_payment_btn">
 							<button type="submit" name="lwPay"
 								class="button btn btn-default">
-								<span> {$method->getTitle()} <i
+								<span>{l s='Pay with' mod='lemonway'} {$method->getTitle()} <i
 									class="icon-chevron-right right"></i>
 								</span>
 							</button>

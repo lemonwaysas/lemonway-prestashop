@@ -107,6 +107,12 @@ function addAdminTab($module,$tabClass, $translations){
 }
 
 function updateNewConfigurationKeyValue(){
+	
+	Configuration::updateValue('LEMONWAY_CC_ENABLED',true);
+	Configuration::updateValue('LEMONWAY_CC_TITLE','Credit card');
+	
 	$oldconf = Configuration::get('LEMONWAY_ONECLIC_ENABLED');
-	Configuration::updateValue('LEMONWAY_CREDITCARD_ONECLIC_ENABLED', $oldconf);
+	Configuration::updateValue('LEMONWAY_CC_ONECLIC_ENABLED', $oldconf);
+	
+	
 }
