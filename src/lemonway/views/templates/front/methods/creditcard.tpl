@@ -59,7 +59,7 @@
 							{/if}
 							
 							{foreach from=$method->getData('splitpayments_profiles') item='profile'}
-								<div id="profile_splitpayment_{$profile->id}" style="display: none">
+								<div id="profile_splitpayment_table_{$profile->id}" style="display: none">
 								<span>{l s='Your next payments' mod='lemonway'} :</span>
 								<div class="table_block table-responsive">
 								<table class="table table-bordered" id="split-payment-cc-table">
@@ -81,12 +81,25 @@
 							{/foreach}
 							<script type="text/javascript">
 								//<!-- Display deadlines by profile selection -->
-								let profileSplit = {};
-								{foreach from=$method->getData('splitpayments_profiles') item='profile'}
-									profileSplit[{$profile->id}] = {$profile->splitPaymentAmount($total_price,true)};
-								{/foreach}
-								console.log(profileSplit);
-								
+								$(function(){
+						
+									showSelectedProfile();
+									$('#lemonway_{$method->getCode()}_splitpayment_profile_select').change(function(){
+											showSelectedProfile();
+										}
+									);
+
+									function hideAll(){
+										$('*[id^=profile_splitpayment_table_]').hide();
+									}
+
+									function showSelectedProfile(){
+										hideAll();
+										let selected_profile_id = $('*[name=splitpayment_profile_id]').val();
+										$('#profile_splitpayment_table_' + selected_profile_id).show();
+									}
+									
+								})
 								
 							</script>
 						</div>
