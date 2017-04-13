@@ -32,27 +32,63 @@
 				id="lemonway_{$method->getCode()}_payment_form">
 				<div class="lemonway-payment-container" id="lemonway_{$method->getCode()}_payment_form_container">
 					<div class="lemonway-payment-img-container">
-						<img class="lemonway-payment-icon"
-						src="{$module_dir|escape:'html':'UTF-8'}views/img/paiement-mode.jpg"
+						<img class="lemonway-payment-icon img-responsive"
+						src="{$module_dir|escape:'html':'UTF-8'}views/img/paiement-mode.png"
 						width="500px" class="img-responsive" alt="{$method->getTitle()}"
 						id="payment-lemonway-{$method->getCode()}-logo" /> 
 					</div>
+					<h3 class="lemonway-method-title">{$method->getTitle()}</h3>
 					{if $method->getCode() == 'CC_XTIMES'}
 						<div class="lemonway-payment-splitpayment-profiles-container">
 							{if $method->getData('splitpayments_profiles_length') == 1}
-								{assign var="splitpayment_profile" value="$method->getData('splitpayments_profiles')"}
-								<span>{$splitpayment_profile[0]['name']}</span>
-								<input type="hidden" value="{$splitpayment_profile[0]['id_profile']}" name="splitpayment_profile_id" />
+								{foreach from=$method->getData('splitpayments_profiles') item='profile'}
+										<div>
+											<h4>{l s="Payment profile"}: {$profile->name}</h4>
+											<input type="hidden" value="{$profile->id}" name="splitpayment_profile_id" />
+										</div>
+									{/foreach}
 							{elseif $method->getData('splitpayments_profiles_length') > 1}
 							<label for="lemonway_{$method->getCode()}_splitpayment_profile_select">{l s='Select your split payment profile' mod='lemonway'}</label>
 								<select id="lemonway_{$method->getCode()}_splitpayment_profile_select" name="splitpayment_profile_id">
 									{foreach from=$method->getData('splitpayments_profiles') item='profile'}
-										<option value="{$profile.id_profile}">{$profile.name}</option>
+										<option value="{$profile->id}">{$profile->name}</option>
 									{/foreach}
 								</select>
 							{else}
 								<span>{l s='No split payment available. Your order will be totally paid.' mod='lemonway'}</span>
 							{/if}
+							
+							{foreach from=$method->getData('splitpayments_profiles') item='profile'}
+								<div id="profile_splitpayment_{$profile->id}" style="display: none">
+								<span>{l s='Your next payments' mod='lemonway'} :</span>
+								<div class="table_block table-responsive">
+								<table class="table table-bordered" id="split-payment-cc-table">
+									<thead>
+										<th>{l s='Debit date' mod='lemonway'}</th>
+										<th>{l s='Debit amount' mod='lemonway'}</th>
+									</thead>
+									<tbody>
+										{foreach from=$profile->splitPaymentAmount($total_price) key=index item='deadline'}
+											<tr>
+												<td>{dateFormat date=$deadline.dateToPay full=0}</td>
+												<td>{displayPrice price=$deadline.amountToPay currency=$cart->id_currency no_utf8=false convert=false} {if $index == 0}{l s='(Debited on order validation)' mod='lemonway'}{/if}</td>
+											</tr>
+										{/foreach}
+									</tbody>
+								</table>
+								</div>
+								</div>
+							{/foreach}
+							<script type="text/javascript">
+								//<!-- Display deadlines by profile selection -->
+								let profileSplit = {};
+								{foreach from=$method->getData('splitpayments_profiles') item='profile'}
+									profileSplit[{$profile->id}] = {$profile->splitPaymentAmount($total_price,true)};
+								{/foreach}
+								console.log(profileSplit);
+								
+								
+							</script>
 						</div>
 						
 					{/if}
@@ -91,8 +127,7 @@
 								<div>
 									<div class="radio">
 										<label for="lw_no_use_card"> <input id="lw_no_use_card"
-											type="radio" name="lw_oneclic" value="no_use_card" /> {l s='Not
-											use recorded card data' mod='lemonway'}
+											type="radio" name="lw_oneclic" value="no_use_card" /> {l s='Not use recorded card data' mod='lemonway'}
 										</label>
 									</div>
 								</div>
@@ -100,29 +135,15 @@
 							{/if}
 							</div>
 						{/if}
-						<div class="lemonway-payment-button-submit-container Lemonway_payment_btn">
+						<div class="lemonway-payment-button-submit-container Lemonway_payment_btn clearfix">
 							<button type="submit" name="lwPay"
-								class="button btn btn-default">
-								<span>{l s='Pay with' mod='lemonway'} {$method->getTitle()} <i
-									class="icon-chevron-right right"></i>
+								class="button btn btn-default button-medium">
+								<span>{l s='Proceed to payment' mod="lemonway"}<i class="icon-chevron-right right"></i>
 								</span>
 							</button>
 						</div>
-									
 				</div>
 			</div>
-			
-			<!-- <p class="payment_module"
-				id="lemonway_{$method->getCode()}_payment_button">
-				<a
-					href="{$link->getModuleLink('lemonway', 'redirect', array(), true)|escape:'htmlall':'UTF-8'}"
-					title="{$method->getTitle()}"> <img
-					src="{$module_dir|escape:'html':'UTF-8'}views/img/paiement-mode.jpg"
-					class="img-responsive" alt="{$method->getTitle()}" width="500px"
-					id="payment-lemonway-{$method->getCode()}-logo" /> {$method->getTitle()}
-				</a>
-
-			</p>-->
 			<input id="open_basedir" type="hidden" value="{$open_basedir|escape:'htmlall':'UTF-8'}" />
 		</form>
 		</div>

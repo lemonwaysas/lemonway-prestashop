@@ -520,9 +520,9 @@ class Lemonway extends PaymentModule
     	
     	switch ($type){
     		case 'API':
-    			$form = $helper->generateForm(array(
+    			$form = $helper->generateForm(
     					$this->getApiConfigForm()
-    			));
+    			);
     			break;
     		case 'CC':
     			$form = $helper->generateForm(array(
@@ -759,38 +759,7 @@ class Lemonway extends PaymentModule
                         'name' => 'LEMONWAY_MERCHANT_ID',
                         'label' => $this->l('Your account name') ,
                     ),
-                    array(
-                        'col' => 6,
-                        'type' => 'text',
-                        'prefix' => '<i class="icon icon-cloud-upload"></i>',
-                        'desc' => $this->l('Leave empty, if this information has not been sent to you by Lemonway'),
-                        'name' => 'LEMONWAY_DIRECTKIT_URL',
-                        'label' => $this->l('DIRECTKIT XML URL'),
-                    ),
-                    array(
-                        'col' => 6,
-                        'type' => 'text',
-                        'prefix' => '<i class="icon icon-cloud-upload"></i>',
-                        'desc' => $this->l('Leave empty, if this information has not been sent to you by Lemonway'),
-                        'name' => 'LEMONWAY_WEBKIT_URL',
-                        'label' => $this->l('WEBKIT URL'),
-                    ),
-                    array(
-                        'col' => 6,
-                        'type' => 'text',
-                        'prefix' => '<i class="icon icon-cloud-upload"></i>',
-                        'desc' => $this->l('Leave empty, if this information has not been sent to you by Lemonway'),
-                        'name' => 'LEMONWAY_DIRECTKIT_URL_TEST',
-                        'label' => $this->l('DIRECTKIT XML URL TEST'),
-                    ),
-                    array(
-                        'col' => 6,
-                        'type' => 'text',
-                        'prefix' => '<i class="icon icon-cloud-upload"></i>',
-                        'desc' => $this->l('Leave empty, if this information has not been sent to you by Lemonway'),
-                        'name' => 'LEMONWAY_WEBKIT_URL_TEST',
-                        'label' => $this->l('WEBKIT URL TEST'),
-                    ),
+                    
                 ),
                 'submit' => array(
                     'title' => $this->l('Save'),
@@ -845,10 +814,78 @@ class Lemonway extends PaymentModule
                 ),
             );
         }
+        
+        $form_config_advanced = array(
+            'form' => array(
+                'legend' => array(
+                    'title' => $this->l('ADVANCED ACCOUNT CONFIGURATION'),
+                    'icon' => 'icon-cogs',
+                ),
+                'input' => array(
+                	/* array(
+                		'type' => 'hidden',
+                		'name' => 'adv_account_config_up'
+                	),
+                	array(
+                		'type' => 'switch',
+                		'label' => $this->l('Use Advanced parameters'),
+                		'name' => 'adv_account_config_active',
+                		'is_bool' => true,
+                		'values' => array(
+                			array(
+                				'id' => 'adv_account_config_active_on',
+                				'value' => 1,
+                				'label' => $this->l('Enabled')
+                			),
+                			array(
+                				'id' => 'adv_account_config_active_off',
+                				'value' => 0,
+                				'label' => $this->l('Disabled')
+                				)
+                			)
+                		), */
+                	array(
+                        'col' => 6,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-cloud-upload"></i>',
+                        'desc' => $this->l('Leave empty, if this information has not been sent to you by Lemonway'),
+                        'name' => 'LEMONWAY_DIRECTKIT_URL',
+                        'label' => $this->l('DIRECTKIT XML URL'),
+                    ),
+                    array(
+                        'col' => 6,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-cloud-upload"></i>',
+                        'desc' => $this->l('Leave empty, if this information has not been sent to you by Lemonway'),
+                        'name' => 'LEMONWAY_WEBKIT_URL',
+                        'label' => $this->l('WEBKIT URL'),
+                    ),
+                    array(
+                        'col' => 6,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-cloud-upload"></i>',
+                        'desc' => $this->l('Leave empty, if this information has not been sent to you by Lemonway'),
+                        'name' => 'LEMONWAY_DIRECTKIT_URL_TEST',
+                        'label' => $this->l('DIRECTKIT XML URL TEST'),
+                    ),
+                    array(
+                        'col' => 6,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-cloud-upload"></i>',
+                        'desc' => $this->l('Leave empty, if this information has not been sent to you by Lemonway'),
+                        'name' => 'LEMONWAY_WEBKIT_URL_TEST',
+                        'label' => $this->l('WEBKIT URL TEST'),
+                    ),
+                ),
+            	'submit' => array(
+            		'title' => $this->l('Save'),
+            		'name'=> 'submitLemonwayApiConfig'
+            	),
+            ));
 
         $form_config['form']['input'][] = $switch;
 
-        return $form_config;
+        return array($form_config,$form_config_advanced);
     }
     
     public function getSplitpaymentProfiles(){

@@ -82,7 +82,9 @@ class SplitpaymentProfile extends ObjectModel
 			),
 	);
 
-	public static function getProfiles($mustActive = true){
+	public static function getProfiles($mustActive = true,$objCollection = false){
+		if(!$objCollection){
+			
 		$sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_splitpayment_profile` sp ';
 		 
 		if($mustActive)
@@ -94,6 +96,12 @@ class SplitpaymentProfile extends ObjectModel
 			}
 			 
 			return $res;
+		}
+		else{
+			$profiles = new PrestaShopCollection('SplitpaymentProfile');
+			if($mustActive) $profiles->where('active', '=', pSQL(true));
+			return $profiles;
+		}
 	}
 
 
@@ -144,6 +152,7 @@ class SplitpaymentProfile extends ObjectModel
 		return Translate::getModuleTranslation('lemonway',$string,'splitpaymentprofile');
 	}
 	
+	
 	/**
 	 *
 	 * @param OrderCore $order
@@ -176,6 +185,8 @@ class SplitpaymentProfile extends ObjectModel
 			$splitDealine->amount_to_pay = $split['amountToPay'];
 			$splitDealine->date_to_pay = $split['dateToPay'];
 			$splitDealine->attempts = $completeFirst ? 1 : 0;
+			
+			if($completeFirst) $splitDealine->paid_at = date('Y-m-d H:i:s');
 	
 				
 			$splitDealine->method_code = $methodCode;
@@ -199,7 +210,7 @@ class SplitpaymentProfile extends ObjectModel
 	 * Return Amount splitted
 	 * @param float $amount
 	 */
-	public function splitPaymentAmount($amount)
+	public function splitPaymentAmount($amount,$asJson=false)
 	{
 		$paymentsSplit = array();
 
@@ -260,7 +271,7 @@ class SplitpaymentProfile extends ObjectModel
 			$paymentsSplit[] = array('dateToPay'=>$dateToPay,'amountToPay'=>$amountToPay);
 		}
 			
-		return $paymentsSplit;
+		return $asJson ? json_encode($paymentsSplit) : $paymentsSplit;
 
 	}
 

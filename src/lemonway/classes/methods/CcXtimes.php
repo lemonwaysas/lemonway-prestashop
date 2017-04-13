@@ -35,16 +35,31 @@ class CcXtimes extends Cc{
 	protected function prepareData(){
 		parent::prepareData();
 
-		$this->data['splitpayments_profiles'] = $this->getSplitpaymentProfiles();
+		$this->data['splitpayments_profiles'] = $this->getSplitpaymentProfiles(true,true);
 		$this->data['splitpayments_profiles_length'] = count($this->data['splitpayments_profiles']);
 		
 		return $this;
 
 	}
 	
-	public function getSplitpaymentProfiles(){
+	public function getSplitpaymentProfiles($mustActive = true,$objCollection = false){
 		if(is_null($this->splitpaymentProfiles)){
-			$this->splitpaymentProfiles = SplitpaymentProfile::getProfiles();
+			$splitpaymentProfiles = SplitpaymentProfile::getProfiles($mustActive,$objCollection);
+			
+			//Remove splitpayments profiles not selected by Admin
+			$selectedProfileIds = explode(",",$this->getConfig('SPLITPAYMENTS'));
+			foreach ($splitpaymentProfiles as $key=>$sp){
+				$spId = '';
+				if(is_object($sp))
+					$spId = $sp->id;
+				else
+					$spId = $sp['id_profile'];
+				
+				if(!in_array($spId,$selectedProfileIds)){
+					unset($splitpaymentProfiles[$key]);
+				}
+			}
+			$this->splitpaymentProfiles = $splitpaymentProfiles;
 		}
 		return $this->splitpaymentProfiles;
 	}
