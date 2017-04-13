@@ -43,7 +43,7 @@
 							{if $method->getData('splitpayments_profiles_length') == 1}
 								{foreach from=$method->getData('splitpayments_profiles') item='profile'}
 										<div>
-											<h4>{l s="Payment profile"}: {$profile->name}</h4>
+											<h4>{l s='Payment profile' mod='lemonway'}: {$profile->name}</h4>
 											<input type="hidden" value="{$profile->id}" name="splitpayment_profile_id" />
 										</div>
 									{/foreach}
@@ -151,7 +151,7 @@
 						<div class="lemonway-payment-button-submit-container Lemonway_payment_btn clearfix">
 							<button type="submit" name="lwPay"
 								class="button btn btn-default button-medium">
-								<span>{l s='Proceed to payment' mod="lemonway"}<i class="icon-chevron-right right"></i>
+								<span>{l s='Proceed to payment' mod='lemonway'}<i class="icon-chevron-right right"></i>
 								</span>
 							</button>
 						</div>
