@@ -87,6 +87,8 @@ class AdminMoneyOutController extends ModuleAdminController
                 'filter_key' => 'a!date_add'
             ),
         );
+        
+        $this->module =  Module::getInstanceByName('lemonway');
 
         parent::__construct();
     }
@@ -383,5 +385,19 @@ class AdminMoneyOutController extends ModuleAdminController
         }
 
         return $this->walletDetails;
+    }
+    
+    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
+    {
+    	if(Context::getContext()->getTranslator()){
+    
+    		$parameters = array();
+    		if(is_array($class)) $parameters = $class;
+    
+    		return Context::getContext()->getTranslator()->trans($string, $parameters, 'Admin.Lemonway');
+    	}
+    	else{
+    		return parent::l($string,$class,$addslashes,$htmlentities);
+    	}
     }
 }

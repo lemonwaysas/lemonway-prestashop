@@ -68,7 +68,7 @@
 										<th>{l s='Debit amount' mod='lemonway'}</th>
 									</thead>
 									<tbody>
-										{foreach from=$profile->splitPaymentAmount($total_price) key=index item='deadline'}
+										{foreach from=$profile->splitPaymentAmount($total_price) key='index' item='deadline'}
 											<tr>
 												<td>{dateFormat date=$deadline.dateToPay full=0}</td>
 												<td>{displayPrice price=$deadline.amountToPay currency=$cart->id_currency no_utf8=false convert=false} {if $index == 0}{l s='(Debited on order validation)' mod='lemonway'}{/if}</td>

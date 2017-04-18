@@ -65,6 +65,9 @@ class Lemonway extends PaymentModule
     */
     protected $local_path = null;
     
+    /** @var bool */
+    public static $is_active    = 1;
+    
     public static $statuesLabel = array(
         1 => "Document uniquement reçu",
         2 => "Document vérifié et accepté",
@@ -84,7 +87,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.2.9';
+        $this->version = '1.3.0';
         $this->author = 'SIRATECK';
         $this->need_instance = 0;
 
@@ -215,7 +218,7 @@ class Lemonway extends PaymentModule
     			'fr'=> 'Paiement en plusieurs fois accepté'
     	);
     	
-    	$this->addStatus(self::LEMONWAY_SPLIT_PAYMENT_OS,$translationsStatus,'#32CD32',false,false,true,true,true,false,true);
+    	return $this->addStatus(self::LEMONWAY_SPLIT_PAYMENT_OS,$translationsStatus,'#32CD32',false,false,true,true,true,false,true);
     }
 
     /**
@@ -260,7 +263,7 @@ class Lemonway extends PaymentModule
         //CREDIT CARD X TIMES (split)
         Configuration::updateValue('LEMONWAY_CC_XTIMES_SPLITPAYMENTS',null);
 
-        include(dirname(__FILE__) . '/sql/install.php');
+        
         
         //Prepare status values
         $key = self::LEMONWAY_PENDING_OS;
@@ -286,13 +289,16 @@ class Lemonway extends PaymentModule
             "SELECT `id_tab` FROM " . _DB_PREFIX_ . "tab WHERE `class_name`='AdminLemonway'"
         );
         
+        include(dirname(__FILE__) . '/sql/install.php');
+        
         return parent::install() &&
             $this->registerHook('header') &&
             $this->registerHook('backOfficeHeader') &&
             $this->registerHook('payment') &&
             $this->registerHook('paymentReturn') &&
             $this->addStatus($key, $translationsStatus, 'orange') && //Add new Status
-            $this->installModuleTab('AdminMoneyOut', $translationsAdminMoneyOut, $adminLemonwayId);
+            $this->installModuleTab('AdminMoneyOut', $translationsAdminMoneyOut, $adminLemonwayId) &&
+            installSQL($this);
     }
 
     public function uninstall()
@@ -437,9 +443,8 @@ class Lemonway extends PaymentModule
     				break;
     			default:
     		}
-    		
-    		if(!empty($value))
-    			Configuration::updateValue($key, $value);
+
+    		Configuration::updateValue($key, $value);
    
     	}
     }
@@ -580,16 +585,17 @@ class Lemonway extends PaymentModule
     			'label' => $this->l('Enable Oneclic'),
     			'name' => 'LEMONWAY_' . $methodCode . '_ONECLIC_ENABLED',
     			'is_bool' => true,
+    			'class' => 't',
     			'desc' => $this->l('Display oneclic form on payment step'),
     			'values' => array(
     					array(
     							'id' => 'active_on',
-    							'value' => true,
+    							'value' => 1,
     							'label' => $this->l('Enabled')
     					),
     					array(
     							'id' => 'active_off',
-    							'value' => false,
+    							'value' => 0,
     							'label' => $this->l('Disabled')
     					)
     			)
@@ -666,16 +672,17 @@ class Lemonway extends PaymentModule
         		'label' => $this->l('Enabled'),
         		'name' => 'LEMONWAY_' . $methodCode . '_ENABLED',
         		'is_bool' => true,
+        		'class' => 't',
         		'desc' => $this->l('Display this method form on payment step'),
         		'values' => array(
         				array(
         						'id' => 'active_on',
-        						'value' => true,
+        						'value' => 1,
         						'label' => $this->l('yes')
         				),
         				array(
         						'id' => 'active_off',
-        						'value' => false,
+        						'value' => 0,
         						'label' => $this->l('No')
         				)
         		)
@@ -773,16 +780,17 @@ class Lemonway extends PaymentModule
             'label' => $this->l('Activate test mode'),
             'name' => 'LEMONWAY_IS_TEST_MODE',
             'is_bool' => true,
+        	'class' => 't',
             'desc' => $this->l('YES to go on Test, NO to go on Live'),
             'values' => array(
                 array(
                     'id' => 'active_on',
-                    'value' => true,
+                    'value' => 1,
                     'label' => $this->l('Enabled')
                 ),
                 array(
                     'id' => 'active_off',
-                    'value' => false,
+                    'value' => 0,
                     'label' => $this->l('Disabled')
                 )
             ),
@@ -913,7 +921,13 @@ class Lemonway extends PaymentModule
     public function hookBackOfficeHeader()
     {
         if (Tools::getValue('module_name') == $this->name) {
-            $this->context->controller->addJS($this->_path . 'views/js/back.js');
+
+        		
+        	if ($this->isVersion17() && method_exists($this->context->controller, 'setMedia')) {
+        		$this->context->controller->setMedia(true);
+        	}
+        	$this->context->controller->addJS($this->_path . 'views/js/back.js');
+        	
         }
 
         $this->context->controller->addCSS($this->_path . 'views/css/back.css');
@@ -942,7 +956,7 @@ class Lemonway extends PaymentModule
 
     		//Check if method is enbaled
     		if($methodInstance->isValid()){
-    			$methodsEnabled[] = $methodInstance;
+    			$methodsEnabled[$method['code']] = $methodInstance;
     		}
     		
     	}
@@ -955,6 +969,54 @@ class Lemonway extends PaymentModule
 
         return $this->display(__FILE__, 'views/templates/hook/payment.tpl');
     }
+    
+    /**
+     * This hook is used to pass options to payment method in version >= 1.7
+     */
+    public function hookPaymentOptions($params)
+    {
+
+    	$options = array();
+
+    	foreach (self::$subMethods as $method){
+    	
+    		//Create method instance
+    		$methodInstance = $this->methodFactory($method['code']);
+    	
+    		//Check if method is enbaled
+    		if($methodInstance->isValid()){
+    			
+
+    			$this->context->smarty->assign(array(
+    					'module_dir' => $this->_path,
+    					'method'=>$methodInstance,
+    					'open_basedir' => (ini_get('open_basedir') == '') ? "1" : "0"
+    			
+    			));
+    			
+    			$inputs = array(
+                    		'method_code' => array(
+				                        'name' =>'method_code',
+				                        'type' =>'hidden',
+				                        'value' =>$methodInstance->getCode(),
+                    		));
+    			
+    			$newOption = new PrestaShop\PrestaShop\Core\Payment\PaymentOption();
+    			$newOption
+    			->setCallToActionText($methodInstance->getTitle())
+    			//->setLogo(Media::getMediaPath($this->local_path . 'views/img/paiement-mode.png'))
+    			->setForm($this->context->smarty->fetch($methodInstance->getTemplate()));
+    			
+    			
+    			$options[] = $newOption;
+    			
+    		}
+    	
+    	}
+
+
+    	return $options;
+    }
 
     /**
     * This hook is used to display the order confirmation page.
@@ -965,7 +1027,9 @@ class Lemonway extends PaymentModule
             return;
         }
 
-        $order = $params['objOrder'];
+        $order = isset($params['objOrder']) ? $params['objOrder'] : $params['order'];
+        $total_to_pay =$order->getOrdersTotalPaid();
+        $currency = new Currency($order->id_currency);
 
         if ($order->getCurrentOrderState()->id != Configuration::get('PS_OS_ERROR')) {
             $this->smarty->assign('status', 'ok');
@@ -975,10 +1039,17 @@ class Lemonway extends PaymentModule
             'id_order' => $order->id,
             'reference' => $order->reference,
             'params' => $params,
-            'total' => Tools::displayPrice($params['total_to_pay'], $params['currencyObj'], false),
+            'total' => Tools::displayPrice($total_to_pay,$currency, false),
         ));
 
-        return $this->display(__FILE__, 'views/templates/hook/confirmation.tpl');
+        return $this->getHookPaymentReturnOutput();
+    }
+    
+    public function getHookPaymentReturnOutput(){
+    	if($this->isVersion17())
+    		return $this->fetch('module:' . $this->name . '/views/templates/hook/confirmation.tpl');
+    	
+    	return $this->display(__FILE__, 'views/templates/hook/confirmation.tpl');
     }
     
     /**
@@ -1181,4 +1252,9 @@ class Lemonway extends PaymentModule
     			$cardForm = $kit->printCardForm($moneyInToken, urlencode(LemonWayConfig::getCssUrl()), $language);
     			return $cardForm;
     }
+    
+    public function isVersion17(){
+    	return (bool)version_compare(_PS_VERSION_ ,'1.7','>=');
+    }
 }
+

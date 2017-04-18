@@ -64,6 +64,8 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
         	)
         	
         );
+        
+        $this->module =  Module::getInstanceByName('lemonway');
 
         parent::__construct();
     }
@@ -265,6 +267,20 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
     {
         parent::setMedia();
         $this->addJS(_PS_MODULE_DIR_ . $this->module->name . "/views/js/back.js");
+    }
+    
+    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
+    {
+    	if(Context::getContext()->getTranslator()){
+    		
+    		$parameters = array();
+    		if(is_array($class)) $parameters = $class;
+    		
+    		return Context::getContext()->getTranslator()->trans($string, $parameters, 'Admin.Lemonway');
+    	}
+    	else{
+    		return parent::l($string,$class,$addslashes,$htmlentities);
+    	}
     }
 
 }

@@ -44,4 +44,23 @@ $(function()
         $("#placeOrderForm").submit();
         $(this).removeClass("Lemonway_payment_btn");
     });*/
+    
+	//<!-- Display deadlines by profile selection -->
+	showSelectedProfile();
+	$('#lemonway_CC_XTIMES_splitpayment_profile_select').change(function(){
+		showSelectedProfile();
+	});
+
+	function hideAll(){
+		$('*[id^=profile_splitpayment_table_]').hide();
+	}
+
+	function showSelectedProfile(){
+		hideAll();
+		let selected_profile_id = $('*[name=splitpayment_profile_id]').val();
+		$('#profile_splitpayment_table_' + selected_profile_id).show();
+	}
+						
+	
+    
 });

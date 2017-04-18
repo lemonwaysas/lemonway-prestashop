@@ -42,6 +42,8 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
     protected $defaultLang = 'en';
     
+    public $errors = array();
+    
     public function __construct()
     {
         parent::__construct();
@@ -54,6 +56,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     */
     public function postProcess()
     {
+    	
         $cart = $this->context->cart;
         /* @var $customer CustomerCore */
         $customer = $this->context->customer;
@@ -82,11 +85,18 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         $amountTot = number_format((float)$amountTotRaw, 2, '.', '');
         
         $methodCode = Tools::getValue('method_code'); 
-        /* @var $methodInstance Method */
-        $methodInstance = $this->module->methodFactory($methodCode);
+        
+        try {
+        	/* @var $methodInstance Method */
+        	$methodInstance = $this->module->methodFactory($methodCode);
+        } catch (Exception $e) {
+        	$this->addError($this->l('Payment method is not allowed'));
+        	return $this->displayError();
+        }
+        
         
         if(!$methodInstance->isAllowed()){
-        	$this->addError($this->l('Payment method is not allowed!'));
+        	$this->addError($this->l('Payment method is not allowed'));
         	return $this->displayError();
         }
         
@@ -292,13 +302,20 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         /**
         * Create the breadcrumb for your ModuleFrontController.
         */
-        $this->context->smarty->assign(
-            'path',
-            '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
+    	$path = '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
             . $this->module->l('Payment')
-            . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error'));
+            . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
+        $this->context->smarty->assign(
+        		array('path'=>$path,
+        			  'errors'=>$this->errors
+        		)
+        		
+            );
         
-        return $this->setTemplate('error.tpl');
+        $template = 'error.tpl';
+        if($this->module->isVersion17()) $template = 'module:' . $this->module->name . '/views/templates/front/error.tpl';
+        
+        return $this->setTemplate($template);
     }
     
     protected function methodIsAllowed($methodCode){

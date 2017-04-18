@@ -210,7 +210,7 @@ class SplitpaymentProfile extends ObjectModel
 	 * Return Amount splitted
 	 * @param float $amount
 	 */
-	public function splitPaymentAmount($amount,$asJson=false)
+	public function splitPaymentAmount($amount,$asJson=false,$formatPrice=false,$id_currency=null)
 	{
 		$paymentsSplit = array();
 
@@ -268,7 +268,7 @@ class SplitpaymentProfile extends ObjectModel
 			$dateToPay = $todayClone->add($interval)->format($format);
 
 			$amountToPay = $i==0 ? ($part + $fmod) : $part;
-			$paymentsSplit[] = array('dateToPay'=>$dateToPay,'amountToPay'=>$amountToPay);
+			$paymentsSplit[] = array('dateToPay'=>$dateToPay,'amountToPay'=>$formatPrice ? Tools::displayPrice($amountToPay,$id_currency) :  $amountToPay);
 		}
 			
 		return $asJson ? json_encode($paymentsSplit) : $paymentsSplit;
