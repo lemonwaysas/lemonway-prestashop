@@ -41,6 +41,7 @@ $_MODULE['<{lemonway}prestashop>adminmoneyoutcontroller_350e17d65ded375d643259e7
 $_MODULE['<{lemonway}prestashop>adminmoneyoutcontroller_b2f40690858b404ed10e62bdf422c704'] = 'Montant';
 $_MODULE['<{lemonway}prestashop>adminmoneyoutcontroller_44749712dbec183e983dcd78a7736c41'] = 'Date';
 $_MODULE['<{lemonway}prestashop>adminmoneyoutcontroller_0f645c76c59d12b0ff19eeaffa83c066'] = 'Effectuer un nouveau virement';
+$_MODULE['<{lemonway}prestashop>adminmoneyoutcontroller_40c7e020ae096b1b33e8962c9fa55b71'] = 'Virements bancaires';
 $_MODULE['<{lemonway}prestashop>adminmoneyoutcontroller_02f7c7b71bf7b7e556cb7a74b68b6052'] = 'Effectuer un virement bancaire';
 $_MODULE['<{lemonway}prestashop>adminmoneyoutcontroller_f5208cf19a0e3e99a9f2084edf5862d3'] = 'Impossible de récupérer les informations du wallet';
 $_MODULE['<{lemonway}prestashop>adminmoneyoutcontroller_ee079cde930ec21d0798d3951436de78'] = 'Informations du wallet';
@@ -61,6 +62,7 @@ $_MODULE['<{lemonway}prestashop>adminsplitpaymentdeadlinecontroller_707436a5aa13
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentdeadlinecontroller_7ba3b8236d48d4f4c5ec03c3fe6b75a9'] = 'Tentatives';
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentdeadlinecontroller_ec53a8c4f07baed5d8825072c89799be'] = 'Statut';
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentdeadlinecontroller_14145b0ac8fa7640b7371bcee02e45d7'] = 'Payé le';
+$_MODULE['<{lemonway}prestashop>adminsplitpaymentdeadlinecontroller_4b9726d5473e8ca19e2eb9471da7977a'] = 'Échéances de paiement';
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentdeadlinecontroller_8bd4837a76cf443ab523a51895e23c36'] = 'Payer maintenant';
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentdeadlinecontroller_39f0033856cc49cbb7c59d875d28ea66'] = 'Édition de l\'échéance';
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentdeadlinecontroller_f217da7ec923d4ace34ee4cf54d066a8'] = 'Échéance';
@@ -68,9 +70,11 @@ $_MODULE['<{lemonway}prestashop>adminsplitpaymentdeadlinecontroller_c9cc8cce247e
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentprofilecontroller_b718adec73e04ce3ec720dd11a06a308'] = 'ID';
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentprofilecontroller_49ee3087348e8d44e1feda1917443987'] = 'Nom';
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentprofilecontroller_00d23a76e43b46dae9ec7aa9dcbebb32'] = 'Activé';
-$_MODULE['<{lemonway}prestashop>adminsplitpaymentprofilecontroller_c23faaa7a0d77a3f50b0cb3a9eb42f93'] = 'Profile de paiement en plusieurs fois';
+$_MODULE['<{lemonway}prestashop>adminsplitpaymentprofilecontroller_dbccc91fd713736b301e3faa09d95322'] = 'Profil de paiement en plusieurs fois';
+$_MODULE['<{lemonway}prestashop>adminsplitpaymentprofilecontroller_765e640835c06b15cc17975f475120a1'] = 'Profil de paiement en plusieurs fois';
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentprofilecontroller_0142b6b24e2093fc31592d43764ce1f8'] = 'Ajouter un profile de paiement en plusieurs fois';
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentprofilecontroller_321677ecebe5f0689e7850134ea71abd'] = 'Nouveau profile de paiement en plusieurs fois';
+$_MODULE['<{lemonway}prestashop>adminsplitpaymentprofilecontroller_8f4a467e6399501d212f366c834bbb14'] = 'Profils de paiement en plusieurs fois';
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentprofilecontroller_b27bb9577e6f2a9caa2056a7fb51fa86'] = 'Nouveau profile de paiement';
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentprofilecontroller_4b8fda8e19b53f91c3b987e00a398983'] = 'Unité de la période de facturation';
 $_MODULE['<{lemonway}prestashop>adminsplitpaymentprofilecontroller_0733c4e24a83d70cad8396273168bbd8'] = 'Unité de la période de facturation pendant la période de l\'inscription.';

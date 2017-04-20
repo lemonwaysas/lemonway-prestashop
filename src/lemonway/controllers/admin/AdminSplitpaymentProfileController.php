@@ -74,7 +74,7 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
     {
         parent::initToolbar();
         if (isset($this->toolbar_btn['new'])) {
-            $this->toolbar_btn['new']['desc'] = $this->l('Splitpayment profile');
+            $this->toolbar_btn['new']['desc'] = $this->l('Split payment profile');
         }
        
     }
@@ -82,7 +82,8 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
     public function initPageHeaderToolbar()
     {
         parent::initPageHeaderToolbar();
-
+        $this->page_header_toolbar_title = $this->l(' Split payment profile');
+       
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_splitpayment_profile'] = array(
                 'href' => self::$currentIndex.'&addlemonway_splitpayment_profile&token=' . $this->token,
@@ -114,6 +115,11 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
             $this->toolbar_title = array();
             $this->toolbar_title[] = $this->l('New split payment profile', null, null, false);
             $this->addMetaTitle($this->l('New split payment profile', null, null, false));
+        }
+        else{
+        	$this->toolbar_title = array();
+        	$this->toolbar_title[] = $this->l('Split payment profiles');
+        	$this->addMetaTitle($this->l('Split payment profiles', null, null, false));
         }
     }
     
