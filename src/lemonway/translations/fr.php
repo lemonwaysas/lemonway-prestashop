@@ -85,6 +85,7 @@ $_MODULE['<{lemonway}prestashop>confirmation_507992b2e1be79e43173da6f712c363f'] 
 $_MODULE['<{lemonway}prestashop>confirmation_66b914a3d0878daed70f10d165196200'] = 'Une erreur est survenue. Contactez le marchand pour avoir plus  d\'informations';
 $_MODULE['<{lemonway}prestashop>redirect_cf36beecf0d0c21822ee72a77e564caf'] = 'La méthode de paiement n\'est pas autorisée';
 $_MODULE['<{lemonway}prestashop>redirect_ffd06d48f7583a8c8acafac3eafde446'] = 'Profile de paiement en plusieurs fois non trouvé!';
+$_MODULE['<{lemonway}prestashop>redirect_719e2e700b346c7d4d7cd8bb2d517654'] = 'Vous allez être redirigé vers la page de paiement dans quelques instants.';
 $_MODULE['<{lemonway}prestashop>redirect_c453a4b8e8d98e82f35b67f433e3b4da'] = 'Paiement';
 $_MODULE['<{lemonway}prestashop>redirect_902b0d55fddef6f8d651fe1035b7d4bd'] = 'Erreur';
 $_MODULE['<{lemonway}prestashop>validation_ffd06d48f7583a8c8acafac3eafde446'] = 'Profile de paiement en plusieurs fois non trouvé!';
