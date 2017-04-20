@@ -79,7 +79,7 @@ class Lemonway extends PaymentModule
     public static $subMethods = array(
     		'CC' => array('classname'=>'Cc' ,"code"=>'CC',"title"=> 'Credit Card' ,'template'=>'../front/methods/creditcard.tpl'),
     		'CC_XTIMES' => array('classname'=>'CcXtimes', "code"=>'CC_XTIMES',"title"=>'Credit Card (Split Payment)','template'=>'../front/methods/creditcard.tpl'),
-    		'CHECK' => array('classname'=>'Check', "code"=>'CHECK',"title"=>'Check','template'=>'../front/methods/check.tpl'),
+    		//'CHECK' => array('classname'=>'Check', "code"=>'CHECK',"title"=>'Check','template'=>'../front/methods/check.tpl'),
     		
     );
 
