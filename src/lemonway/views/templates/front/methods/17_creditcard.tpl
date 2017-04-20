@@ -22,10 +22,29 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *}
 
-<form action="{$link->getModuleLink('lemonway', 'redirect', array(), true)|escape:'htmlall':'UTF-8'}" 
+<form class="lemonway_cc_form" action="{$link->getModuleLink('lemonway', 'redirect', array(), true)|escape:'htmlall':'UTF-8'}" 
 	method="post">
 		<!--  <h3 class="lemonway-method-title">{$method->getTitle()}</h3> -->
 		<input type="hidden" value="{$method->getCode()}" name="method_code">
+		<div class="radio">
+  			<label>
+    			<input type="radio" name="cc_type"  value="CB" required>
+    			<img alt="CB" src="{$module_dir|escape:'html':'UTF-8'}views/img/CB.png">
+  			</label>
+		</div>
+		<div class="radio">
+  			<label>
+    			<input type="radio" name="cc_type" value="VISA" required>
+    			<img alt="VISA" src="{$module_dir|escape:'html':'UTF-8'}views/img/VISA.png">
+  			</label>
+		</div>
+		<div class="radio">
+  			<label>
+    			<input type="radio" name="cc_type" value="MASTERCARD" required>
+    			<img alt="MASTERCARD" src="{$module_dir|escape:'html':'UTF-8'}views/img/MASTERCARD.png">
+  			</label>
+		</div>
+
 		{if $method->getCode() == 'CC_XTIMES'}
 			<div class="lemonway-payment-splitpayment-profiles-container">
 				{if $method->getData('splitpayments_profiles_length') == 1}

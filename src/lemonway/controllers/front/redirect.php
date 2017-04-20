@@ -192,10 +192,62 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             $moneyInToken = (string)$res->lwXml->MONEYINWEB->TOKEN;
 
             $language = $this->getLang();
-            Tools::redirect(
-                LemonWayConfig::getWebkitUrl() . '?moneyintoken=' . $moneyInToken . '&p='
-                . urlencode(LemonWayConfig::getCssUrl()) . '&lang=' . $language
-            );
+            
+            $lwUrl = LemonWayConfig::getWebkitUrl() . '?moneyintoken=' . $moneyInToken . '&p='
+                . urlencode(LemonWayConfig::getCssUrl()) . '&lang=' . $language;
+            
+             //Get selected card type
+             if(!empty($ccType = Tools::getValue('cc_type',''))){
+             	$allowedCcType = array('CB','VISA','MASTERCARD');
+             	if(in_array($ccType, $allowedCcType)){
+             		$ch = curl_init();
+             		curl_setopt($ch, CURLOPT_URL, $lwUrl);
+             		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+             		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+             		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+             		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+             		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !Configuration::get('LEMONWAY_IS_TEST_MODE', false));
+             		
+             		$response = curl_exec($ch);
+             		//echo( 'Response: ' . $response);
+             		//Parse response to get action url and data field
+             		$matches = array();
+             		$patternFormActionAndData = '/(action="|name=data value=")([^"]*)"/i';
+             		if(preg_match_all($patternFormActionAndData, $response,$matches)){
+             			if(isset($matches[2])){
+             				list($actionUrl,$data) =$matches[2];
+             				$postFields = array(
+             						'DATA'=>$data,
+             						$ccType=>1
+             				);
+             				$html = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">' . "\n";
+             				$html .= '<html>' . "\n";
+             				$html .= '    <head>' . "\n";
+             				$html .= '    </head>';
+             				$html .= '    <body>';
+             				$html .= '        <div align="center"><br />' . $this->l('You will be redirected to payment page in a few seconds.') . '</div>' . "\n";
+             				$html .= '        <div id="buttons" style="display: none;">' . "\n";
+             				$html .= '            <form id="lemonway_payment_redirect" action="' . $actionUrl. '" method="post">' . "\n";
+             				$html .= '                <input type="hidden" name="' . $ccType . '_x" value="1" />' . "\n";
+             				$html .= '                <input type="hidden" name="' . $ccType . '_y" value="1" />' . "\n";
+             				$html .= '                <input type="hidden" name="DATA" value="'.$data.'" />' . "\n";
+             				$html .= '            </form>' . "\n";
+             				$html .= '        </div>' . "\n";
+             				$html .= '        <script type="text/javascript">document.getElementById("lemonway_payment_redirect").submit();</script>' . "\n";
+             				$html .= '    </body>' . "\n";
+             				$html .= '</html>';
+             				die($html);
+             			}
+             		}
+
+             		
+             	}
+             }
+            
+            Tools::redirect($lwUrl );
+            
+            
+            
         } else {
             if (($card = $this->module->getCustomerCard($customer->id)) && $customer->isLogged()) {
                 //Call directkit for MoneyInWithCardId

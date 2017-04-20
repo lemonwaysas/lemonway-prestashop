@@ -85,3 +85,15 @@
     cursor: pointer;
     background-color: #f6f6f6;
 }
+
+.lemonway_cc_form{
+	
+	padding:10px;
+	
+}
+
+.lemonway_cc_form .lemonway-payment-oneclic-container{
+	
+	padding:10px 0;
+	
+}
