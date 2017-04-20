@@ -37,6 +37,7 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_1_2_9($module)
 {
+	
 	$query = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'lemonway_splitpayment_profile` (
 				`id_profile` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 				`name` varchar(150) NOT NULL,
@@ -74,25 +75,20 @@ function upgrade_module_1_2_9($module)
 	
 	updateNewConfigurationKeyValue();
 	
-	$module->addStatusSplitpayment();
-	
 	$translationsAdminSplitpaymentProfile = array(
 			'en'=>'Split payment profile',
 			'fr'=>'Profil de paiement en plusieurs fois'
 	);
 	
-	addAdminTab($module,'AdminSplitpaymentProfile', $translationsAdminSplitpaymentProfile); 
-	
 	$translationsAdminSplitpaymentDeadline = array(
 			'en'=>'Split payment deadline',
 			'fr'=>'Échéances de paiement en plusieurs fois'
 	);
-	
+	addAdminTab($module,'AdminSplitpaymentProfile', $translationsAdminSplitpaymentProfile);
 	addAdminTab($module,'AdminSplitpaymentDeadline', $translationsAdminSplitpaymentDeadline);
-	
+	$module->addStatusSplitpayment();
 	$module->registerHook('actionAdminSplitpaymentDeadlineListingResultsModifier');
-
-	return true;
+	return true; 
 }
 
 function addAdminTab($module,$tabClass, $translations){
@@ -102,7 +98,7 @@ function addAdminTab($module,$tabClass, $translations){
 			);
 	
 	
-	$module->installModuleTab($tabClass, $translations, $adminLemonwayId,$module->name);
+	return $module->installModuleTab($tabClass, $translations, $adminLemonwayId,$module->name);
 	
 }
 
@@ -114,5 +110,6 @@ function updateNewConfigurationKeyValue(){
 	$oldconf = Configuration::get('LEMONWAY_ONECLIC_ENABLED');
 	Configuration::updateValue('LEMONWAY_CC_ONECLIC_ENABLED', $oldconf);
 	
+	return true;
 	
 }

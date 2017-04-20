@@ -28,7 +28,24 @@
 			action="{$link->getModuleLink('lemonway', 'redirect', array(), true)|escape:'htmlall':'UTF-8'}"
 			method="POST">
 			<input type="hidden" value="{$method->getCode()}" name="method_code">
-			<div class="lemonway-payment"
+				<div class="radio">
+					<label> <input type="radio" name="cc_type" value="CB" required> <img
+						alt="CB" src="{$module_dir|escape:'html':'UTF-8'}views/img/CB.gif">
+					</label>
+				</div>
+				<div class="radio">
+					<label> <input type="radio" name="cc_type" value="VISA" required> <img
+						alt="VISA"
+						src="{$module_dir|escape:'html':'UTF-8'}views/img/VISA.gif">
+					</label>
+				</div>
+				<div class="radio">
+					<label> <input type="radio" name="cc_type" value="MASTERCARD"
+						required> <img alt="MASTERCARD"
+						src="{$module_dir|escape:'html':'UTF-8'}views/img/MASTERCARD.gif">
+					</label>
+				</div>
+				<div class="lemonway-payment"
 				id="lemonway_{$method->getCode()}_payment_form">
 				<div class="lemonway-payment-container" id="lemonway_{$method->getCode()}_payment_form_container">
 					<div class="lemonway-payment-img-container">
@@ -68,7 +85,7 @@
 										<th>{l s='Debit amount' mod='lemonway'}</th>
 									</thead>
 									<tbody>
-										{foreach from=$profile->splitPaymentAmount($total_price) key=index item='deadline'}
+										{foreach from=$profile->splitPaymentAmount($total_price) key='index' item='deadline'}
 											<tr>
 												<td>{dateFormat date=$deadline.dateToPay full=0}</td>
 												<td>{displayPrice price=$deadline.amountToPay currency=$cart->id_currency no_utf8=false convert=false} {if $index == 0}{l s='(Debited on order validation)' mod='lemonway'}{/if}</td>

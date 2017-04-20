@@ -76,7 +76,13 @@ abstract class Method{
 	}
 	
 	public function getTemplate(){
-		return _PS_MODULE_DIR_ . 'lemonway/views/templates/front/methods/' . $this->template;
+		$prefix = _PS_MODULE_DIR_;
+		if($this->module->isVersion17())
+		{
+			$prefix = 'module:';
+			$this->template = '17_' . $this->template;
+		}
+		return $prefix . 'lemonway/views/templates/front/methods/' . $this->template;
 	}
 	
 	public function getConfig($key){

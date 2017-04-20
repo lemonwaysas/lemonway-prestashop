@@ -109,6 +109,8 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
         		
         	
         );
+        
+        $this->module =  Module::getInstanceByName('lemonway');
 
         parent::__construct();
     }
@@ -137,6 +139,7 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
     public function initPageHeaderToolbar()
     {
         parent::initPageHeaderToolbar();
+        $this->page_header_toolbar_title = $this->l('Split payment deadlines');
 		if($this->display === 'edit' && $this->object->canPaid()){	
 		
 	        $this->page_header_toolbar_btn['pay_now'] = array(
@@ -157,6 +160,11 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
     public function initToolbarTitle()
     {
         parent::initToolbarTitle();
+
+        $this->toolbar_title = array();
+        $this->toolbar_title[] = $this->l('Split payment deadlines');
+        $this->addMetaTitle($this->l('Split payment deadlines', null, null, false));
+        
         
        /*  if ($this->display == 'edit') {
             $this->toolbar_title = array();
@@ -285,6 +293,12 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
     {
         parent::setMedia();
         $this->addJS(_PS_MODULE_DIR_ . $this->module->name . "/views/js/back.js");
+    }
+    
+    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
+    {
+    	$module =  Module::getInstanceByName('lemonway');
+    	return $module->l($string,'ADMINSPLITPAYMENTDEADLINECONTROLLER');
     }
 
 }

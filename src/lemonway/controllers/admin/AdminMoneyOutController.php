@@ -87,6 +87,8 @@ class AdminMoneyOutController extends ModuleAdminController
                 'filter_key' => 'a!date_add'
             ),
         );
+        
+        $this->module =  Module::getInstanceByName('lemonway');
 
         parent::__construct();
     }
@@ -102,7 +104,7 @@ class AdminMoneyOutController extends ModuleAdminController
     public function initPageHeaderToolbar()
     {
         parent::initPageHeaderToolbar();
-
+        $this->page_header_toolbar_title = $this->l('Money outs');
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_moneyout'] = array(
                 'href' => self::$currentIndex.'&addlemonway_moneyout&token=' . $this->token,
@@ -134,6 +136,11 @@ class AdminMoneyOutController extends ModuleAdminController
             $this->toolbar_title = array();
             $this->toolbar_title[] = $this->l('Do a Money out', null, null, false);
             $this->addMetaTitle($this->l('Do a Money out', null, null, false));
+        }
+        else{
+        	$this->toolbar_title = array();
+        	$this->toolbar_title[] = $this->l('Money outs');
+        	$this->addMetaTitle($this->l('Money outs', null, null, false));
         }
     }
     
@@ -383,5 +390,11 @@ class AdminMoneyOutController extends ModuleAdminController
         }
 
         return $this->walletDetails;
+    }
+    
+    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
+    {
+    	$module =  Module::getInstanceByName('lemonway');
+    	return $module->l($string,'ADMINMONEYOUTCONTROLLER');
     }
 }

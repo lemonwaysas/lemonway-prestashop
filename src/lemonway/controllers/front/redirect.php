@@ -42,6 +42,8 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
     protected $defaultLang = 'en';
     
+    public $errors = array();
+    
     public function __construct()
     {
         parent::__construct();
@@ -54,6 +56,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     */
     public function postProcess()
     {
+    	
         $cart = $this->context->cart;
         /* @var $customer CustomerCore */
         $customer = $this->context->customer;
@@ -82,11 +85,18 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         $amountTot = number_format((float)$amountTotRaw, 2, '.', '');
         
         $methodCode = Tools::getValue('method_code'); 
-        /* @var $methodInstance Method */
-        $methodInstance = $this->module->methodFactory($methodCode);
+        
+        try {
+        	/* @var $methodInstance Method */
+        	$methodInstance = $this->module->methodFactory($methodCode);
+        } catch (Exception $e) {
+        	$this->addError($this->l('Payment method is not allowed'));
+        	return $this->displayError();
+        }
+        
         
         if(!$methodInstance->isAllowed()){
-        	$this->addError($this->l('Payment method is not allowed!'));
+        	$this->addError($this->l('Payment method is not allowed'));
         	return $this->displayError();
         }
         
@@ -182,10 +192,62 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             $moneyInToken = (string)$res->lwXml->MONEYINWEB->TOKEN;
 
             $language = $this->getLang();
-            Tools::redirect(
-                LemonWayConfig::getWebkitUrl() . '?moneyintoken=' . $moneyInToken . '&p='
-                . urlencode(LemonWayConfig::getCssUrl()) . '&lang=' . $language
-            );
+            
+            $lwUrl = LemonWayConfig::getWebkitUrl() . '?moneyintoken=' . $moneyInToken . '&p='
+                . urlencode(LemonWayConfig::getCssUrl()) . '&lang=' . $language;
+            
+             //Get selected card type
+             if(!empty($ccType = Tools::getValue('cc_type',''))){
+             	$allowedCcType = array('CB','VISA','MASTERCARD');
+             	if(in_array($ccType, $allowedCcType)){
+             		$ch = curl_init();
+             		curl_setopt($ch, CURLOPT_URL, $lwUrl);
+             		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+             		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+             		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+             		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+             		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !Configuration::get('LEMONWAY_IS_TEST_MODE', false));
+             		
+             		$response = curl_exec($ch);
+             		//echo( 'Response: ' . $response);
+             		//Parse response to get action url and data field
+             		$matches = array();
+             		$patternFormActionAndData = '/(action="|name=data value=")([^"]*)"/i';
+             		if(preg_match_all($patternFormActionAndData, $response,$matches)){
+             			if(isset($matches[2])){
+             				list($actionUrl,$data) =$matches[2];
+             				$postFields = array(
+             						'DATA'=>$data,
+             						$ccType=>1
+             				);
+             				$html = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">' . "\n";
+             				$html .= '<html>' . "\n";
+             				$html .= '    <head>' . "\n";
+             				$html .= '    </head>';
+             				$html .= '    <body>';
+             				$html .= '        <div align="center"><br />' . $this->l('You will be redirected to payment page in a few seconds.') . '</div>' . "\n";
+             				$html .= '        <div id="buttons" style="display: none;">' . "\n";
+             				$html .= '            <form id="lemonway_payment_redirect" action="' . $actionUrl. '" method="post">' . "\n";
+             				$html .= '                <input type="hidden" name="' . $ccType . '_x" value="1" />' . "\n";
+             				$html .= '                <input type="hidden" name="' . $ccType . '_y" value="1" />' . "\n";
+             				$html .= '                <input type="hidden" name="DATA" value="'.$data.'" />' . "\n";
+             				$html .= '            </form>' . "\n";
+             				$html .= '        </div>' . "\n";
+             				$html .= '        <script type="text/javascript">document.getElementById("lemonway_payment_redirect").submit();</script>' . "\n";
+             				$html .= '    </body>' . "\n";
+             				$html .= '</html>';
+             				die($html);
+             			}
+             		}
+
+             		
+             	}
+             }
+            
+            Tools::redirect($lwUrl );
+            
+            
+            
         } else {
             if (($card = $this->module->getCustomerCard($customer->id)) && $customer->isLogged()) {
                 //Call directkit for MoneyInWithCardId
@@ -292,13 +354,20 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         /**
         * Create the breadcrumb for your ModuleFrontController.
         */
-        $this->context->smarty->assign(
-            'path',
-            '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
+    	$path = '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
             . $this->module->l('Payment')
-            . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error'));
+            . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
+        $this->context->smarty->assign(
+        		array('path'=>$path,
+        			  'errors'=>$this->errors
+        		)
+        		
+            );
         
-        return $this->setTemplate('error.tpl');
+        $template = 'error.tpl';
+        if($this->module->isVersion17()) $template = 'module:' . $this->module->name . '/views/templates/front/error.tpl';
+        
+        return $this->setTemplate($template);
     }
     
     protected function methodIsAllowed($methodCode){
