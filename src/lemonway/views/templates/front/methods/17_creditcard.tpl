@@ -29,19 +29,19 @@
 		<div class="radio">
   			<label>
     			<input type="radio" name="cc_type"  value="CB" required>
-    			<img alt="CB" src="{$module_dir|escape:'html':'UTF-8'}views/img/CB.png">
+    			<img alt="CB" src="{$module_dir|escape:'html':'UTF-8'}views/img/CB.gif">
   			</label>
 		</div>
 		<div class="radio">
   			<label>
     			<input type="radio" name="cc_type" value="VISA" required>
-    			<img alt="VISA" src="{$module_dir|escape:'html':'UTF-8'}views/img/VISA.png">
+    			<img alt="VISA" src="{$module_dir|escape:'html':'UTF-8'}views/img/VISA.gif">
   			</label>
 		</div>
 		<div class="radio">
   			<label>
     			<input type="radio" name="cc_type" value="MASTERCARD" required>
-    			<img alt="MASTERCARD" src="{$module_dir|escape:'html':'UTF-8'}views/img/MASTERCARD.png">
+    			<img alt="MASTERCARD" src="{$module_dir|escape:'html':'UTF-8'}views/img/MASTERCARD.gif">
   			</label>
 		</div>
 

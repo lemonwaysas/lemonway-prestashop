@@ -28,7 +28,24 @@
 			action="{$link->getModuleLink('lemonway', 'redirect', array(), true)|escape:'htmlall':'UTF-8'}"
 			method="POST">
 			<input type="hidden" value="{$method->getCode()}" name="method_code">
-			<div class="lemonway-payment"
+				<div class="radio">
+					<label> <input type="radio" name="cc_type" value="CB" required> <img
+						alt="CB" src="{$module_dir|escape:'html':'UTF-8'}views/img/CB.gif">
+					</label>
+				</div>
+				<div class="radio">
+					<label> <input type="radio" name="cc_type" value="VISA" required> <img
+						alt="VISA"
+						src="{$module_dir|escape:'html':'UTF-8'}views/img/VISA.gif">
+					</label>
+				</div>
+				<div class="radio">
+					<label> <input type="radio" name="cc_type" value="MASTERCARD"
+						required> <img alt="MASTERCARD"
+						src="{$module_dir|escape:'html':'UTF-8'}views/img/MASTERCARD.gif">
+					</label>
+				</div>
+				<div class="lemonway-payment"
 				id="lemonway_{$method->getCode()}_payment_form">
 				<div class="lemonway-payment-container" id="lemonway_{$method->getCode()}_payment_form_container">
 					<div class="lemonway-payment-img-container">
