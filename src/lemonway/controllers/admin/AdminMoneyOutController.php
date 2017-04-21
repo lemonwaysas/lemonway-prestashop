@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2017 PrestaShop
+ * 2017 Lemon way
  *
  * NOTICE OF LICENSE
  *
@@ -10,18 +10,17 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@prestashop.com so we can send you a copy immediately.
+ * to contact@lemonway.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to http://www.prestashop.com for more information.
+ * Do not edit or add to this file if you wish to upgrade this addon to newer
+ * versions in the future. If you wish to customize this addon for your
+ * needs please contact us for more information.
  *
- * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * International Registered Trademark & Property of PrestaShop SA
+ * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
+ * @copyright  2017 Lemon way
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 */
 
 require_once _PS_MODULE_DIR_ . 'lemonway/classes/MoneyOut.php';
@@ -88,6 +87,8 @@ class AdminMoneyOutController extends ModuleAdminController
                 'filter_key' => 'a!date_add'
             ),
         );
+        
+        $this->module =  Module::getInstanceByName('lemonway');
 
         parent::__construct();
     }
@@ -103,7 +104,7 @@ class AdminMoneyOutController extends ModuleAdminController
     public function initPageHeaderToolbar()
     {
         parent::initPageHeaderToolbar();
-
+        $this->page_header_toolbar_title = $this->l('Money outs');
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_moneyout'] = array(
                 'href' => self::$currentIndex.'&addlemonway_moneyout&token=' . $this->token,
@@ -135,6 +136,11 @@ class AdminMoneyOutController extends ModuleAdminController
             $this->toolbar_title = array();
             $this->toolbar_title[] = $this->l('Do a Money out', null, null, false);
             $this->addMetaTitle($this->l('Do a Money out', null, null, false));
+        }
+        else{
+        	$this->toolbar_title = array();
+        	$this->toolbar_title[] = $this->l('Money outs');
+        	$this->addMetaTitle($this->l('Money outs', null, null, false));
         }
     }
     
@@ -384,5 +390,11 @@ class AdminMoneyOutController extends ModuleAdminController
         }
 
         return $this->walletDetails;
+    }
+    
+    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
+    {
+    	$module =  Module::getInstanceByName('lemonway');
+    	return $module->l($string,'ADMINMONEYOUTCONTROLLER');
     }
 }

@@ -1,5 +1,5 @@
 /**
- * 2007-2017 PrestaShop
+ * 2017 Lemon way
  *
  * NOTICE OF LICENSE
  *
@@ -9,18 +9,17 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@prestashop.com so we can send you a copy immediately.
+ * to contact@lemonway.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to http://www.prestashop.com for more information.
+ * Do not edit or add to this file if you wish to upgrade this addon to newer
+ * versions in the future. If you wish to customize this addon for your
+ * needs please contact us for more information.
  *
- * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * International Registered Trademark & Property of PrestaShop SA
+ * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
+ * @copyright  2017 Lemon way
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 */
 
 /**
@@ -28,37 +27,12 @@
  * to avoid any conflicts with others containers.
  */
 
-#Lemonway_payment_button a {
-	padding: 10px;
-	background-color: #FBFBFB;
+.lemonway-payment{
+	margin-bottom: 10px;
 }
 
-#Lemonway_payment_button a:hover {
-	background-color: #f6f6f6;
-}
-
-#Lemonway_payment_button a:after {
-	display: block;
-	content: "\f054";
-	position: absolute;
-	right: 15px;
-	margin-top: -11px;
-	top: 50%;
-	font-family: "FontAwesome";
-	font-size: 25px;
-	height: 22px;
-	width: 14px;
-	color: #777777;
-}
-
-#Lemonway_payment_button a svg {
-	vertical-align:middle;
-	margin-right:10px;
-}
-
-#Lemonway_payment_form #Lemonway_payment_form_container {
-	background-color: #FBFBFB;
-	display: block;
+.lemonway-payment .lemonway-payment-container{
+	 display: block;
     border: 1px solid #d6d4d4;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -67,7 +41,68 @@
     line-height: 23px;
     color: #333;
     font-weight: bold;
-    padding: 33px 40px 34px 99px;
+    padding: 33px 40px 34px 15px;
     letter-spacing: -1px;
-    position: relative; 
+    position: relative;
+}
+
+.lemonway-payment .lemonway-payment-container{
+	margin-bottom: 10px;
+}
+
+.lemonway-payment .lemonway-payment-container:hover{
+	/*background-color: #f6f6f6;
+	cursor:pointer;*/
+}
+
+ .lemonway-payment .lemonway-payment-container button[type="submit"]{
+	float:right;
+}
+
+.lemonway-payment .lemonway-payment-container .lemonway-payment-splitpayment-profiles-container{
+	margin: 10px 10px 10px 0px;
+}
+
+.Lemonway_payment_form {
+
+}
+
+/* .Lemonway_payment_btn:after {
+    display: block;
+    content: "\f054";
+    position: absolute;
+    right: 15px;
+    margin-top: -11px;
+    top: 50%;
+    font-family: "FontAwesome";
+    font-size: 25px;
+    height: 22px;
+    width: 14px;
+    color: #777777;
+} */
+
+.Lemonway_payment_btn:hover {
+    cursor: pointer;
+    background-color: #f6f6f6;
+}
+
+.lemonway_cc_form{
+	
+	padding:10px;
+	
+}
+
+.lemonway_cc_form label input[type="radio"]{
+	margin-right:10px;
+}
+
+.lemonway_cc_form label img{
+	margin-bottom:5px;
+}
+
+
+.lemonway_cc_form .lemonway-payment-oneclic-container{
+	
+	padding:10px 0;
+	
 }

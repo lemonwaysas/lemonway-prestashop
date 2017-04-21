@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2017 PrestaShop
+ * 2017 Lemon way
  *
  * NOTICE OF LICENSE
  *
@@ -10,22 +10,27 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@prestashop.com so we can send you a copy immediately.
+ * to contact@lemonway.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to http://www.prestashop.com for more information.
+ * Do not edit or add to this file if you wish to upgrade this addon to newer
+ * versions in the future. If you wish to customize this addon for your
+ * needs please contact us for more information.
  *
- * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * International Registered Trademark & Property of PrestaShop SA
+ * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
+ * @copyright  2017 Lemon way
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 */
 
 class LemonWayConfig
 {
+	
+	const LEMONWAY_WEBKIT_4ECOMMERCE_URL_PROD = 'https://webkit.lemonway.fr/mb/lwecommerce/prod/';
+	const LEMONWAY_WEBKIT_4ECOMMERCE_URL_TEST = 'https://sandbox-webkit.lemonway.fr/lwecommerce/dev/';
+	const LEMONWAY_DIRECTKIT_4ECOMMERCE_URL_PROD = 'https://ws.lemonway.fr/mb/lwecommerce/prod/directkitxml/service.asmx';
+	const LEMONWAY_DIRECTKIT_4ECOMMERCE_URL_TEST = 'https://sandbox-api.lemonway.fr/mb/lwecommerce/dev/directkitxml/service.asmx';
+	
     public static function isTestMode()
     {
         return (bool)Configuration::get('LEMONWAY_IS_TEST_MODE', null);
@@ -37,6 +42,14 @@ class LemonWayConfig
         if (LemonWayConfig::isTestMode()) {
             $url = Configuration::get('LEMONWAY_DIRECTKIT_URL_TEST', null);
         }
+        
+        //If not custom urls was entered we use 4ecommerce urls
+        if(empty($url)){
+        	$url = self::LEMONWAY_DIRECTKIT_4ECOMMERCE_URL_PROD;
+        	if (LemonWayConfig::isTestMode()) {
+        		$url =self::LEMONWAY_DIRECTKIT_4ECOMMERCE_URL_TEST;
+        	}
+        }
 
         return rtrim($url, '/');
     }
@@ -46,6 +59,14 @@ class LemonWayConfig
         $url = Configuration::get('LEMONWAY_WEBKIT_URL', null);
         if (LemonWayConfig::isTestMode()) {
             $url = Configuration::get('LEMONWAY_WEBKIT_URL_TEST', null);
+        }
+        
+        //If not custom urls was entered we use 4ecommerce urls
+        if(empty($url)){
+        	$url = self::LEMONWAY_WEBKIT_4ECOMMERCE_URL_PROD;
+        	if (LemonWayConfig::isTestMode()) {
+        		$url = self::LEMONWAY_WEBKIT_4ECOMMERCE_URL_TEST;
+        	}
         }
 
         return rtrim($url, '/');
@@ -71,8 +92,8 @@ class LemonWayConfig
         return Configuration::get('LEMONWAY_CSS_URL', null);
     }
     
-    public static function getOneclicEnabled()
+    public static function getOneclicEnabled($method)
     {
-        return Configuration::get('LEMONWAY_ONECLIC_ENABLED', null);
+        return Configuration::get('LEMONWAY_' . strtoupper($method) . '_ONECLIC_ENABLED', null);
     }
 }

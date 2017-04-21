@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2017 PrestaShop
+ * 2017 Lemon way
  *
  * NOTICE OF LICENSE
  *
@@ -10,18 +10,17 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@prestashop.com so we can send you a copy immediately.
+ * to contact@lemonway.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to http://www.prestashop.com for more information.
+ * Do not edit or add to this file if you wish to upgrade this addon to newer
+ * versions in the future. If you wish to customize this addon for your
+ * needs please contact us for more information.
  *
- * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * International Registered Trademark & Property of PrestaShop SA
+ * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
+ * @copyright  2017 Lemon way
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 */
 
 class LemonwayConfirmationModuleFrontController extends ModuleFrontController
@@ -36,35 +35,48 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         $action = Tools::getValue('action');
         $cart_id = Tools::getValue('cart_id');
         $secure_key = Tools::getValue('secure_key');
+        /* @var $methodInstance Method */
+        $methodInstance = $this->module->methodFactory(Tools::getValue('payment_method'));
+        
 
         $cart = new Cart((int)$cart_id);
         $customer = new Customer((int)$cart->id_customer);
+        
+        $cart_total_paid = (float)Tools::ps_round((float)$cart->getOrderTotal(true, Cart::BOTH),2);
+        
+        
+        //If is X times method, we split the payment
+        if($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))){
+        	$profile = new SplitpaymentProfile($splitPaypentProfileId);
+        	if($profile){
+        
+        		$splitpayments = $profile->splitPaymentAmount($cart_total_paid);
+        		$firstSplit = $splitpayments[0];
+        		$cart_total_paid =  (float)Tools::ps_round((float)$firstSplit['amountToPay'], 2);
+        		
+        
+        	}
+        	else{
+        		$this->addError($this->l('Split payment profile not found!'));
+        		return $this->displayError();
+        	}
+        }
 
         /**
         * Restore the context from the $cart_id & the $customer_id to process the validation properly.
         */
-        /* Context::getContext()->cart = $cart;
+        Context::getContext()->cart = $cart;
         if(!Context::getContext()->cart->id) {
             die;
         }
 
         Context::getContext()->customer = $customer;
         Context::getContext()->currency = new Currency((int)Context::getContext()->cart->id_currency);
-        Context::getContext()->language = new Language((int)Context::getContext()->customer->id_lang);*/
+        Context::getContext()->language = new Language((int)Context::getContext()->customer->id_lang);
         
-        /**
-        * Since it's an example we are validating the order right here,
-        * You should not do it this way in your own module.
-        */
-        $payment_status = Configuration::get('LEMONWAY_PENDING_OS'); // Default value for a payment that succeed.
+        $payment_status = Configuration::get(Lemonway::LEMONWAY_PENDING_OS); // Default value for a payment that succeed.
         $message = $this->module->l("Order in pending validation payment.");
-        // You can add a comment directly into the order so the merchant will see it in the BO.
-        
-        /**
-        * Converting cart into a valid order
-        */
-        
-        $module_name = $this->module->displayName;
+                
         $currency_id = (int)Context::getContext()->currency->id;
         
         switch ($action)
@@ -75,11 +87,14 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 */
                 $order_id = Order::getOrderByCartId((int)$cart->id);
                 if (!$order_id) {
+                	/**
+                	 * Converting cart into a valid order
+                	 */
                     $this->module->validateOrder(
                         $cart_id,
                         $payment_status,
-                        $cart->getOrderTotal(),
-                        $module_name,
+                    	$cart_total_paid,
+                        $methodInstance->getTitle(),
                         $message,
                         array(
                         ),
