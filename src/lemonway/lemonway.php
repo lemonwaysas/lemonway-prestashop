@@ -332,9 +332,11 @@ class Lemonway extends PaymentModule
 
         //Do Not delete this configuration
         //Configuration::deleteByName('LEMONWAY_PENDING_OS');
-
+        
         $this->uninstallModuleTab('AdminMoneyOut');
         $this->uninstallModuleTab('AdminLemonway');
+        $this->uninstallModuleTab('AdminSplitpaymentProfile');
+        $this->uninstallModuleTab('AdminSplitpaymentDeadline');
 
         include(dirname(__FILE__) . '/sql/uninstall.php');
 
