@@ -1187,6 +1187,7 @@ class Lemonway extends PaymentModule
     
     	require_once _PS_MODULE_DIR_.$this->name.'/services/LemonWayKit.php';
     	$kit = new LemonWayKit();
+    	
     
     	// Generate a new wkToken for this cart ID
     	// It's necessary to send a new wkToken for each requests
@@ -1216,7 +1217,7 @@ class Lemonway extends PaymentModule
     							'action' => 'error',
     							'secure_key' => $secure_key
     					), true)),
-    					'autoCommission' => 0,
+    					'autoCommission' => LemonWayConfig::is4EcommerceMode() ? 0 : 1,
     					'registerCard' => (int)$registerCard, //For Atos
     					'useRegisteredCard' => (int)$registerCard, //For payline
     			);

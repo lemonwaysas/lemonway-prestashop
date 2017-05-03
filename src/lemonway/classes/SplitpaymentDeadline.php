@@ -22,7 +22,7 @@
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 */
-
+require_once _PS_MODULE_DIR_ . 'lemonway/services/LemonWayConfig.php';
 require_once _PS_MODULE_DIR_ . 'lemonway/services/LemonWayKit.php';
 class SplitpaymentDeadline extends ObjectModel
 {
@@ -160,6 +160,8 @@ class SplitpaymentDeadline extends ObjectModel
 			 
 			$comment = Configuration::get('PS_SHOP_NAME') . " - " . $order->reference . " - " .
 					$customer->lastname . " " . $customer->firstname . " - " . $customer->email;
+			
+			$autocommission = LemonWayConfig::is4EcommerceMode() ? 0 : 1;
 					 
 			//Call directkit for MoneyInWithCardId to execute this split payment
 			$params = array(
@@ -168,7 +170,7 @@ class SplitpaymentDeadline extends ObjectModel
 					'amountTot' => number_format($this->amount_to_pay, 2, '.', ''),
 					'amountCom'=> number_format(0, 2, '.', ''),
 					'comment' => $comment .  " (Splitpayment #".$this->id.")",
-					'autoCommission' => 1,
+					'autoCommission' => $autocommission,
 					'cardId' => $this->token
 			);
 			

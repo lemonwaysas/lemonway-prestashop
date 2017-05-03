@@ -96,4 +96,8 @@ class LemonWayConfig
     {
         return Configuration::get('LEMONWAY_' . strtoupper($method) . '_ONECLIC_ENABLED', null);
     }
+    
+    public static function is4EcommerceMode(){
+    	return !(self::getWebkitUrl() && self::getDirectkitUrl());
+    }
 }

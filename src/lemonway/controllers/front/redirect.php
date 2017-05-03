@@ -47,6 +47,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     public function __construct()
     {
         parent::__construct();
+        require_once _PS_MODULE_DIR_ . $this->module->name . '/services/LemonWayConfig.php';
         require_once _PS_MODULE_DIR_ . $this->module->name . '/services/LemonWayKit.php';
     }
 
@@ -83,6 +84,8 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         
         $amountTotRaw = $cart->getOrderTotal(true, 3);
         $amountTot = number_format((float)$amountTotRaw, 2, '.', '');
+        
+        $autocommission = LemonWayConfig::is4EcommerceMode() ? 0 : 1;
         
         $methodCode = Tools::getValue('method_code'); 
         
@@ -157,7 +160,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 'returnUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', $returnlCallbackParams, true)),
                 'cancelUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', $cancelCallbackParams, true)),
                 'errorUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', $errorCallbackParams, true)),
-                'autoCommission' => 0,
+                'autoCommission' => $autocommission,
                 'registerCard' => $this->registerCard(), //For Atos
                 'useRegisteredCard' => $this->registerCard(), //For payline
             );
@@ -257,7 +260,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     'amountTot' => $amountTot,
                     'amountCom'=> $amountCom,
                     'comment' => $comment .  " (Money In with Card Id)",
-                    'autoCommission' => 0,
+                    'autoCommission' => $autocommission,
                     'cardId' => $card['id_card']
                 );
 
