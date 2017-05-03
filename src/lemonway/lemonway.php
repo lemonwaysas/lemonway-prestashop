@@ -563,6 +563,18 @@ class Lemonway extends PaymentModule
 
     			$baseFrom['form']['input'] = $inputArr;
     			
+    			//Create description
+    			$cronUrl  = $this->context->link->getModuleLink('lemonway', 'cron', array(), true);
+    			$description = sprintf($this->l('To use split payment, you need to schedule a cron task to perform a request on %s.') ,$cronUrl);
+    			$description .= '<br />' . sprintf($this->l('E.g: "0 1 * * * wget %s". Execute a request every day at one o\'clock.'),$cronUrl);
+    			$baseFrom['form'] = array('description'=>$description) + $baseFrom['form'];
+    			
+    			if(!count($splitpaymentProfiles)){
+    				$adminSplitPaymentTabUrl = $this->context->link->getAdminLink('AdminSplitpaymentProfile', true);
+    				$warningMessage = sprintf($this->l('To use this method you need to create a split payment profile!'),$adminSplitPaymentTabUrl);
+    				$baseFrom['form'] = array('warning'=>$warningMessage) + $baseFrom['form'];
+    			}
+
     			$form = $helper->generateForm(array(
     					$baseFrom
     			));
