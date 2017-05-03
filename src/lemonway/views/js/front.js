@@ -20,47 +20,47 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
+ */
 
-$(function()
-{
-    $("form.placeOrderForm").submit(function( event ) {
-      if (!$("#lw_use_card").is(':checked') && $("#open_basedir").val() == "1") {
-        event.preventDefault();
-        data = "action=placeOrder&" + $(this).serialize();
-        var query = $.ajax({
-          type: 'POST',
-          url: baseDir + 'modules/lemonway/ajax.php',
-          data: data,
-          dataType: 'json',
-          success: function(cardForm) {
-            $(".Lemonway_payment_form").html(cardForm);
-          }
-        });
-      }
+$(function () {
+    $("form.placeOrderForm").submit(function (event) {
+        if (!$("#lw_use_card").is(':checked') && $("#open_basedir").val() == "1") {
+            event.preventDefault();
+            data = "action=placeOrder&" + $(this).serialize();
+
+            var query = $.ajax({
+                type: 'POST',
+                url: baseDir + 'modules/lemonway/ajax.php',
+                data: data,
+                dataType: 'json',
+                success: function (cardForm) {
+                    $(".Lemonway_payment_form").html(cardForm);
+                }
+            });
+        }
     });
 
-   /* $(".Lemonway_payment_btn").click(function() {
-        $("#placeOrderForm").submit();
-        $(this).removeClass("Lemonway_payment_btn");
-    });*/
-    
-	//<!-- Display deadlines by profile selection -->
-	showSelectedProfile();
-	$('#lemonway_CC_XTIMES_splitpayment_profile_select').change(function(){
-		showSelectedProfile();
-	});
+    /* $(".Lemonway_payment_btn").click(function() {
+     $("#placeOrderForm").submit();
+     $(this).removeClass("Lemonway_payment_btn");
+     });*/
 
-	function hideAll(){
-		$('*[id^=profile_splitpayment_table_]').hide();
-	}
+    //<!-- Display deadlines by profile selection -->
+    showSelectedProfile();
 
-	function showSelectedProfile(){
-		hideAll();
-		let selected_profile_id = $('*[name=splitpayment_profile_id]').val();
-		$('#profile_splitpayment_table_' + selected_profile_id).show();
-	}
-						
-	
-    
+    $('#lemonway_CC_XTIMES_splitpayment_profile_select').change(function () {
+        showSelectedProfile();
+    });
+
+    function hideAll() {
+        $('*[id^=profile_splitpayment_table_]').hide();
+    }
+
+    function showSelectedProfile() {
+        hideAll();
+        let selected_profile_id = $('*[name=splitpayment_profile_id]').val();
+        $('#profile_splitpayment_table_' + selected_profile_id).show();
+    }
+
+
 });

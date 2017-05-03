@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 Lemon way
  *
@@ -21,8 +22,7 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
-
+ */
 class MoneyOut extends ObjectModel
 {
     public $id_lw_wallet;
@@ -36,10 +36,10 @@ class MoneyOut extends ObjectModel
     public $amount_to_pay;
     public $date_add;
     public $date_upd;
-    
+
     /**
-    * @see ObjectModel::$definition
-    */
+     * @see ObjectModel::$definition
+     */
     public static $definition = array(
         'table' => 'lemonway_moneyout',
         'primary' => 'id_moneyout',
@@ -49,43 +49,43 @@ class MoneyOut extends ObjectModel
             'id_lw_wallet' => array(
                 'type' => self::TYPE_STRING,
                 'validate' => 'isGenericName',
-                'required'=>true
+                'required' => true
             ),
             'id_customer' => array(
                 'type' => self::TYPE_INT,
-                'required'=>false
+                'required' => false
             ),
             'id_employee' => array(
                 'type' => self::TYPE_INT,
-                'required'=>false
+                'required' => false
             ),
             'is_admin' => array(
                 'type' => self::TYPE_INT,
-                'required'=>false
+                'required' => false
             ),
             'id_lw_iban' => array(
                 'type' => self::TYPE_INT,
-                'required'=>true
+                'required' => true
             ),
             'prev_bal' => array(
                 'type' => self::TYPE_FLOAT,
                 'isFloat' => 'isPrice',
-                'required'=>true
+                'required' => true
             ),
             'new_bal' => array(
                 'type' => self::TYPE_FLOAT,
                 'isFloat' => 'isPrice',
-                'required'=>true
+                'required' => true
             ),
             'iban' => array(
                 'type' => self::TYPE_STRING,
                 'validate' => 'isGenericName',
-                'required'=>true
+                'required' => true
             ),
             'amount_to_pay' => array(
                 'type' => self::TYPE_FLOAT,
                 'validate' => 'isPrice',
-                'required'=>true
+                'required' => true
             ),
             'date_add' => array(
                 'type' => self::TYPE_DATE,
@@ -102,26 +102,27 @@ class MoneyOut extends ObjectModel
      * Get customer maoneyout
      *
      * @param int $id_customer Customer|Employee id
-     * @param bool $is_admin 
+     * @param bool $is_admin
      * @param int $limit
      * @return array MoneyOut $moneyouts
      */
     public static function getCustomerMoneyout($id_customer, $is_admin = false, $limit = 0)
     {
         $field_owner = 'id_customer';
-        
+
         if ($is_admin) {
             $field_owner = 'id_employee';
         }
 
         $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_moneyout` wt WHERE wt.`' . pSQL($field_owner) . '` = ';
-        $sql .= (int)pSQL($id_customer) . ' ORDER BY wt.`date_add` DESC';
-        
+        $sql .= (int) pSQL($id_customer) . ' ORDER BY wt.`date_add` DESC';
+
         if ($limit > 0) {
-            $sql .= " LIMIT 0, " . pSQL((int)$limit);
+            $sql .= " LIMIT 0, " . pSQL((int) $limit);
         }
 
         $res = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+
         if (!$res) {
             return array();
         }

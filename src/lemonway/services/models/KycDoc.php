@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 Lemon way
  *
@@ -21,34 +22,33 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
-
+ */
 class KycDoc
 {
     /**
-    * ID as defined by Lemon Way
-    * @var string
-    */
+     * ID as defined by Lemon Way
+     * @var string
+     */
     public $ID;
-    
+
     /**
-    * STATUS {1,2,3,4,5}
-    * @var string
-    */
+     * STATUS {1,2,3,4,5}
+     * @var string
+     */
     public $STATUS;
-    
+
     /**
-    * TYPE {0,1,2,3,4,5,6,7,11,12,13,14,15,16,17,18,19,20}
-    * @var string
-    */
+     * TYPE {0,1,2,3,4,5,6,7,11,12,13,14,15,16,17,18,19,20}
+     * @var string
+     */
     public $TYPE;
-    
+
     /**
-    * VD validity date
-    * @var string
-    */
+     * VD validity date
+     * @var string
+     */
     public $VD;
-    
+
     public function __construct($node)
     {
         $this->ID = $node->ID;

@@ -21,14 +21,12 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
+ */
 
 require_once _PS_MODULE_DIR_ . 'lemonway/classes/SplitpaymentProfile.php';
 
 class AdminSplitpaymentProfileController extends ModuleAdminController
 {
-	
-    
     public function __construct()
     {
         $this->bootstrap = true;
@@ -55,17 +53,15 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
             'name' => array(
                 'title' => $this->l('Name')
             ),
-        	'active' => array(
-        		'title' => $this->l('Enabled'),
-        		'active' => 'status',
-        		'type' => 'bool',
-        		'class' => 'fixed-width-sm'
-        			
-        	)
-        	
+            'active' => array(
+                'title' => $this->l('Enabled'),
+                'active' => 'status',
+                'type' => 'bool',
+                'class' => 'fixed-width-sm'
+            )
         );
-        
-        $this->module =  Module::getInstanceByName('lemonway');
+
+        $this->module = Module::getInstanceByName('lemonway');
 
         parent::__construct();
     }
@@ -73,31 +69,32 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
     public function initToolbar()
     {
         parent::initToolbar();
+
         if (isset($this->toolbar_btn['new'])) {
             $this->toolbar_btn['new']['desc'] = $this->l('Split payment profile');
         }
-       
     }
 
     public function initPageHeaderToolbar()
     {
         parent::initPageHeaderToolbar();
         $this->page_header_toolbar_title = $this->l(' Split payment profile');
-       
+
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_splitpayment_profile'] = array(
-                'href' => self::$currentIndex.'&addlemonway_splitpayment_profile&token=' . $this->token,
+                'href' => self::$currentIndex . '&addlemonway_splitpayment_profile&token=' . $this->token,
                 'desc' => $this->l('Add Splitpayment profile', null, null, false),
                 'icon' => 'process-icon-new'
             );
         }
 
         if ($this->display == 'add') {
-           unset($this->page_header_toolbar_btn['save']);
+            unset($this->page_header_toolbar_btn['save']);
         }
 
         if (Context::getContext()->shop->getContext() != Shop::CONTEXT_SHOP
-            && isset($this->page_header_toolbar_btn['new_splitpayment_profile']) && Shop::isFeatureActive()) {
+            && isset($this->page_header_toolbar_btn['new_splitpayment_profile']) && Shop::isFeatureActive()
+        ) {
             unset($this->page_header_toolbar_btn['new_splitpayment_profile']);
         }
     }
@@ -110,160 +107,159 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
     public function initToolbarTitle()
     {
         parent::initToolbarTitle();
-        
+
         if ($this->display == 'add') {
             $this->toolbar_title = array();
             $this->toolbar_title[] = $this->l('New split payment profile', null, null, false);
             $this->addMetaTitle($this->l('New split payment profile', null, null, false));
-        }
-        else{
-        	$this->toolbar_title = array();
-        	$this->toolbar_title[] = $this->l('Split payment profiles');
-        	$this->addMetaTitle($this->l('Split payment profiles', null, null, false));
+        } else {
+            $this->toolbar_title = array();
+            $this->toolbar_title[] = $this->l('Split payment profiles');
+            $this->addMetaTitle($this->l('Split payment profiles', null, null, false));
         }
     }
-    
+
 
     /**
-    * Object creation
-    *
-    * @return ObjectModel|false
-    * @throws PrestaShopException
-    */
+     * Object creation
+     *
+     * @return ObjectModel|false
+     * @throws PrestaShopException
+     */
     public function processAdd()
     {
         return parent::processAdd();
     }
 
-    
+
     public function renderForm()
     {
         $this->display = 'add';
 
-         $profileForm = array();
-         $profileForm['form'] =  array(
-         		'legend' => array(
-         				'title' => $this->l('New payment profile'),
-         		),
-         		'input' => array(
-         				array(
-         						'type' => 'hidden',
-         						'name' => 'id_employee',
-         						'lang' => false,
-         						'disabled' => false,
-         				),
-         				array(
-         						'type' => 'hidden',
-         						'name' => 'is_admin',
-         						'lang' => false,
-         						'disabled' => false,
-         				),
-         				array(
-         						'col' => 3,
-         						'type' => 'text',
-         						'name' => 'name',
-         						'label' => $this->l('Name'),
-         						'lang' => false,
-         						'disabled' => false,
-         						'required'=>true
-         				),
-         				array(
-         						'col' => 3,
-         						'type' => 'select',
-         						'options' => array(
-         								'query'=>SplitpaymentProfile::getAllPeriodUnits(),
-         								'id'=>'value',
-         								'name'=>'name'
-         						),
-         						'identifier' => 'value',
-         						'name' => 'period_unit',
-         						'label' => $this->l('Period Unit'),
-         						'lang' => false,
-         						'disabled' => false,
-         						'required'=>false,
-         						'desc'=>$this->l('Unit for billing during the subscription period.')
-         				),
-         				array(
-         						'col' => 3,
-         						'type' => 'text',
-         						'name' => 'period_frequency',
-         						'label' => $this->l('Period Frequency'),
-         						'lang' => false,
-         						'disabled' => false,
-         						'required'=>true,
-         						'desc'=>$this->l('Number of billing periods that make up one billing cycle.')
-         				),
-         				array(
-         						'col' => 3,
-         						'type' => 'text',
-         						'name' => 'period_max_cycles',
-         						'label' => $this->l('Period Max Cycles'),
-         						'lang' => false,
-         						'disabled' => false,
-         						'required'=>true,
-         						'desc'=>$this->l('The number of billing cycles for payment period.')
-         				),
-         		),
-         		'submit' => array(
-         				'title' => $this->l('Save'),
-         		)
-         );
-         
-         $switch = array(
-         		'type' => 'switch',
-         		'label' => $this->l('Enabled'),
-         		'name' => 'active',
-         		'is_bool' => true,
-         		'values' => array(
-         				array(
-         						'id' => 'active_on',
-         						'value' => 1,
-         						'label' => $this->l('Enabled')
-         				),
-         				array(
-         						'id' => 'active_off',
-         						'value' => 0,
-         						'label' => $this->l('Disabled')
-         				)
-         		),
-         		'required'=>false
-         );
-         
-         //Backward compatibility with version < 1.6.
-         //Switch type not exists
-         
-         if (version_compare(_PS_VERSION_, "1.6.0.0") == -1) {
-         	$switch = array(
-         			'type' => 'select',
-         			'label' => $this->l('Enabled'),
-         			'name' => 'active',
-         			'is_bool' => true,
-         			'options' => array(
-         					'query' => array(
-         							array(
-         									'id' => 1,
-         									'label' => $this->l('Enabled')
-         							),
-         							array(
-         									'id' => 0,
-         									'label' => $this->l('Disabled')
-         							)
-         					),
-         					'id' => 'id',
-         					'name' => 'label'
-         			),
-         			'required'=>true
-         	);
-         }
-         
-         $profileForm['form']['input'][] = $switch;
-         
-         $this->fields_form['form'] = $profileForm;
-         
-         $this->fields_value = array(
-         		'id_employee' => $this->context->employee->id,
-         		'is_admin' => 1,
-         );
+        $profileForm = array();
+        $profileForm['form'] = array(
+            'legend' => array(
+                'title' => $this->l('New payment profile'),
+            ),
+            'input' => array(
+                array(
+                    'type' => 'hidden',
+                    'name' => 'id_employee',
+                    'lang' => false,
+                    'disabled' => false,
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'is_admin',
+                    'lang' => false,
+                    'disabled' => false,
+                ),
+                array(
+                    'col' => 3,
+                    'type' => 'text',
+                    'name' => 'name',
+                    'label' => $this->l('Name'),
+                    'lang' => false,
+                    'disabled' => false,
+                    'required' => true
+                ),
+                array(
+                    'col' => 3,
+                    'type' => 'select',
+                    'options' => array(
+                        'query' => SplitpaymentProfile::getAllPeriodUnits(),
+                        'id' => 'value',
+                        'name' => 'name'
+                    ),
+                    'identifier' => 'value',
+                    'name' => 'period_unit',
+                    'label' => $this->l('Period Unit'),
+                    'lang' => false,
+                    'disabled' => false,
+                    'required' => false,
+                    'desc' => $this->l('Unit for billing during the subscription period.')
+                ),
+                array(
+                    'col' => 3,
+                    'type' => 'text',
+                    'name' => 'period_frequency',
+                    'label' => $this->l('Period Frequency'),
+                    'lang' => false,
+                    'disabled' => false,
+                    'required' => true,
+                    'desc' => $this->l('Number of billing periods that make up one billing cycle.')
+                ),
+                array(
+                    'col' => 3,
+                    'type' => 'text',
+                    'name' => 'period_max_cycles',
+                    'label' => $this->l('Period Max Cycles'),
+                    'lang' => false,
+                    'disabled' => false,
+                    'required' => true,
+                    'desc' => $this->l('The number of billing cycles for payment period.')
+                ),
+            ),
+            'submit' => array(
+                'title' => $this->l('Save'),
+            )
+        );
+
+        $switch = array(
+            'type' => 'switch',
+            'label' => $this->l('Enabled'),
+            'name' => 'active',
+            'is_bool' => true,
+            'values' => array(
+                array(
+                    'id' => 'active_on',
+                    'value' => 1,
+                    'label' => $this->l('Enabled')
+                ),
+                array(
+                    'id' => 'active_off',
+                    'value' => 0,
+                    'label' => $this->l('Disabled')
+                )
+            ),
+            'required' => false
+        );
+
+        //Backward compatibility with version < 1.6.
+        //Switch type not exists
+
+        if (version_compare(_PS_VERSION_, "1.6.0.0") == -1) {
+            $switch = array(
+                'type' => 'select',
+                'label' => $this->l('Enabled'),
+                'name' => 'active',
+                'is_bool' => true,
+                'options' => array(
+                    'query' => array(
+                        array(
+                            'id' => 1,
+                            'label' => $this->l('Enabled')
+                        ),
+                        array(
+                            'id' => 0,
+                            'label' => $this->l('Disabled')
+                        )
+                    ),
+                    'id' => 'id',
+                    'name' => 'label'
+                ),
+                'required' => true
+            );
+        }
+
+        $profileForm['form']['input'][] = $switch;
+
+        $this->fields_form['form'] = $profileForm;
+
+        $this->fields_value = array(
+            'id_employee' => $this->context->employee->id,
+            'is_admin' => 1,
+        );
 
 
         return parent::renderForm();
@@ -274,13 +270,11 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
         parent::setMedia();
         $this->addJS(_PS_MODULE_DIR_ . $this->module->name . "/views/js/back.js");
     }
-    
-    
-    
+
+
     protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
     {
-    	$module =  Module::getInstanceByName('lemonway');
-    	return $module->l($string,'ADMINSPLITPAYMENTPROFILECONTROLLER');
+        $module = Module::getInstanceByName('lemonway');
+        return $module->l($string, 'ADMINSPLITPAYMENTPROFILECONTROLLER');
     }
-
 }

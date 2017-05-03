@@ -35,4 +35,3 @@ switch (Tools::getValue('action')) {
     default:
         exit;
 }
-exit;

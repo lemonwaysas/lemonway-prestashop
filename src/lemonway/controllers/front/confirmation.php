@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 Lemon way
  *
@@ -21,101 +22,93 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
-
+ */
 class LemonwayConfirmationModuleFrontController extends ModuleFrontController
 {
     public function postProcess()
     {
-        if ((Tools::isSubmit('cart_id') == false) || (Tools::isSubmit('secure_key') == false)
-            || Tools::isSubmit('action') == false) {
+        if (Tools::isSubmit('cart_id') == false || Tools::isSubmit('secure_key') == false || Tools::isSubmit('action') == false) {
             return false;
         }
-        
+
         $action = Tools::getValue('action');
         $cart_id = Tools::getValue('cart_id');
         $secure_key = Tools::getValue('secure_key');
         /* @var $methodInstance Method */
         $methodInstance = $this->module->methodFactory(Tools::getValue('payment_method'));
-        
 
-        $cart = new Cart((int)$cart_id);
-        $customer = new Customer((int)$cart->id_customer);
-        
-        $cart_total_paid = (float)Tools::ps_round((float)$cart->getOrderTotal(true, Cart::BOTH),2);
-        
-        
+        $cart = new Cart((int) $cart_id);
+        $customer = new Customer((int) $cart->id_customer);
+
+        $cart_total_paid = (float) Tools::ps_round((float) $cart->getOrderTotal(true, Cart::BOTH), 2);
+
         //If is X times method, we split the payment
-        if($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))){
-        	$profile = new SplitpaymentProfile($splitPaypentProfileId);
-        	if($profile){
-        
-        		$splitpayments = $profile->splitPaymentAmount($cart_total_paid);
-        		$firstSplit = $splitpayments[0];
-        		$cart_total_paid =  (float)Tools::ps_round((float)$firstSplit['amountToPay'], 2);
-        		
-        
-        	}
-        	else{
-        		$this->addError($this->l('Split payment profile not found!'));
-        		return $this->displayError();
-        	}
+        if ($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))) {
+            $profile = new SplitpaymentProfile($splitPaypentProfileId);
+
+            if ($profile) {
+                $splitpayments = $profile->splitPaymentAmount($cart_total_paid);
+                $firstSplit = $splitpayments[0];
+                $cart_total_paid = (float) Tools::ps_round((float) $firstSplit['amountToPay'], 2);
+            } else {
+                $this->addError($this->l('Split payment profile not found!'));
+                return $this->displayError();
+            }
         }
 
         /**
-        * Restore the context from the $cart_id & the $customer_id to process the validation properly.
-        */
+         * Restore the context from the $cart_id & the $customer_id to process the validation properly.
+         */
         Context::getContext()->cart = $cart;
-        if(!Context::getContext()->cart->id) {
+
+        if (!Context::getContext()->cart->id) {
             die;
         }
 
         Context::getContext()->customer = $customer;
-        Context::getContext()->currency = new Currency((int)Context::getContext()->cart->id_currency);
-        Context::getContext()->language = new Language((int)Context::getContext()->customer->id_lang);
-        
+        Context::getContext()->currency = new Currency((int) Context::getContext()->cart->id_currency);
+        Context::getContext()->language = new Language((int) Context::getContext()->customer->id_lang);
+
         $payment_status = Configuration::get(Lemonway::LEMONWAY_PENDING_OS); // Default value for a payment that succeed.
         $message = $this->module->l("Order in pending validation payment.");
-                
-        $currency_id = (int)Context::getContext()->currency->id;
-        
-        switch ($action)
-        {
+
+        $currency_id = (int) Context::getContext()->currency->id;
+
+        switch ($action) {
             case 'return':
                 /**
-                * If the order has been validated we try to retrieve it
-                */
-                $order_id = Order::getOrderByCartId((int)$cart->id);
+                 * If the order has been validated we try to retrieve it
+                 */
+                $order_id = Order::getOrderByCartId((int) $cart->id);
+
                 if (!$order_id) {
-                	/**
-                	 * Converting cart into a valid order
-                	 */
+                    /**
+                     * Converting cart into a valid order
+                     */
                     $this->module->validateOrder(
                         $cart_id,
                         $payment_status,
-                    	$cart_total_paid,
+                        $cart_total_paid,
                         $methodInstance->getTitle(),
                         $message,
-                        array(
-                        ),
+                        array(),
                         $currency_id,
                         false,
                         $secure_key
                     );
-                    $order_id = Order::getOrderByCartId((int)$cart->id);
+                    $order_id = Order::getOrderByCartId((int) $cart->id);
                 }
 
                 if ($order_id && ($secure_key == $customer->secure_key)) {
                     /**
-                    * The order has been placed so we redirect the customer on the confirmation page.
-                    */
+                     * The order has been placed so we redirect the customer on the confirmation page.
+                     */
                     $module_id = $this->module->id;
                     Tools::redirect(
                         'index.php?controller=order-confirmation&id_cart=' . $cart_id
-                        . '&id_module=' .$module_id . '&id_order=' . $order_id . '&key=' . $secure_key
+                        . '&id_module=' . $module_id . '&id_order=' . $order_id . '&key=' . $secure_key
                     );
                 }
-
                 break;
 
             case 'cancel':
@@ -126,8 +119,9 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 break;
 
             case 'error':
-                $order_id = Order::getOrderByCartId((int)$cart->id);
-                if ($order_id  && ($secure_key == $customer->secure_key)) {
+                $order_id = Order::getOrderByCartId((int) $cart->id);
+
+                if ($order_id && ($secure_key == $customer->secure_key)) {
                     $module_id = $this->module->id;
                     return Tools::redirect(
                         'index.php?controller=order-confirmation&id_cart=' . $cart_id
@@ -139,10 +133,8 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                  * An error occured and is shown on a new page.
                  */
                 $this->errors[] =
-                $this->module->l('An error occured. Please contact the merchant to have more informations');
+                    $this->module->l('An error occured. Please contact the merchant to have more informations');
                 return $this->setTemplate('error.tpl');
-
-            default:
         }
     }
 }
