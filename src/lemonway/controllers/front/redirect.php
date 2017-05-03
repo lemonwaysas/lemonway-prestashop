@@ -93,13 +93,13 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         	/* @var $methodInstance Method */
         	$methodInstance = $this->module->methodFactory($methodCode);
         } catch (Exception $e) {
-        	$this->addError($this->l('Payment method is not allowed'));
+        	$this->addError($this->module->l('Payment method is not allowed'));
         	return $this->displayError();
         }
         
         
         if(!$methodInstance->isAllowed()){
-        	$this->addError($this->l('Payment method is not allowed'));
+        	$this->addError($this->module->l('Payment method is not allowed'));
         	return $this->displayError();
         }
         
@@ -126,7 +126,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         		
         	}
         	else{
-        		$this->addError($this->l('Split payment profile not found!'));
+        		$this->addError($this->module->l('Split payment profile not found!'));
         		return $this->displayError();
         	}
         }
@@ -200,35 +200,34 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 . urlencode(LemonWayConfig::getCssUrl()) . '&lang=' . $language;
             
              //Get selected card type
-             if(!empty($ccType = Tools::getValue('cc_type',''))){
+             if(($ccType = Tools::getValue('cc_type',''))){
              	$allowedCcType = array('CB','VISA','MASTERCARD');
              	if(in_array($ccType, $allowedCcType)){
+             		
              		$ch = curl_init();
              		curl_setopt($ch, CURLOPT_URL, $lwUrl);
-             		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-             		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+             		/* curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+             		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); */
              		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
              		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
              		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !Configuration::get('LEMONWAY_IS_TEST_MODE', false));
              		
-             		$response = curl_exec($ch);
-             		//echo( 'Response: ' . $response);
+             		$response = $this->curl_exec_follow($ch);//curl_exec($ch);
+
              		//Parse response to get action url and data field
              		$matches = array();
              		$patternFormActionAndData = '/(action="|name=data value=")([^"]*)"/i';
              		if(preg_match_all($patternFormActionAndData, $response,$matches)){
+             			
              			if(isset($matches[2])){
              				list($actionUrl,$data) =$matches[2];
-             				$postFields = array(
-             						'DATA'=>$data,
-             						$ccType=>1
-             				);
+
              				$html = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">' . "\n";
              				$html .= '<html>' . "\n";
              				$html .= '    <head>' . "\n";
              				$html .= '    </head>';
              				$html .= '    <body>';
-             				$html .= '        <div align="center"><br />' . $this->l('You will be redirected to payment page in a few seconds.') . '</div>' . "\n";
+             				$html .= '        <div align="center"><br />' . $this->module->l('You will be redirected to payment page in a few seconds.') . '</div>' . "\n";
              				$html .= '        <div id="buttons" style="display: none;">' . "\n";
              				$html .= '            <form id="lemonway_payment_redirect" action="' . $actionUrl. '" method="post">' . "\n";
              				$html .= '                <input type="hidden" name="' . $ccType . '_x" value="1" />' . "\n";
@@ -241,6 +240,9 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
              				$html .= '</html>';
              				die($html);
              			}
+             		}
+             		else{
+             			die('NOT');
              		}
 
              		
@@ -318,6 +320,40 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 return $this->displayError();
             }
         }
+    }
+    
+   protected function curl_exec_follow(&$ch, $redirects = 5, $curlopt_header = false) {
+    	if ((!ini_get('open_basedir') && !ini_get('safe_mode')) || $redirects < 1) {
+    		curl_setopt($ch, CURLOPT_HEADER, $curlopt_header);
+    		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $redirects > 0);
+    		curl_setopt($ch, CURLOPT_MAXREDIRS, $redirects);
+    		return curl_exec($ch);
+    	} else {
+    		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+    		curl_setopt($ch, CURLOPT_HEADER, true);
+    		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    		curl_setopt($ch, CURLOPT_FORBID_REUSE, false);
+    
+    		do {
+    			$data = curl_exec($ch);
+    			if (curl_errno($ch))
+    				break;
+    				$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    				if ($code != 301 && $code != 302)
+    					break;
+    					$header_start = strpos($data, "\r\n")+2;
+    					$headers = substr($data, $header_start, strpos($data, "\r\n\r\n", $header_start)+2-$header_start);
+    					$matches = array();
+    					if (!preg_match("!\r\n(?:Location|URI): *(.*?) *\r\n!", $headers, $matches))
+    						break;
+    						curl_setopt($ch, CURLOPT_URL, $matches[1]);
+    		} while (--$redirects);
+    		if (!$redirects)
+    			trigger_error('Too many redirects. When following redirects, libcurl hit the maximum amount.', E_USER_WARNING);
+    			if (!$curlopt_header)
+    				$data = substr($data, strpos($data, "\r\n\r\n")+4);
+    				return $data;
+    	}
     }
     
     protected function registerCard()

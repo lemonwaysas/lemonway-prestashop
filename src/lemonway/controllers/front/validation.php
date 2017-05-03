@@ -271,6 +271,17 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 	           
             
             }
+            else{ //Update order payment
+            	foreach ($order->getOrderPaymentCollection() as $orderPayment){
+            		try {
+            			$orderPayment->payment_method = $methodInstance->getTitle();
+            			$orderPayment->update();
+            		} catch (Exception $e) {
+            			PrestaShopLogger::addLog($e->getMessage());
+            		}
+            		
+            	}
+            }
             
             
             $templateVars = array();
