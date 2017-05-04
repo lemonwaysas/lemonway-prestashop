@@ -26,6 +26,8 @@
 	method="post">
 		<!--  <h3 class="lemonway-method-title">{$method->getTitle()}</h3> -->
 		<input type="hidden" value="{$method->getCode()}" name="method_code">
+		<div id="lw_container_cards_types" style="{if $method->getData('oneclic_allowed') == 1 && $method->getData('customer_has_card') == 1}display:none{/if}" >
+		
 		<div class="radio">
   			<label>
     			<input type="radio" name="cc_type"  value="CB" required>
@@ -44,7 +46,7 @@
     			<img alt="MASTERCARD" src="{$module_dir|escape:'html':'UTF-8'}views/img/MASTERCARD.gif">
   			</label>
 		</div>
-
+		</div>
 		{if $method->getCode() == 'CC_XTIMES'}
 			<div class="lemonway-payment-splitpayment-profiles-container">
 				{if $method->getData('splitpayments_profiles_length') == 1}

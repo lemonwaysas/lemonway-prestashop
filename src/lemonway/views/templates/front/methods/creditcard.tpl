@@ -41,7 +41,7 @@
 					<h3 class="lemonway-method-title">{$method->getTitle()}</h3>
 					<div id="lw_container_cards_types" style="{if $method->getData('oneclic_allowed') == 1 && $method->getData('customer_has_card') == 1}display:none{/if}" >
 						<div class="radio">
-							<label> <input type="radio" name="cc_type" value="CB" required> <img
+							<label> <input type="radio" name="cc_type" value="CB" required checked="checked"> <img
 									alt="CB" src="{$module_dir|escape:'html':'UTF-8'}views/img/CB.gif">
 							</label>
 						</div>
@@ -99,29 +99,6 @@
 								</div>
 								</div>
 							{/foreach}
-							<script type="text/javascript">
-								//<!-- Display deadlines by profile selection -->
-								$(function(){
-						
-									showSelectedProfile();
-									$('#lemonway_{$method->getCode()}_splitpayment_profile_select').change(function(){
-											showSelectedProfile();
-										}
-									);
-
-									function hideAll(){
-										$('*[id^=profile_splitpayment_table_]').hide();
-									}
-
-									function showSelectedProfile(){
-										hideAll();
-										let selected_profile_id = $('*[name=splitpayment_profile_id]').val();
-										$('#profile_splitpayment_table_' + selected_profile_id).show();
-									}
-									
-								})
-								
-							</script>
 						</div>
 						
 					{/if}
@@ -165,21 +142,6 @@
 									</div>
 								</div>
 								<br /> 
-								<script type="text/javascript">
-								//<!-- Display deadlines by profile selection -->
-								$(function(){
-
-									$("#lw_no_use_card,#lw_register_card").click(function(){
-											$('#lw_container_cards_types').show();
-									});
-
-									$("#lw_use_card").click(function(){
-										$('#lw_container_cards_types').hide();
-									});
-									
-								})
-								
-							</script>
 							{/if}
 							</div>
 						{/if}

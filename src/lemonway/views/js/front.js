@@ -24,7 +24,7 @@
 
 $(function()
 {
-    $("form.placeOrderForm").submit(function( event ) {
+    /*$("form.placeOrderForm").submit(function( event ) {
       if (!$("#lw_use_card").is(':checked') && $("#open_basedir").val() == "1") {
         event.preventDefault();
         data = "action=placeOrder&" + $(this).serialize();
@@ -38,7 +38,7 @@ $(function()
           }
         });
       }
-    });
+    });*/
 
    /* $(".Lemonway_payment_btn").click(function() {
         $("#placeOrderForm").submit();
@@ -60,6 +60,15 @@ $(function()
 		let selected_profile_id = $('*[name=splitpayment_profile_id]').val();
 		$('#profile_splitpayment_table_' + selected_profile_id).show();
 	}
+	
+
+	$("#lw_no_use_card,#lw_register_card").click(function(){
+			$('#lw_container_cards_types').show();
+	});
+
+	$("#lw_use_card").click(function(){
+		$('#lw_container_cards_types').hide();
+	});
 						
 	
     

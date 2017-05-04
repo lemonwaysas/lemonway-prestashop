@@ -161,8 +161,8 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 'cancelUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', $cancelCallbackParams, true)),
                 'errorUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', $errorCallbackParams, true)),
                 'autoCommission' => $autocommission,
-                'registerCard' => $this->registerCard(), //For Atos
-                'useRegisteredCard' => $this->registerCard(), //For payline
+                'registerCard' => $this->registerCard() || $methodInstance->isSplitPayment(), //For Atos
+                'useRegisteredCard' => $this->registerCard() || $methodInstance->isSplitPayment(), //For payline
             );
 
             try {
@@ -185,6 +185,15 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     $card['id_card'] = (string)$res->lwXml->MONEYINWEB->CARD->ID;
 
                     $this->module->insertOrUpdateCard($customer->id, $card);
+                }
+                
+                //Save card id temporarily
+                if ($methodInstance->isSplitPayment())
+                {
+                	if(!(string)$res->lwXml->MONEYINWEB->CARD->ID){
+                		throw new Exception('Unable to save card token!');
+                	}
+                	ConfigurationCore::updateValue('LEMONWAY_CARD_ID_' . $customer->id .'_' . $cart->id, (string)$res->lwXml->MONEYINWEB->CARD->ID);
                 }
 
             } catch (Exception $e) {
@@ -358,7 +367,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     
     protected function registerCard()
     {
-        return Tools::getValue('lw_oneclic') === 'register_card' || is_numeric(Tools::getValue('splitpayment_profile_id')) ;
+        return Tools::getValue('lw_oneclic') === 'register_card' /*|| is_numeric(Tools::getValue('splitpayment_profile_id'))*/ ;
     }
     
     protected function useCard()

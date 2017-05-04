@@ -232,10 +232,24 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         } else {
         	
         	if($methodInstance->isSplitPayment() && !$profile){
-        		throw new Exception("Wrong date for split payment");
+        		throw new Exception("Wrong data for split payment");
         	}
 
         	$order = new Order($order_id);
+        	
+        	if($methodInstance->isSplitPayment()){
+        		//$card = $this->module->getCustomerCard($order->id_customer);
+        		$cardKey = 'LEMONWAY_CARD_ID_' . $order->id_customer .'_' . $order->id_cart;
+        		$cardId = Configuration::get($cardKey);
+        		if($cardId){
+        			//Save deadlines
+        			$profile->generateDeadlines($order, $cardId, $methodInstance->getCode(),true,true);
+        			ConfigurationCore::deleteByName($cardKey);
+        		}
+        		else{
+        			throw new Exception($this->module->l("Card token not found"));
+        		}
+        	}
         	
   			try{
   				$history = new OrderHistory();
@@ -261,14 +275,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 	            } catch (Exception $e) {
 	            	Logger::AddLog($e->getMessage(),4);
 	            }
-	            
-	            //get credit card token from oneclic table
-	            //Because splitpayment method always save the card data
-	            $card = $this->module->getCustomerCard($order->id_customer);
-	            
-	            //Save deadlines
-	            $profile->generateDeadlines($order, $card['id_card'], $methodInstance->getCode(),true,true);
-	           
             
             }
             else{ //Update order payment
