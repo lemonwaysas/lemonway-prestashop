@@ -111,7 +111,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         );
         
        
-
+        $profile = null;
         //If is X times method, we split the payment
         if($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))){
         	$profile = new SplitpaymentProfile($splitPaypentProfileId);
@@ -289,41 +289,97 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     );
                     return $this->displayError();
                 }
+                
+                $currency_id = (int)$this->context->currency->id;
+                $message = Tools::getValue('response_msg');
+                $id_order_state = Configuration::get(Lemonway::LEMONWAY_PENDING_OS);
+                //First, create order with pending state
+                if($this->module->validateOrder($cart->id, $id_order_state, $amountTot, $methodInstance->getTitle(), $message, array(
+                ), $currency_id, false, $secure_key)){
+                	
+                	$order_id = (int)Order::getOrderByCartId($cart->id); //Get new order id
+                	/* @var $order OrderCore */
+                	$order = new Order($order_id);
+                	
+                	/* @var $op Operation */
+                	foreach ($res->operations as $op) {
+                		//If transaction is valid change order state
+                		if ($op->STATUS == "3") {
+                			
+                			if($methodInstance->isSplitPayment()){
 
-                /* @var $op Operation */
-                foreach ($res->operations as $op) {
-                    if ($op->STATUS == "3") {
-                        $id_order_state = Configuration::get('PS_OS_PAYMENT');
-                        if($methodInstance->isSplitPayment()){
-                        	$id_order_state = Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
-                        }
-                        $message = Tools::getValue('response_msg');
-                        
-                        $currency_id = (int)$this->context->currency->id;
-                        //$amount = number_format((float)$cart->getOrderTotal(true, 3), 2, '.', '');
-                        //$amount = number_format(((float)$op->CRED + (float)$op->COM), 2, '.', '');
-                        
-                        $this->module->validateOrder($cart->id, $id_order_state, $amountTot, $methodInstance->getTitle(), $message, array(
-                        ), $currency_id, false, $secure_key);
-                        
-                        $order_id = Order::getOrderByCartId((int)$cart->id);
-                        if ($order_id) {
-                            $module_id = $this->module->id;
-                            return Tools::redirect(
-                                'index.php?controller=order-confirmation&id_cart=' . $cart->id
-                                . '&id_module=' . $module_id . '&id_order=' . $order_id . '&key='. $secure_key
-                            );
-                        } else {
-                            $this->addError("Error while saving order!");
-                            return $this->displayError();
-                        }
-                        
-                        break;
-                    } else {
-                        $this->addError($op->MSG);
-                        return $this->displayError();
-                    }
+                				$cardId = $card['id_card'];
+                				if($cardId){
+                					//Save deadlines
+                					$profile->generateDeadlines($order, $cardId, $methodInstance->getCode(),true,true);
+                				}
+                				else{
+                					throw new Exception($this->module->l("Card token not found"));
+                				}
+                			}
+                			
+                			$id_order_state = Configuration::get('PS_OS_PAYMENT');
+                			if($methodInstance->isSplitPayment()){
+                				$id_order_state = Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
+                			}
+                			
+                			try{
+                				$history = new OrderHistory();
+                				$history->id_order = (int)$order_id;
+                			
+                				$history->changeIdOrderState($id_order_state, $order,false);
+                				$history->save();
+                			}
+                			catch (Exception $e){
+                				$this->addError($e->getMessage());
+                				return $this->displayError();
+                			}
+                			
+                			if($methodInstance->isSplitPayment()){
+                				 
+                				/* @var $invoiceCollection PrestaShopCollectionCore */
+                				$invoiceCollection = $order->getInvoicesCollection();
+                				 
+                				$lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
+                				try {
+                					$order->addOrderPayment($amountTot,  $methodInstance->getTitle(), Tools::getValue('response_transactionId'), null, null, $lastInvoice);
+                			
+                				} catch (Exception $e) {
+                					$this->addError($e->getMessage());
+                					return $this->displayError();
+                				}
+                			
+                			}
+                			else{ //Update order payment
+                				foreach ($order->getOrderPaymentCollection() as $orderPayment){
+                					try {
+                						$orderPayment->payment_method = $methodInstance->getTitle();
+                						$orderPayment->update();
+                					} catch (Exception $e) {
+                						$this->addError($e->getMessage());
+                						return $this->displayError();
+                					}
+                			
+                				}
+                			}
+                			
+                			$module_id = $this->module->id;
+                			return Tools::redirect(
+                					'index.php?controller=order-confirmation&id_cart=' . $cart->id
+                					. '&id_module=' . $module_id . '&id_order=' . $order_id . '&key='. $secure_key
+                					);
+                	
+                			break;
+                		} else {
+                			$this->addError($op->MSG);
+                			return $this->displayError();
+                		}
+                	}
+                	
+                	
                 }
+
+               
             } else {
                 $this->addError('Customer not logged or card not found!');
                 return $this->displayError();

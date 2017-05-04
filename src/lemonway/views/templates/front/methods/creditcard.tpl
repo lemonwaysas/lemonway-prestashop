@@ -38,26 +38,7 @@
 						width="500px" class="img-responsive" alt="{$method->getTitle()}"
 						id="payment-lemonway-{$method->getCode()}-logo" /> 
 					</div>
-					<h3 class="lemonway-method-title">{$method->getTitle()}</h3>
-					<div id="lw_container_cards_types" style="{if $method->getData('oneclic_allowed') == 1 && $method->getData('customer_has_card') == 1}display:none{/if}" >
-						<div class="radio">
-							<label> <input type="radio" name="cc_type" value="CB" required checked="checked"> <img
-									alt="CB" src="{$module_dir|escape:'html':'UTF-8'}views/img/CB.gif">
-							</label>
-						</div>
-						<div class="radio">
-							<label> <input type="radio" name="cc_type" value="VISA" required> <img
-								alt="VISA"
-								src="{$module_dir|escape:'html':'UTF-8'}views/img/VISA.gif">
-						</label>
-					</div>
-					<div class="radio">
-						<label> <input type="radio" name="cc_type" value="MASTERCARD"
-							required> <img alt="MASTERCARD"
-							src="{$module_dir|escape:'html':'UTF-8'}views/img/MASTERCARD.gif">
-						</label>
-					</div>
-				</div>
+					<h3 class="lemonway-method-title">{$method->getTitle()}</h3>			
 					{if $method->getCode() == 'CC_XTIMES'}
 						<div class="lemonway-payment-splitpayment-profiles-container">
 							{if $method->getData('splitpayments_profiles_length') == 1}
@@ -102,18 +83,37 @@
 						</div>
 						
 					{/if}
+					<div class="lw_container_cards_types" style="{if $method->getData('oneclic_allowed') == 1 && $method->getData('customer_has_card') == 1}display:none{/if}" >
+						<div class="radio">
+							<label> <input type="radio" name="cc_type" value="CB" required checked="checked"> <img
+									alt="CB" src="{$module_dir|escape:'html':'UTF-8'}views/img/CB.gif">
+							</label>
+						</div>
+						<div class="radio">
+							<label> <input type="radio" name="cc_type" value="VISA" required> <img
+								alt="VISA"
+								src="{$module_dir|escape:'html':'UTF-8'}views/img/VISA.gif">
+						</label>
+					</div>
+					<div class="radio">
+						<label> <input type="radio" name="cc_type" value="MASTERCARD"
+							required> <img alt="MASTERCARD"
+							src="{$module_dir|escape:'html':'UTF-8'}views/img/MASTERCARD.gif">
+						</label>
+					</div>
+				</div>
 						{if $method->getData('oneclic_allowed') == 1} <!-- Oneclic form -->
 							<div class="lemonway-payment-oneclic-container">			
 							{if $method->getData('customer_has_card') == 0} <!-- User can choose to save his card -->
 								<div class="checkbox">
-									<label for="lw_register_card"> <input id="lw_register_card"
+									<label for="lw_register_card"> <input  class="lw_register_card"
 										value="register_card" type="checkbox" name="lw_oneclic" /> {l s='Save your card data for a next buy.' mod='lemonway'}
 									</label>
 								</div>
 							{else} <!-- User already have a card. He can choose to use it or not-->
 								<div>
 									<div class="radio">
-										<label for="lw_use_card"> <input id="lw_use_card"
+										<label for="lw_use_card"> <input class="lw_use_card"
 											value="use_card" checked="checked" type="radio"
 											name="lw_oneclic" checked /> {l s='Use my recorded card' mod='lemonway'}
 										</label>
@@ -129,14 +129,14 @@
 								{/if}
 								<div>
 									<div class="radio">
-										<label for="lw_register_card"> <input id="lw_register_card"
+										<label for="lw_register_card"> <input class="lw_register_card"
 										value="register_card" type="radio" name="lw_oneclic" /> {l s='Save new card data' mod='lemonway'}
 										</label>
 									</div>
 								</div>
 								<div>
 									<div class="radio">
-										<label for="lw_no_use_card"> <input id="lw_no_use_card"
+										<label for="lw_no_use_card"> <input class="lw_no_use_card"
 											type="radio" name="lw_oneclic" value="no_use_card" /> {l s='Not use recorded card data' mod='lemonway'}
 										</label>
 									</div>

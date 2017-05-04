@@ -62,12 +62,12 @@ $(function()
 	}
 	
 
-	$("#lw_no_use_card,#lw_register_card").click(function(){
-			$('#lw_container_cards_types').show();
+	$(".lw_no_use_card,.lw_register_card").click(function(){
+		$(this).parents('.lemonway-payment-oneclic-container').prev('.lw_container_cards_types').show();
 	});
 
-	$("#lw_use_card").click(function(){
-		$('#lw_container_cards_types').hide();
+	$(".lw_use_card").click(function(){
+		$(this).parents('.lemonway-payment-oneclic-container').prev('.lw_container_cards_types').hide();
 	});
 						
 	
