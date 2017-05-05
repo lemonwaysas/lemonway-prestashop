@@ -138,9 +138,10 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 /**
                  * An error occured and is shown on a new page.
                  */
-                $this->errors[] =
-                $this->module->l('An error occured. Please contact the merchant to have more informations');
-                return $this->setTemplate('error.tpl');
+                $this->errors[] = $this->module->l('An error occured. Please contact the merchant to have more informations');
+                $template = 'error.tpl';
+                if($this->module->isVersion17()) $template = 'module:' . $this->module->name . '/views/templates/front/error.tpl';
+                return $this->setTemplate($template);
 
             default:
         }

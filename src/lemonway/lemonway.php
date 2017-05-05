@@ -1018,7 +1018,8 @@ class Lemonway extends PaymentModule
     			$newOption = new PrestaShop\PrestaShop\Core\Payment\PaymentOption();
     			$newOption
     			->setCallToActionText($methodInstance->getTitle())
-    			//->setLogo(Media::getMediaPath($this->local_path . 'views/img/paiement-mode.png'))
+    			->setLogo(Media::getMediaPath($this->local_path . 'views/img/paiement-mode-17.png'))
+    			->setModuleName($this->name)
     			->setForm($this->context->smarty->fetch($methodInstance->getTemplate()));
     			
     			

@@ -104,42 +104,40 @@
 							<div class="lemonway-payment-oneclic-container">			
 							{if $method->getData('customer_has_card') == 0} <!-- User can choose to save his card -->
 								<div class="checkbox">
-									<label for="lw_register_card_{$method->getCode()}"> <input id="lw_register_card_{$method->getCode()}"  class="lw_register_card"
-										value="register_card" type="checkbox" name="lw_oneclic" /> {l s='Save your card data for a next buy.' mod='lemonway'}
+									<label for="lw_register_card_{$method->getCode()}"> 
+										<input id="lw_register_card_{$method->getCode()}"  class="lw_register_card" value="register_card" type="checkbox" name="lw_oneclic" /> {l s='Save your card data for a next buy.' mod='lemonway'}
 									</label>
 								</div>
 							{else} <!-- User already have a card. He can choose to use it or not-->
-								<div>
-									<div class="radio">
-										<label for="lw_use_card_{$method->getCode()}"> <input id="lw_use_card_{$method->getCode()}" class="lw_use_card"
-											value="use_card" checked="checked" type="radio"
-											name="lw_oneclic" /> {l s='Use my recorded card' mod='lemonway'}
-										</label>
-									</div>
+								<div class="radio">
+									<label for="lw_use_card_{$method->getCode()}"> 
+										<input id="lw_use_card_{$method->getCode()}" class="lw_use_card" value="use_card" checked="checked" type="radio" name="lw_oneclic" /> {l s='Use my recorded card' mod='lemonway'}
+									</label>
 								</div>
-								<div class="">
+
+								<div>
 									<label>{l s='Actual card' mod='lemonway'} : <span>{$method->getData('card_num')|escape:'html':'UTF-8'}</span></label>
 								</div>	
 								{if $method->getData('card_exp') != ''}
-									<div class="">
+									<div>
 										<label>{l s='Expiration date' mod='lemonway'} : {$method->getData('card_exp')|escape:'html':'UTF-8'}</label>
 									</div>
 								{/if}
 								<div>
 									<div class="radio">
-										<label for="lw_register_card_{$method->getCode()}"> <input id="lw_register_card_{$method->getCode()}"  class="lw_register_card"
-										value="register_card" type="radio" name="lw_oneclic" /> {l s='Save new card data' mod='lemonway'}
+										<label for="lw_register_card_{$method->getCode()}"> 
+											<input id="lw_register_card_{$method->getCode()}" class="lw_register_card" value="register_card" type="radio" name="lw_oneclic" /> {l s='Save new card data' mod='lemonway'}
 										</label>
 									</div>
 								</div>
 								<div>
 									<div class="radio">
-										<label for="lw_no_use_card_{$method->getCode()}"> <input id="lw_no_use_card_{$method->getCode()}" class="lw_no_use_card"
-											type="radio" name="lw_oneclic" value="no_use_card" /> {l s='Not use recorded card data' mod='lemonway'}
+										<label for="lw_no_use_card_{$method->getCode()}"> 
+											<input id="lw_no_use_card_{$method->getCode()}" class="lw_no_use_card" type="radio" name="lw_oneclic" value="no_use_card" /> {l s='Not use recorded card data' mod='lemonway'}
 										</label>
 									</div>
 								</div>
-								<br /> 
+								
 							{/if}
 							</div>
 						{/if}

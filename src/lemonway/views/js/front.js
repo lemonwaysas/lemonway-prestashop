@@ -69,6 +69,11 @@ $(function()
 	$(".lw_use_card").click(function(){
 		$(this).parents('.lemonway-payment-oneclic-container').prev('.lw_container_cards_types').hide();
 	});
+	
+	 $('input[data-module-name=lemonway]').parent().nextAll('label').find('img')
+	 .css('float', 'left')
+	 .css('width','150px');
+	   
 						
 	
     
