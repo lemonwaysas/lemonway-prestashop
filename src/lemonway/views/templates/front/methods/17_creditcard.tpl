@@ -74,25 +74,32 @@
 		{/if}
 		
 
-		<div class="lw_container_cards_types" style="{if $method->getData('oneclic_allowed') == 1 && $method->getData('customer_has_card') == 1}display:none{/if}" >
-						<div class="radio">
-							<label> <input type="radio" name="cc_type" value="CB" required checked="checked"> <img
-									alt="CB" src="{$module_dir|escape:'html':'UTF-8'}views/img/carte-bleue.png">
-							</label>
+		<div class="row lw_container_cards_types" style="{if $method->getData('oneclic_allowed') == 1 && $method->getData('customer_has_card') == 1}display:none{/if}" >
+						<div class="col-md-2 col-xs-3">
+							<div class="radio">
+								<label> 
+									<input type="radio" name="cc_type" value="CB" required checked="checked"> 
+									<img class="img-thumbnail" alt="CB" src="{$module_dir|escape:'html':'UTF-8'}views/img/carte-bleue.png">
+								</label>
+							</div>
 						</div>
-						<div class="radio">
-							<label> <input type="radio" name="cc_type" value="VISA" required> <img
-								alt="VISA"
-								src="{$module_dir|escape:'html':'UTF-8'}views/img/Visa.png">
-						</label>
-					</div>
-					<div class="radio">
-						<label> <input type="radio" name="cc_type" value="MASTERCARD"
-							required> <img alt="MASTERCARD"
-							src="{$module_dir|escape:'html':'UTF-8'}views/img/Mastercard-logo.png">
-						</label>
-					</div>
-		</div>
+						<div class="col-md-2 col-xs-3">
+							<div class="radio">
+								<label> 
+									<input type="radio" name="cc_type" value="VISA" required> 
+									<img class="img-thumbnail" alt="VISA" src="{$module_dir|escape:'html':'UTF-8'}views/img/Visa.png">
+								</label>
+							</div>
+						</div>
+						<div class="col-md-2 col-xs-3">
+							<div class="radio">
+								<label> 
+									<input type="radio" name="cc_type" value="MASTERCARD" required> 
+									<img class="img-thumbnail" alt="MASTERCARD" src="{$module_dir|escape:'html':'UTF-8'}views/img/Mastercard-logo.png">
+								</label>
+							</div>	
+						</div>
+				</div>
 		{if $method->getData('oneclic_allowed') == 1} <!-- Oneclic form -->
 							<div class="lemonway-payment-oneclic-container">			
 							{if $method->getData('customer_has_card') == 0} <!-- User can choose to save his card -->
@@ -106,7 +113,7 @@
 									<div class="radio">
 										<label for="lw_use_card_{$method->getCode()}"> <input id="lw_use_card_{$method->getCode()}" class="lw_use_card"
 											value="use_card" checked="checked" type="radio"
-											name="lw_oneclic" checked /> {l s='Use my recorded card' mod='lemonway'}
+											name="lw_oneclic" /> {l s='Use my recorded card' mod='lemonway'}
 										</label>
 									</div>
 								</div>

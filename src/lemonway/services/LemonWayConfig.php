@@ -98,6 +98,16 @@ class LemonWayConfig
     }
     
     public static function is4EcommerceMode(){
-    	return !(self::getWebkitUrl() && self::getDirectkitUrl());
+    	$directKitUrl = Configuration::get('LEMONWAY_DIRECTKIT_URL', null);
+    	if (LemonWayConfig::isTestMode()) {
+    		$directKitUrl = Configuration::get('LEMONWAY_DIRECTKIT_URL_TEST', null);
+    	}
+    	
+    	$webkitUrl = Configuration::get('LEMONWAY_WEBKIT_URL', null);
+    	if (LemonWayConfig::isTestMode()) {
+    		$webkitUrl = Configuration::get('LEMONWAY_WEBKIT_URL_TEST', null);
+    	}
+    	
+    	return !($directKitUrl && $webkitUrl);
     }
 }

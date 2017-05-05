@@ -122,7 +122,7 @@
 									<div class="radio">
 										<label for="lw_use_card_{$method->getCode()}"> <input id="lw_use_card_{$method->getCode()}" class="lw_use_card"
 											value="use_card" checked="checked" type="radio"
-											name="lw_oneclic" checked /> {l s='Use my recorded card' mod='lemonway'}
+											name="lw_oneclic" /> {l s='Use my recorded card' mod='lemonway'}
 										</label>
 									</div>
 								</div>

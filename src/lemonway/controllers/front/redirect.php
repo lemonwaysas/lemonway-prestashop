@@ -86,7 +86,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         $amountTot = number_format((float)$amountTotRaw, 2, '.', '');
         
         $autocommission = LemonWayConfig::is4EcommerceMode() ? 0 : 1;
-        
+       
         $methodCode = Tools::getValue('method_code'); 
         
         try {
@@ -215,8 +215,8 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
              		
              		$ch = curl_init();
              		curl_setopt($ch, CURLOPT_URL, $lwUrl);
-             		/* curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-             		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); */
+             		/*curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); */
+             		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
              		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
              		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
              		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !Configuration::get('LEMONWAY_IS_TEST_MODE', false));
@@ -250,10 +250,6 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
              				die($html);
              			}
              		}
-             		else{
-             			die('NOT');
-             		}
-
              		
              	}
              }
@@ -274,6 +270,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     'autoCommission' => $autocommission,
                     'cardId' => $card['id_card']
                 );
+             
 
                 try {
                     $res = $kit->moneyInWithCardId($params);

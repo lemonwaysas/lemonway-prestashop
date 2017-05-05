@@ -92,7 +92,11 @@
 	
 }
 
-.lemonway_cc_form label input[type="radio"]{
+.lemonway_cc_form .lw_container_cards_types label input[type="radio"]{
+	margin-right:40%;
+}
+
+.lemonway_cc_form .lemonway-payment-oneclic-container label input[type="radio"]{
 	margin-right:10px;
 }
 
