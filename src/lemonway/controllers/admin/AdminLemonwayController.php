@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 Lemon way
  *
@@ -21,13 +22,11 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
-
-abstract class AdminLemonwayController extends AdminController{
-	
-	protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
-	{
-		
-		return $this->module->l($string,$class);
-	}
+ */
+abstract class AdminLemonwayController extends AdminController
+{
+    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
+    {
+        return $this->module->l($string, $class);
+    }
 }

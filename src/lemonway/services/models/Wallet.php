@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 Lemon way
  *
@@ -21,64 +22,63 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
-
+ */
 class Wallet
 {
     /**
-    * ID as defined by merchant
-    * @var string
-    */
+     * ID as defined by merchant
+     * @var string
+     */
     public $ID;
-    
+
     /**
-    * LWID number ID as defined by Lemon Way
-    * @var string
-    */
+     * LWID number ID as defined by Lemon Way
+     * @var string
+     */
     public $LWID;
-    
+
     /**
-    * STATUS {2,3,4,5,6,7,8,12}
-    * @var string
-    */
+     * STATUS {2,3,4,5,6,7,8,12}
+     * @var string
+     */
     public $STATUS;
-    
+
     /**
-    * BAL balance
-    * @var string
-    */
+     * BAL balance
+     * @var string
+     */
     public $BAL;
-    
+
     /**
-    * NAME full name
-    * @var string
-    */
+     * NAME full name
+     * @var string
+     */
     public $NAME;
-    
+
     /**
-    * EMAIL
-    * @var string
-    */
+     * EMAIL
+     * @var string
+     */
     public $EMAIL;
-    
+
     /**
-    * kycDocs
-    * @var array KycDoc
-    */
+     * kycDocs
+     * @var array KycDoc
+     */
     public $kycDocs;
-    
+
     /**
-    * ibans 
-    * @var array Iban
-    */
+     * ibans
+     * @var array Iban
+     */
     public $ibans;
-    
+
     /**
-    * sddMandates 
-    * @var array SddMandate
-    */
+     * sddMandates
+     * @var array SddMandate
+     */
     public $sddMandates;
-    
+
     public function __construct($WALLET)
     {
         $this->ID = $WALLET->ID;
@@ -88,6 +88,7 @@ class Wallet
         $this->NAME = $WALLET->NAME;
         $this->EMAIL = $WALLET->EMAIL;
         $this->kycDocs = array();
+
         if (isset($WALLET->DOCS)) {
             foreach ($WALLET->DOCS->DOC as $DOC) {
                 $this->kycDocs[] = new KycDoc($DOC);
@@ -95,6 +96,7 @@ class Wallet
         }
 
         $this->ibans = array();
+
         if (isset($WALLET->IBANS)) {
             foreach ($WALLET->IBANS->IBAN as $IBAN) {
                 $this->ibans[] = new Iban($IBAN);
@@ -102,6 +104,7 @@ class Wallet
         }
 
         $this->sddMandates = array();
+
         if (isset($WALLET->SDDMANDATES)) {
             foreach ($WALLET->SDDMANDATES->SDDMANDATE as $SDDMANDATE) {
                 $this->sddMandates[] = new SddMandate($SDDMANDATE);

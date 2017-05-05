@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 Lemon way
  *
@@ -21,22 +22,21 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
-
+ */
 class LwError
 {
     /**
-    * CODE number
-    * @var string
-    */
+     * CODE number
+     * @var string
+     */
     public $CODE;
-    
+
     /**
-    * MSG error message
-    * @var string
-    */
+     * MSG error message
+     * @var string
+     */
     public $MSG;
-    
+
     public function __construct($code, $msg)
     {
         $this->CODE = $code;

@@ -21,46 +21,52 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
+ */
 
 require_once 'Cc.php';
 require_once _PS_MODULE_DIR_ . 'lemonway/classes/SplitpaymentProfile.php';
 
-class CcXtimes extends Cc{
-	protected $code = 'cc_xtimes';
-	protected $splitpaymentProfiles = null;
-	
-	protected  $isSplitpayment = true;
-	
-	protected function prepareData(){
-		parent::prepareData();
+class CcXtimes extends Cc
+{
+    protected $code = 'cc_xtimes';
+    protected $splitpaymentProfiles = null;
+    protected $isSplitpayment = true;
 
-		$this->data['splitpayments_profiles'] = $this->getSplitpaymentProfiles(true,true);
-		$this->data['splitpayments_profiles_length'] = count($this->data['splitpayments_profiles']);
-		
-		return $this;
+    protected function prepareData()
+    {
+        parent::prepareData();
 
-	}
-	
-	public function getSplitpaymentProfiles($mustActive = true,$objCollection = false){
-		if(is_null($this->splitpaymentProfiles)){
-			$splitpaymentProfiles = SplitpaymentProfile::getProfiles($mustActive,$objCollection);
-			
-			//Remove splitpayments profiles not selected by Admin
-			$selectedProfileIds = explode(",",$this->getConfig('SPLITPAYMENTS'));
-			foreach ($splitpaymentProfiles as $key=>$sp){
-				$spId = '';
-				if(is_object($sp))
-					$spId = $sp->id;
-				else
-					$spId = $sp['id_profile'];
-				
-				if(!in_array($spId,$selectedProfileIds)){
-					unset($splitpaymentProfiles[$key]);
-				}
-			}
-			$this->splitpaymentProfiles = $splitpaymentProfiles;
-		}
-		return $this->splitpaymentProfiles;
-	}
+        $this->data['splitpayments_profiles'] = $this->getSplitpaymentProfiles(true, true);
+        $this->data['splitpayments_profiles_length'] = count($this->data['splitpayments_profiles']);
+
+        return $this;
+    }
+
+    public function getSplitpaymentProfiles($mustActive = true, $objCollection = false)
+    {
+        if (is_null($this->splitpaymentProfiles)) {
+            $splitpaymentProfiles = SplitpaymentProfile::getProfiles($mustActive, $objCollection);
+
+            //Remove splitpayments profiles not selected by Admin
+            $selectedProfileIds = explode(",", $this->getConfig('SPLITPAYMENTS'));
+
+            foreach ($splitpaymentProfiles as $key => $sp) {
+                $spId = '';
+
+                if (is_object($sp)) {
+                    $spId = $sp->id;
+                } else {
+                    $spId = $sp['id_profile'];
+                }
+
+                if (!in_array($spId, $selectedProfileIds)) {
+                    unset($splitpaymentProfiles[$key]);
+                }
+            }
+
+            $this->splitpaymentProfiles = $splitpaymentProfiles;
+        }
+
+        return $this->splitpaymentProfiles;
+    }
 }
