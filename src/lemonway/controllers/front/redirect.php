@@ -253,10 +253,8 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
              		
              	}
              }
-            
-            Tools::redirect($lwUrl );
-            
-            
+
+             Tools::redirect($lwUrl);  
             
         } else {
             if (($card = $this->module->getCustomerCard($customer->id)) && $customer->isLogged()) {
