@@ -312,9 +312,9 @@ class Lemonway extends PaymentModule
         Configuration::deleteByName('LEMONWAY_DIRECTKIT_URL_TEST');
         Configuration::deleteByName('LEMONWAY_WEBKIT_URL_TEST');
         Configuration::deleteByName('LEMONWAY_IS_TEST_MODE');
-
-        //METHOD CONFIGURATION
         Configuration::deleteByName('LEMONWAY_CSS_URL');
+
+        //METHOD CONFIGURATION  
         Configuration::deleteByName('LEMONWAY_ONECLIC_ENABLED'); //Keeped for old module versions
         
         //COMMON CREDIT CARD Configuration
@@ -360,6 +360,7 @@ class Lemonway extends PaymentModule
     			'LEMONWAY_DIRECTKIT_URL_TEST' => Configuration::get('LEMONWAY_DIRECTKIT_URL_TEST', null),
     			'LEMONWAY_WEBKIT_URL_TEST' => Configuration::get('LEMONWAY_WEBKIT_URL_TEST', null),
     			'LEMONWAY_IS_TEST_MODE' => Configuration::get('LEMONWAY_IS_TEST_MODE', null),
+    			'LEMONWAY_CSS_URL' => Configuration::get('LEMONWAY_CSS_URL', null)
     			);
     			break;
     		case 'CC_XTIMES':
@@ -376,13 +377,11 @@ class Lemonway extends PaymentModule
     				'LEMONWAY_' . $formCode . '_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ENABLED',null),
     				'LEMONWAY_' . $formCode . '_TITLE' => Configuration::get('LEMONWAY_' . $formCode . '_TITLE',self::$subMethods[$formCode]['title']),
     				'LEMONWAY_' . $formCode . '_ONECLIC_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ONECLIC_ENABLED', null),
-    				'LEMONWAY_' . $formCode . '_SPLITPAYMENTS' =>	Configuration::get('LEMONWAY_' . $formCode . '_SPLITPAYMENTS',''),
-    				'LEMONWAY_CSS_URL' => Configuration::get('LEMONWAY_CSS_URL', null),
+    				'LEMONWAY_' . $formCode . '_SPLITPAYMENTS' =>	Configuration::get('LEMONWAY_' . $formCode . '_SPLITPAYMENTS',''),				
     			),$splitpaymentFormValues);
     			break;
     		default:
     			return array(
-    			'LEMONWAY_CSS_URL' => Configuration::get('LEMONWAY_CSS_URL', null),
     			//CREDIT CARD
     			'LEMONWAY_' . $formCode . '_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ENABLED',null),
     			'LEMONWAY_' . $formCode . '_TITLE' => Configuration::get('LEMONWAY_' . $formCode . '_TITLE',self::$subMethods[$formCode]['title']),
@@ -644,16 +643,7 @@ class Lemonway extends PaymentModule
     	
     	
     	$container['form']['input'][] = $switch;
-    	
-    	$container['form']['input'][] = array(
-    			'col' => 6,
-    			'label' => $this->l('CSS URL'),
-    			'name' => 'LEMONWAY_CSS_URL',
-    			'type' => 'text',
-    			'prefix' => '<i class="icon icon-css3"></i>',
-    			'is_number' => true,
-    			'desc' => '',
-    	);
+
     	
     	return $container;
     }
@@ -844,28 +834,15 @@ class Lemonway extends PaymentModule
                     'icon' => 'icon-cogs',
                 ),
                 'input' => array(
-                	/* array(
-                		'type' => 'hidden',
-                		'name' => 'adv_account_config_up'
-                	),
-                	array(
-                		'type' => 'switch',
-                		'label' => $this->l('Use Advanced parameters'),
-                		'name' => 'adv_account_config_active',
-                		'is_bool' => true,
-                		'values' => array(
-                			array(
-                				'id' => 'adv_account_config_active_on',
-                				'value' => 1,
-                				'label' => $this->l('Enabled')
-                			),
-                			array(
-                				'id' => 'adv_account_config_active_off',
-                				'value' => 0,
-                				'label' => $this->l('Disabled')
-                				)
-                			)
-                		), */
+                		array(
+                				'col' => 6,
+                				'label' => $this->l('CSS URL'),
+                				'name' => 'LEMONWAY_CSS_URL',
+                				'type' => 'text',
+                				'prefix' => '<i class="icon icon-css3"></i>',
+                				'is_number' => true,
+                				'desc' => '',
+                		),
                 	array(
                         'col' => 6,
                         'type' => 'text',

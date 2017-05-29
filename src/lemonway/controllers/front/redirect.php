@@ -93,13 +93,13 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         	/* @var $methodInstance Method */
         	$methodInstance = $this->module->methodFactory($methodCode);
         } catch (Exception $e) {
-        	$this->addError($this->module->l('Payment method is not allowed'));
+        	$this->addError('Payment method is not allowed');
         	return $this->displayError();
         }
         
         
         if(!$methodInstance->isAllowed()){
-        	$this->addError($this->module->l('Payment method is not allowed'));
+        	$this->addError('Payment method is not allowed');
         	return $this->displayError();
         }
         
@@ -126,7 +126,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         		
         	}
         	else{
-        		$this->addError($this->module->l('Split payment profile not found!'));
+        		$this->addError('Split payment profile not found!');
         		return $this->displayError();
         	}
         }
@@ -452,12 +452,19 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
     protected function displayError()
     {
+    	
+    	if($this->module->isVersion17()){
+    		$cartUrl = 'index.php?controller=cart&action=show';
+    		return $this->redirectWithNotifications($cartUrl);
+    	}
+    	
         /**
         * Create the breadcrumb for your ModuleFrontController.
         */
     	$path = '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
             . $this->module->l('Payment')
             . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
+    	
         $this->context->smarty->assign(
         		array('path'=>$path,
         			  'errors'=>$this->errors
