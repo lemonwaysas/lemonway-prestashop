@@ -570,7 +570,7 @@ class Lemonway extends PaymentModule
     			
     			if(!count($splitpaymentProfiles)){
     				$adminSplitPaymentTabUrl = $this->context->link->getAdminLink('AdminSplitpaymentProfile', true);
-    				$warningMessage = sprintf($this->l('To use this method you need to create a split payment profile!'),$adminSplitPaymentTabUrl);
+    				$warningMessage = sprintf('<a href="%s">'.$this->l('To use this method you need to create a split payment profile !').'</a>',$adminSplitPaymentTabUrl);
     				$baseFrom['form'] = array('warning'=>$warningMessage) + $baseFrom['form'];
     			}
 

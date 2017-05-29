@@ -45,6 +45,7 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
         $this->_orderBy = 'id_profile';
         $this->_orderWay = 'DESC';
         $this->_use_found_rows = true;
+        $this->bulk_actions = array();
 
         $this->fields_list = array(
             'id_profile' => array(
@@ -78,6 +79,7 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
         }
        
     }
+   
 
     public function initPageHeaderToolbar()
     {
