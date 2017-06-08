@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 Lemon way
  *
@@ -21,9 +22,7 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
-
-
+ */
 class LemonwayRedirectModuleFrontController extends ModuleFrontController
 {
     protected $supportedLangs = array(
@@ -41,9 +40,9 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     );
 
     protected $defaultLang = 'en';
-    
+
     public $errors = array();
-    
+
     public function __construct()
     {
         parent::__construct();
@@ -51,37 +50,35 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         require_once _PS_MODULE_DIR_ . $this->module->name . '/services/LemonWayKit.php';
     }
 
-    
     /**
-    * Do whatever you have to before redirecting the customer on the website of your payment processor.
-    */
+     * Do whatever you have to before redirecting the customer on the website of your payment processor.
+     */
     public function postProcess()
     {
-    	
         $cart = $this->context->cart;
         /* @var $customer CustomerCore */
         $customer = $this->context->customer;
-        
+
         $secure_key = $this->context->customer->secure_key;
         $kit = new LemonWayKit();
-        
+
         /**
-        * Generate a new wkToken for this cart ID
-        * It' is necessary to send a new wkToken for each requests
-        */
+         * Generate a new wkToken for this cart ID
+         * It' is necessary to send a new wkToken for each requests
+         */
         $wkToken = $this->module->saveWkToken($cart->id);
         $comment = Configuration::get('PS_SHOP_NAME') . " - " . $cart->id . " - " .
-         $customer->lastname . " " . $customer->firstname . " - " . $customer->email;
-        
+            $customer->lastname . " " . $customer->firstname . " - " . $customer->email;
+
         /**
-        * Check if module mkt is installed, in this case, we don't send amount commission
-        * Because we need this funds for credit vendors
-        * 
-        */
-        //$amountComRaw = !$this->module->moduleMktIsEnabled() ? (float)$cart->getOrderTotal(true, 3) : 0;
+         * Check if module mkt is installed, in this case, we don't send amount commission
+         * Because we need this funds for credit vendors
+         *
+         */
+        // $amountComRaw = !$this->module->moduleMktIsEnabled() ? (float)$cart->getOrderTotal(true, 3) : 0;
         $amountComRaw = 0;
         $amountCom = number_format($amountComRaw, 2, '.', '');
-        
+
         $amountTotRaw = $cart->getOrderTotal(true, 3);
         $amountTot = number_format((float)$amountTotRaw, 2, '.', '');
         
@@ -90,65 +87,55 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         $methodCode = Tools::getValue('method_code'); 
         
         try {
-        	/* @var $methodInstance Method */
-        	$methodInstance = $this->module->methodFactory($methodCode);
+            /* @var $methodInstance Method */
+            $methodInstance = $this->module->methodFactory($methodCode);
         } catch (Exception $e) {
         	$this->addError('Payment method is not allowed');
         	return $this->displayError();
         }
         
-        
-        if(!$methodInstance->isAllowed()){
+        if(!$methodInstance->isAllowed()) {
         	$this->addError('Payment method is not allowed');
         	return $this->displayError();
         }
-        
-        
-        
+
         $baseCallbackParams = array(
-        		'secure_key' => $secure_key,
-        		'payment_method' => $methodCode,
+            'secure_key' => $secure_key,
+            'payment_method' => $methodCode,
         );
-        
-       
+
         $profile = null;
         //If is X times method, we split the payment
-        if($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))){
-        	$profile = new SplitpaymentProfile($splitPaypentProfileId);
-        	if($profile){
-        		
-        		$splitpayments = $profile->splitPaymentAmount($amountTotRaw);
-        		$firstSplit = $splitpayments[0];
-        		$amountTot = number_format((float)$firstSplit['amountToPay'], 2, '.', '');
-        		
-        		//Add prodile Id to base callbackparamters
-        		$baseCallbackParams['splitpayment_profile_id'] = $splitPaypentProfileId;
-        		
-        	}
-        	else{
-        		$this->addError('Split payment profile not found!');
-        		return $this->displayError();
-        	}
+        if ($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))) {
+            $profile = new SplitpaymentProfile($splitPaypentProfileId);
+
+            if ($profile) {
+                $splitpayments = $profile->splitPaymentAmount($amountTotRaw);
+                $firstSplit = $splitpayments[0];
+                $amountTot = number_format((float) $firstSplit['amountToPay'], 2, '.', '');
+
+                //Add prodile Id to base callbackparamters
+                $baseCallbackParams['splitpayment_profile_id'] = $splitPaypentProfileId;
+            } else {
+                $this->addError('Split payment profile not found!');
+                return $this->displayError();
+            }
         }
-        
-        $returnlCallbackParams = array_merge($baseCallbackParams,array(
-        		'register_card' => (int)$this->registerCard(),
-        		'action' => 'return'
-        
-        ));
-        
-        $cancelCallbackParams = array_merge($baseCallbackParams,array(
-        		'action' => 'cancel'
-        
-        ));
-        
-        $errorCallbackParams = array_merge($baseCallbackParams,array(
-        		'action' => 'error'
-        
+
+        $returnlCallbackParams = array_merge($baseCallbackParams, array(
+            'register_card' => (int) $this->registerCard(),
+            'action' => 'return'
         ));
 
-        
-        
+        $cancelCallbackParams = array_merge($baseCallbackParams, array(
+            'action' => 'cancel'
+        ));
+
+        $errorCallbackParams = array_merge($baseCallbackParams, array(
+            'action' => 'error'
+        ));
+
+
         if (!$this->useCard()) {
             //call directkit to get Webkit Token
             $params = array(
@@ -169,24 +156,25 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 $res = $kit->moneyInWebInit($params);
 
                 /**
-                * Oops, an error occured.
-                */
+                 * Oops, an error occured.
+                 */
                 if (isset($res->lwError)) {
-                    throw new Exception((string)$res->lwError->MSG, (int)$res->lwError->CODE);
+                    throw new Exception((string) $res->lwError->MSG, (int) $res->lwError->CODE);
                 }
 
                 if ($customer->id && isset($res->lwXml->MONEYINWEB->CARD) && $this->registerCard()) {
                     $card = $this->module->getCustomerCard($customer->id);
+
                     if (!$card) {
                         $card = array();
                     }
 
                     $card['id_customer'] = $customer->id;
-                    $card['id_card'] = (string)$res->lwXml->MONEYINWEB->CARD->ID;
+                    $card['id_card'] = (string) $res->lwXml->MONEYINWEB->CARD->ID;
 
                     $this->module->insertOrUpdateCard($customer->id, $card);
                 }
-                
+
                 //Save card id temporarily
                 if ($methodInstance->isSplitPayment())
                 {
@@ -195,23 +183,22 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 	}
                 	ConfigurationCore::updateValue('LEMONWAY_CARD_ID_' . $customer->id .'_' . $cart->id, (string)$res->lwXml->MONEYINWEB->CARD->ID);
                 }
-
             } catch (Exception $e) {
                 $this->addError($e->getMessage());
                 return $this->displayError();
             }
-            
-            $moneyInToken = (string)$res->lwXml->MONEYINWEB->TOKEN;
+
+            $moneyInToken = (string) $res->lwXml->MONEYINWEB->TOKEN;
 
             $language = $this->getLang();
-            
+
             $lwUrl = LemonWayConfig::getWebkitUrl() . '?moneyintoken=' . $moneyInToken . '&p='
                 . urlencode(LemonWayConfig::getCssUrl()) . '&lang=' . $language;
             
              //Get selected card type
-             if(($ccType = Tools::getValue('cc_type',''))){
+             if (($ccType = Tools::getValue('cc_type',''))) {
              	$allowedCcType = array('CB','VISA','MASTERCARD');
-             	if(in_array($ccType, $allowedCcType)){
+             	if (in_array($ccType, $allowedCcType)) {
              		
              		$ch = curl_init();
              		curl_setopt($ch, CURLOPT_URL, $lwUrl);
@@ -221,14 +208,15 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
              		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
              		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !Configuration::get('LEMONWAY_IS_TEST_MODE', false));
              		
-             		$response = $this->curl_exec_follow($ch);//curl_exec($ch);
+                //curl_exec($ch);
+             		$response = $this->curl_exec_follow($ch);
 
              		//Parse response to get action url and data field
              		$matches = array();
              		$patternFormActionAndData = '/(action="|name=data value=")([^"]*)"/i';
              		if(preg_match_all($patternFormActionAndData, $response,$matches)){
              			
-             			if(isset($matches[2])){
+             			if (isset($matches[2])) {
              				list($actionUrl,$data) =$matches[2];
 
              				$html = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">' . "\n";
@@ -250,18 +238,16 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
              				die($html);
              			}
              		}
-             		
              	}
              }
 
              Tools::redirect($lwUrl);  
-            
         } else {
             if (($card = $this->module->getCustomerCard($customer->id)) && $customer->isLogged()) {
                 //Call directkit for MoneyInWithCardId
                 $params = array(
                     'wkToken' => $wkToken,
-                    'wallet'=> LemonWayConfig::getWalletMerchantId(),
+                    'wallet' => LemonWayConfig::getWalletMerchantId(),
                     'amountTot' => $amountTot,
                     'amountCom'=> $amountCom,
                     'comment' => $comment .  " (Money In with Card Id)",
@@ -269,7 +255,6 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     'cardId' => $card['id_card']
                 );
              
-
                 try {
                     $res = $kit->moneyInWithCardId($params);
                 } catch (Exception $e) {
@@ -300,53 +285,46 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 	foreach ($res->operations as $op) {
                 		//If transaction is valid change order state
                 		if ($op->STATUS == "3") {
-                			
-                			if($methodInstance->isSplitPayment()){
-
+                			if ($methodInstance->isSplitPayment()) {
                 				$cardId = $card['id_card'];
-                				if($cardId){
+                				if ($cardId) {
                 					//Save deadlines
-                					$profile->generateDeadlines($order, $cardId, $methodInstance->getCode(),true,true);
-                				}
-                				else{
+                					$profile->generateDeadlines($order, $cardId, $methodInstance->getCode(), true, true);
+                				}	else {
                 					throw new Exception($this->module->l("Card token not found"));
                 				}
                 			}
                 			
                 			$id_order_state = Configuration::get('PS_OS_PAYMENT');
-                			if($methodInstance->isSplitPayment()){
+                			if ($methodInstance->isSplitPayment()) {
                 				$id_order_state = Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
                 			}
                 			
-                			try{
+                			try {
                 				$history = new OrderHistory();
                 				$history->id_order = (int)$order_id;
                 			
-                				$history->changeIdOrderState($id_order_state, $order,false);
+                				$history->changeIdOrderState($id_order_state, $order, false);
                 				$history->save();
-                			}
-                			catch (Exception $e){
+                			} catch (Exception $e){
                 				$this->addError($e->getMessage());
                 				return $this->displayError();
                 			}
                 			
-                			if($methodInstance->isSplitPayment()){
-                				 
+                			if ($methodInstance->isSplitPayment()) {
                 				/* @var $invoiceCollection PrestaShopCollectionCore */
                 				$invoiceCollection = $order->getInvoicesCollection();
-                				 
+                				
                 				$lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
                 				try {
                 					$order->addOrderPayment($amountTot,  $methodInstance->getTitle(), Tools::getValue('response_transactionId'), null, null, $lastInvoice);
-                			
                 				} catch (Exception $e) {
                 					$this->addError($e->getMessage());
                 					return $this->displayError();
                 				}
-                			
                 			}
-                			else{ //Update order payment
-                				foreach ($order->getOrderPaymentCollection() as $orderPayment){
+                			else { //Update order payment
+                				foreach ($order->getOrderPaymentCollection() as $orderPayment) {
                 					try {
                 						$orderPayment->payment_method = $methodInstance->getTitle();
                 						$orderPayment->update();
@@ -354,7 +332,6 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 						$this->addError($e->getMessage());
                 						return $this->displayError();
                 					}
-                			
                 				}
                 			}
                 			
@@ -370,11 +347,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 			return $this->displayError();
                 		}
                 	}
-                	
-                	
                 }
-
-               
             } else {
                 $this->addError('Customer not logged or card not found!');
                 return $this->displayError();
@@ -420,31 +393,31 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     {
         return Tools::getValue('lw_oneclic') === 'register_card' /*|| is_numeric(Tools::getValue('splitpayment_profile_id'))*/ ;
     }
-    
+
     protected function useCard()
     {
         return Tools::getValue('lw_oneclic') === 'use_card';
     }
-    
+
     /**
-    * Return current lang code
-    *
-    * @return string
-    */
+     * Return current lang code
+     *
+     * @return string
+     */
     protected function getLang()
     {
         if (array_key_exists($this->context->language->iso_code, $this->supportedLangs)) {
             return $this->supportedLangs[$this->context->language->iso_code];
         }
-        
+
         return $this->defaultLang;
     }
-    
+
     protected function addError($message, $description = false)
     {
         /**
-        * Set error message and description for the template.
-        */
+         * Set error message and description for the template.
+         */
         array_push($this->errors, $this->module->l($message), $description);
     }
 
@@ -457,44 +430,46 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     	}
     	
         /**
-        * Create the breadcrumb for your ModuleFrontController.
-        */
-    	$path = '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
+         * Create the breadcrumb for your ModuleFrontController.
+         */
+        $path = '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
             . $this->module->l('Payment')
             . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
     	
         $this->context->smarty->assign(
-        		array('path'=>$path,
-        			  'errors'=>$this->errors
-        		)
-        		
-            );
-        
+            array('path' => $path,
+                'errors' => $this->errors
+            )
+        );
+
         $template = 'error.tpl';
-        if($this->module->isVersion17()) $template = 'module:' . $this->module->name . '/views/templates/front/error.tpl';
-        
+
+        if ($this->module->isVersion17()) {
+            $template = 'module:' . $this->module->name . '/views/templates/front/error.tpl';
+        }
+
         return $this->setTemplate($template);
     }
-    
-    protected function methodIsAllowed($methodCode){
-    	$methodCode = strtoupper($methodCode);
-    	
-    	if(!Configuration::get('LEMONWAY_' . $methodCode . '_ENABLED')){
-    		return false;
-    	}
-    	
-    	switch($methodCode){
-    		
-    		case "creditcard_xtimes":
-    			if(!in_array(Tools::getValue('splitpayment_profile_id'),$this->module->getSplitpaymentProfiles())){
-    				return false;
-    			}
-    			
-    		default:
-    			return true;
-    		
-    	}
-    	
-    	return false;
+
+    protected function methodIsAllowed($methodCode)
+    {
+        $methodCode = strtoupper($methodCode);
+
+        if (!Configuration::get('LEMONWAY_' . $methodCode . '_ENABLED')) {
+            return false;
+        }
+
+        switch ($methodCode) {
+            case "creditcard_xtimes":
+                if (!in_array(Tools::getValue('splitpayment_profile_id'), $this->module->getSplitpaymentProfiles())) {
+                    return false;
+                } else {
+                    return true;
+                }
+                break;
+
+            default:
+                return true;
+        }
     }
 }

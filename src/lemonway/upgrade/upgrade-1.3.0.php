@@ -21,7 +21,7 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
+ */
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -32,14 +32,16 @@ if (!defined('_PS_VERSION_')) {
  * Create Split payment tables
  * Profile is used to create split payment profile
  * Deadline keep all payment deadline
- * 
+ *
  * @return boolean
  */
 function upgrade_module_1_3_0($module)
 {
-	$return = true;
-	if($module->isVersion17()){
-		$return = $module->registerHook('paymentOptions');
-	}
-	return $return;
+    $return = true;
+
+    if ($module->isVersion17()) {
+        $return = $module->registerHook('paymentOptions');
+    }
+
+    return $return;
 }

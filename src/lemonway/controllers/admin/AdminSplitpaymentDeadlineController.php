@@ -25,12 +25,12 @@
 
 require_once _PS_MODULE_DIR_ . 'lemonway/classes/SplitpaymentDeadline.php';
 require_once _PS_MODULE_DIR_ . 'lemonway/services/LemonWayKit.php';
+
 class AdminSplitpaymentDeadlineController extends ModuleAdminController
 {
-	/** @var SplitpaymentDeadline Instantiation of the class associated with the AdminSplitpaymentDeadlineController */
-	protected $object;
-	
-    
+    /** @var SplitpaymentDeadline Instantiation of the class associated with the AdminSplitpaymentDeadlineController */
+    protected $object;
+
     public function __construct()
     {
         $this->bootstrap = true;
@@ -58,97 +58,94 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
             'order_reference' => array(
                 'title' => $this->l('Order Reference')
             ),
-        	'total_amount' => array(
-        		'title' => $this->l('Order total'),
-        		'align' => 'text-right',
-        		'type' => 'price',
-        		'currency' => true,
-        		'callback' => 'setOrderCurrency',
-        		'badge_success' => true
-        	),
-        	'amount_to_pay' => array(
-        		'title' => $this->l('Amount to pay'),
-        		'align' => 'text-right',
-        		'type' => 'price',
-        		'currency' => true,
-        		'callback' => 'setOrderCurrency',
-        		'badge_success' => true
-        	),
-        	'date_to_pay' => array(
-        		'title' => $this->l('Date to pay'),
-        		'align' => 'text-right',
+            'total_amount' => array(
+                'title' => $this->l('Order total'),
+                'align' => 'text-right',
+                'type' => 'price',
+                'currency' => true,
+                'callback' => 'setOrderCurrency',
+                'badge_success' => true
+            ),
+            'amount_to_pay' => array(
+                'title' => $this->l('Amount to pay'),
+                'align' => 'text-right',
+                'type' => 'price',
+                'currency' => true,
+                'callback' => 'setOrderCurrency',
+                'badge_success' => true
+            ),
+            'date_to_pay' => array(
+                'title' => $this->l('Date to pay'),
+                'align' => 'text-right',
                 'type' => 'date',
-               // 'filter_key' => 'a!date_to_pay'
-        	),
-        	'method_code' => array(
-        		'title' => $this->l('Payment Method'),
-        		'callback' => 'setMethodTitle',
-        		'search' => false,
-        	),
-        	'attempts' => array(
-        		'title' => $this->l('Attempts'),
-        		"type" => "number",
-        		'align' => 'text-right',
-        	),
-        	'status' => array(
-        		'title' => $this->l('Status'),
-        		'type' => 'select',
-        		'color' => 'color',
-        		'list' => SplitpaymentDeadline::getStatuesKeyValue(),
-        		'filter_key' => 'status',
-        		'filter_type' => 'string',
-        		//'order_key' => 'status'
-        	),
-        	'paid_at' => array(
-        		'title' => $this->l('Paid at'),
-        		'align' => 'text-right',
-        		'type' => 'date',
-        		// 'filter_key' => 'a!date_to_pay'
-        	),
-        		
-        	
+                // 'filter_key' => 'a!date_to_pay'
+            ),
+            'method_code' => array(
+                'title' => $this->l('Payment Method'),
+                'callback' => 'setMethodTitle',
+                'search' => false,
+            ),
+            'attempts' => array(
+                'title' => $this->l('Attempts'),
+                "type" => "number",
+                'align' => 'text-right',
+            ),
+            'status' => array(
+                'title' => $this->l('Status'),
+                'type' => 'select',
+                'color' => 'color',
+                'list' => SplitpaymentDeadline::getStatuesKeyValue(),
+                'filter_key' => 'status',
+                'filter_type' => 'string',
+                //'order_key' => 'status'
+            ),
+            'paid_at' => array(
+                'title' => $this->l('Paid at'),
+                'align' => 'text-right',
+                'type' => 'date',
+                // 'filter_key' => 'a!date_to_pay'
+            ),
         );
-        
-        $this->module =  Module::getInstanceByName('lemonway');
 
+        $this->module = Module::getInstanceByName('lemonway');
         parent::__construct();
     }
-    
+
     public static function setOrderCurrency($amount, $tr)
     {
-    	$order = new Order($tr['id_order']);
-    	return Tools::displayPrice($amount, (int)$order->id_currency);
+        $order = new Order($tr['id_order']);
+        return Tools::displayPrice($amount, (int) $order->id_currency);
     }
-    
+
     public static function setMethodTitle($methodCode, $tr)
     {
-    	$methodInstance = Lemonway::methodInstanceFactory($methodCode);
-    	return $methodInstance->getTitle() ;
+        $methodInstance = Lemonway::methodInstanceFactory($methodCode);
+        return $methodInstance->getTitle();
     }
 
     public function initToolbar()
     {
         parent::initToolbar();
+
         if (isset($this->toolbar_btn['new'])) {
-        	unset($this->toolbar_btn['new']);
+            unset($this->toolbar_btn['new']);
         }
-       
+
     }
 
     public function initPageHeaderToolbar()
     {
         parent::initPageHeaderToolbar();
         $this->page_header_toolbar_title = $this->l('Split payment deadlines');
-		if($this->display === 'edit' && $this->object->canPaid()){	
-		
-	        $this->page_header_toolbar_btn['pay_now'] = array(
-	        		//'href' => self::$currentIndex.'&addlemonway_moneyout&token=' . $this->token,
-	        		'href' => self::$currentIndex.'&action=pay_now&'.$this->identifier.'='.$this->object->id.'&token=' . $this->token,
-	        		'desc' => $this->l('Pay now', null, null, false),
-	        		'icon' => 'process-icon-payment'
-	        );
-		}
 
+        if ($this->display === 'edit' && $this->object->canPaid()) {
+            $this->page_header_toolbar_btn['pay_now'] = array(
+                //'href' => self::$currentIndex.'&addlemonway_moneyout&token=' . $this->token,
+                'href' => self::$currentIndex . '&action=pay_now&' . $this->identifier . '=' . $this->object->id . '&token=' . $this->token,
+                'desc' => $this->l('Pay now', null, null, false),
+                'icon' => 'process-icon-payment'
+            );
+        }
     }
 
     /**
@@ -163,127 +160,112 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
         $this->toolbar_title = array();
         $this->toolbar_title[] = $this->l('Split payment deadlines');
         $this->addMetaTitle($this->l('Split payment deadlines', null, null, false));
-        
-        
-       /*  if ($this->display == 'edit') {
-            $this->toolbar_title = array();
-            $this->toolbar_title[] = $this->l('Edit split payment deadline', null, null, false);
-            $this->addMetaTitle($this->l('Edit split payment deadline', null, null, false));
-        } */
-    }
-    
 
-    public function processPayNow(){
-    	
-    	if (!$this->loadObject(true)) {
-    		return;
-    	}
-    	
-
-
-    	try {
-    			
-
-    		$this->object->pay(true); 
-    			
-    			
-    	} catch (Exception $e) {
-
-    		$this->errors[] = Tools::displayError('An error occurred while executing payment.').
-    			' ('.$e->getMessage().')';	
-    	}
-    	
-    	
-
-    	if(count($this->errors)){
-    		$this->display = 'edit';
-    		return false;
-    	}
-    	else{	
-	    	//Redirect to list
-    		$this->redirect_after = self::$currentIndex.'&token='.$this->token;
-    	}
+        /*  if ($this->display == 'edit') {
+             $this->toolbar_title = array();
+             $this->toolbar_title[] = $this->l('Edit split payment deadline', null, null, false);
+             $this->addMetaTitle($this->l('Edit split payment deadline', null, null, false));
+         } */
     }
 
-    
+
+    public function processPayNow()
+    {
+        if (!$this->loadObject(true)) {
+            return;
+        }
+
+        try {
+            $this->object->pay(true);
+        } catch (Exception $e) {
+            $this->errors[] = Tools::displayError('An error occurred while executing payment.') . ' (' . $e->getMessage() . ')';
+        }
+
+        if (count($this->errors)) {
+            $this->display = 'edit';
+            return false;
+        } else {
+            //Redirect to list
+            $this->redirect_after = self::$currentIndex . '&token=' . $this->token;
+        }
+    }
+
     public function renderForm()
     {
         $this->display = 'edit';
 
-         $deadlineForm = array();
-         $deadlineForm['form'] =  array(
-         		'legend' => array(
-         				'title' => $this->l('Splitpayment deadline'),
-         		),
-         		'input' => array(
-         				array(
-         						'type' => 'hidden',
-         						'name' => 'id_employee',
-         						'lang' => false,
-         						'disabled' => false,
-         				),
-         				array(
-         						'type' => 'hidden',
-         						'name' => 'is_admin',
-         						'lang' => false,
-         						'disabled' => false,
-         				),
-         				array(
-         						'col' => 3,
-         						'type' => 'text',
-         						'name' => 'amount_to_pay',
-         						'label' => $this->l('Amount to pay'),
-         						'lang' => false,
-         						'disabled' => false,
-         						'required'=>true
-         				),
-         				array(
-         						'col' => 6,
-         						'type' => 'date',
-         						'name' => 'date_to_pay',
-         						'label' => $this->l('Date to pay'),
-         						'lang' => false,
-         						'disabled' => false,
-         						'required'=>true
-         				),
-         				array(
-         						'col' => 3,
-         						'type' => 'text',
-         						'name' => 'attempts',
-         						'label' => $this->l('Attempts'),
-         						'lang' => false,
-         						'disabled' => false,
-         						'required'=>true
-         				),
-         				array(
-         						'col' => 3,
-         						'type' => 'select',
-         						'options' => array(
-         								'query'=>SplitpaymentDeadline::getStatues(),
-         								'id'=>'value',
-         								'name'=>'name'
-         						),
-         						'identifier' => 'value',
-         						'name' => 'status',
-         						'label' => $this->l('Status'),
-         						'lang' => false,
-         						'disabled' => false,
-         						'required'=>true,
-         				),
-         		),
-         		'submit' => array(
-         				'title' => $this->l('Save'),
-         		)
-         );
+        $deadlineForm = array();
+        $deadlineForm['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Splitpayment deadline'),
+            ),
+            'input' => array(
+                array(
+                    'type' => 'hidden',
+                    'name' => 'id_employee',
+                    'lang' => false,
+                    'disabled' => false,
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'is_admin',
+                    'lang' => false,
+                    'disabled' => false,
+                ),
+                array(
+                    'col' => 3,
+                    'type' => 'text',
+                    'name' => 'amount_to_pay',
+                    'label' => $this->l('Amount to pay'),
+                    'lang' => false,
+                    'disabled' => false,
+                    'required' => true
+                ),
+                array(
+                    'col' => 6,
+                    'type' => 'date',
+                    'name' => 'date_to_pay',
+                    'label' => $this->l('Date to pay'),
+                    'lang' => false,
+                    'disabled' => false,
+                    'required' => true
+                ),
+                array(
+                    'col' => 3,
+                    'type' => 'text',
+                    'name' => 'attempts',
+                    'label' => $this->l('Attempts'),
+                    'lang' => false,
+                    'disabled' => false,
+                    'required' => true
+                ),
+                array(
+                    'col' => 3,
+                    'type' => 'select',
+                    'options' => array(
+                        'query' => SplitpaymentDeadline::getStatues(),
+                        'id' => 'value',
+                        'name' => 'name'
+                    ),
+                    'identifier' => 'value',
+                    'name' => 'status',
+                    'label' => $this->l('Status'),
+                    'lang' => false,
+                    'disabled' => false,
+                    'required' => true,
+                ),
+            ),
+            'submit' => array(
+                'title' => $this->l('Save'),
+            )
+        );
 
-         
-         $this->fields_form['form'] = $deadlineForm;
-         
-         $this->fields_value = array(
-         		'id_employee' => $this->context->employee->id,
-         		'is_admin' => 1,
-         );
+        $this->fields_form['form'] = $deadlineForm;
 
+        $this->fields_value = array(
+            'id_employee' => $this->context->employee->id,
+            'is_admin' => 1,
+        );
 
         return parent::renderForm();
     }
@@ -293,11 +275,10 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
         parent::setMedia();
         $this->addJS(_PS_MODULE_DIR_ . $this->module->name . "/views/js/back.js");
     }
-    
+
     protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
     {
-    	$module =  Module::getInstanceByName('lemonway');
-    	return $module->l($string,'ADMINSPLITPAYMENTDEADLINECONTROLLER');
+        $module = Module::getInstanceByName('lemonway');
+        return $module->l($string, 'ADMINSPLITPAYMENTDEADLINECONTROLLER');
     }
-
 }

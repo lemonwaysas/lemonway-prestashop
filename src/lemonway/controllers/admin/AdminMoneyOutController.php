@@ -21,7 +21,7 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
+ */
 
 require_once _PS_MODULE_DIR_ . 'lemonway/classes/MoneyOut.php';
 require_once _PS_MODULE_DIR_ . 'lemonway/services/LemonWayKit.php';
@@ -32,12 +32,12 @@ class AdminMoneyOutController extends ModuleAdminController
     protected $walletDetails = null;
     protected $statuesLabel = array(
         "1" => "Document uniquement reçu",
-        "2"  => "Document vérifié et accepté",
-        "3"  => "Document vérifié mais non accepté",
-        "4"  => "Document remplacé par un autre document",
-        "5"  => "Validité du document expiré"
+        "2" => "Document vérifié et accepté",
+        "3" => "Document vérifié mais non accepté",
+        "4" => "Document remplacé par un autre document",
+        "5" => "Validité du document expiré"
     );
-    
+
     public function __construct()
     {
         $this->bootstrap = true;
@@ -87,8 +87,8 @@ class AdminMoneyOutController extends ModuleAdminController
                 'filter_key' => 'a!date_add'
             ),
         );
-        
-        $this->module =  Module::getInstanceByName('lemonway');
+
+        $this->module = Module::getInstanceByName('lemonway');
 
         parent::__construct();
     }
@@ -96,6 +96,7 @@ class AdminMoneyOutController extends ModuleAdminController
     public function initToolbar()
     {
         parent::initToolbar();
+
         if (isset($this->toolbar_btn['new'])) {
             $this->toolbar_btn['new']['desc'] = $this->l('Do new Money out');
         }
@@ -105,9 +106,10 @@ class AdminMoneyOutController extends ModuleAdminController
     {
         parent::initPageHeaderToolbar();
         $this->page_header_toolbar_title = $this->l('Money outs');
+
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_moneyout'] = array(
-                'href' => self::$currentIndex.'&addlemonway_moneyout&token=' . $this->token,
+                'href' => self::$currentIndex . '&addlemonway_moneyout&token=' . $this->token,
                 'desc' => $this->l('Do new Money out', null, null, false),
                 'icon' => 'process-icon-new'
             );
@@ -118,7 +120,8 @@ class AdminMoneyOutController extends ModuleAdminController
         }
 
         if (Context::getContext()->shop->getContext() != Shop::CONTEXT_SHOP
-            && isset($this->page_header_toolbar_btn['new_moneyout']) && Shop::isFeatureActive()) {
+            && isset($this->page_header_toolbar_btn['new_moneyout']) && Shop::isFeatureActive()
+        ) {
             unset($this->page_header_toolbar_btn['new_moneyout']);
         }
     }
@@ -131,19 +134,18 @@ class AdminMoneyOutController extends ModuleAdminController
     public function initToolbarTitle()
     {
         parent::initToolbarTitle();
-        
+
         if ($this->display == 'add') {
             $this->toolbar_title = array();
             $this->toolbar_title[] = $this->l('Do a Money out', null, null, false);
             $this->addMetaTitle($this->l('Do a Money out', null, null, false));
-        }
-        else{
-        	$this->toolbar_title = array();
-        	$this->toolbar_title[] = $this->l('Money outs');
-        	$this->addMetaTitle($this->l('Money outs', null, null, false));
+        } else {
+            $this->toolbar_title = array();
+            $this->toolbar_title[] = $this->l('Money outs');
+            $this->addMetaTitle($this->l('Money outs', null, null, false));
         }
     }
-    
+
     /**
      * @param MoneyOut $moneyOut
      * @return boolean
@@ -161,10 +163,10 @@ class AdminMoneyOutController extends ModuleAdminController
 
             $params = array(
                 "wallet" => $moneyOut->id_lw_wallet,
-                "amountTot" => number_format((float)$moneyOut->amount_to_pay, 2, '.', ''),
-                'amountCom' => number_format((float)0, 2, '.', ''),
+                "amountTot" => number_format((float) $moneyOut->amount_to_pay, 2, '.', ''),
+                'amountCom' => number_format((float) 0, 2, '.', ''),
                 "message" => Configuration::get('PS_SHOP_NAME') . " - " .
-                 $this->module->l("Moneyout from Prestashop module"),
+                    $this->module->l("Moneyout from Prestashop module"),
                 "ibanId" => $moneyOut->id_lw_iban,
                 "autCommission" => 0,
             );
@@ -174,14 +176,15 @@ class AdminMoneyOutController extends ModuleAdminController
             $apiResponse = $kit->moneyOut($params);
 
             if ($apiResponse->lwError) {
-                throw new PrestaShopException((string)$apiResponse->lwError->MSG, (int)$apiResponse->lwError->CODE);
+                throw new PrestaShopException((string) $apiResponse->lwError->MSG, (int) $apiResponse->lwError->CODE);
             }
 
             if (count($apiResponse->operations)) {
                 /* @var $op Operation */
                 $op = current($apiResponse->operations);
+
                 if ($op->ID) {
-                    $moneyOut->new_bal = (float)$wallet->BAL - (float)$moneyOut->amount_to_pay;
+                    $moneyOut->new_bal = (float) $wallet->BAL - (float) $moneyOut->amount_to_pay;
                     return true;
                 } else {
                     throw new PrestaShopException($this->module->l("An error occurred. Please contact support."));
@@ -195,22 +198,22 @@ class AdminMoneyOutController extends ModuleAdminController
     }
 
     /**
-    * Object creation
-    *
-    * @return ObjectModel|false
-    * @throws PrestaShopException
-    */
+     * Object creation
+     *
+     * @return ObjectModel|false
+     * @throws PrestaShopException
+     */
     public function processAdd()
     {
         return parent::processAdd();
     }
-    
+
     public static function setMoneyOutCurrency($echo)
     {
-        return Tools::displayPrice($echo, (int)Context::getContext()->currency->id_currency);
+        return Tools::displayPrice($echo, (int) Context::getContext()->currency->id_currency);
     }
 
-    
+
     public function renderForm()
     {
         $this->display = 'add';
@@ -221,7 +224,7 @@ class AdminMoneyOutController extends ModuleAdminController
         }
 
         $wallet = $wallet_detail->wallet;
-        
+
         $ibans = $wallet->ibans;
 
         $wallet_form = array();
@@ -299,11 +302,11 @@ class AdminMoneyOutController extends ModuleAdminController
 
         $this->fields_form['w_form'] = $wallet_form;
         $moneyout_form = array();
-        $moneyout_form['form'] =  array(
+        $moneyout_form['form'] = array(
             'legend' => array(
                 'title' => $this->l('Moneyout'),
                 'icon' => 'icon-money'
-                ),
+            ),
             'input' => array(
                 array(
                     'type' => 'select',
@@ -342,7 +345,7 @@ class AdminMoneyOutController extends ModuleAdminController
             )
         );
 
-        $this->fields_form['m_form'] =  $moneyout_form;
+        $this->fields_form['m_form'] = $moneyout_form;
 
         $this->fields_value = array(
             'wallet' => $wallet->ID,
@@ -351,7 +354,7 @@ class AdminMoneyOutController extends ModuleAdminController
             'holder_name' => $wallet->NAME,
             'bal' => $wallet->BAL,
             'prev_bal' => $wallet->BAL,
-            'status' => isset( $this->statuesLabel[trim($wallet->STATUS)]) ?
+            'status' => isset($this->statuesLabel[trim($wallet->STATUS)]) ?
                 $this->statuesLabel[trim($wallet->STATUS)] : "N/A",
             'id_employee' => $this->context->employee->id,
             'is_admin' => 1,
@@ -367,8 +370,8 @@ class AdminMoneyOutController extends ModuleAdminController
     }
 
     /**
-    * @return Apiresponse
-    */
+     * @return Apiresponse
+     */
     public function getWalletDetails()
     {
         if (is_null($this->walletDetails)) {
@@ -379,22 +382,22 @@ class AdminMoneyOutController extends ModuleAdminController
                 $this->errors[] = Tools::displayError($e->getMessage());
                 return null;
             }
-            
+
             if (isset($res->lwError)) {
                 $this->errors[] =
                     sprintf(Tools::displayError("Error: %s. Code: %s"), $res->lwError->MSG, $res->lwError->CODE);
                 return null;
             }
-            
+
             $this->walletDetails = $res;
         }
 
         return $this->walletDetails;
     }
-    
+
     protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
     {
-    	$module =  Module::getInstanceByName('lemonway');
-    	return $module->l($string,'ADMINMONEYOUTCONTROLLER');
+        $module = Module::getInstanceByName('lemonway');
+        return $module->l($string, 'ADMINMONEYOUTCONTROLLER');
     }
 }

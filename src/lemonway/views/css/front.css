@@ -27,12 +27,12 @@
  * to avoid any conflicts with others containers.
  */
 
-.lemonway-payment{
-	margin-bottom: 10px;
+.lemonway-payment {
+    margin-bottom: 10px;
 }
 
-.lemonway-payment .lemonway-payment-container{
-	 display: block;
+.lemonway-payment .lemonway-payment-container {
+    display: block;
     border: 1px solid #d6d4d4;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -46,21 +46,21 @@
     position: relative;
 }
 
-.lemonway-payment .lemonway-payment-container{
-	margin-bottom: 10px;
+.lemonway-payment .lemonway-payment-container {
+    margin-bottom: 10px;
 }
 
-.lemonway-payment .lemonway-payment-container:hover{
-	/*background-color: #f6f6f6;
-	cursor:pointer;*/
+.lemonway-payment .lemonway-payment-container:hover {
+    /*background-color: #f6f6f6;
+    cursor:pointer;*/
 }
 
- .lemonway-payment .lemonway-payment-container button[type="submit"]{
-	float:right;
+.lemonway-payment .lemonway-payment-container button[type="submit"] {
+    float: right;
 }
 
-.lemonway-payment .lemonway-payment-container .lemonway-payment-splitpayment-profiles-container{
-	margin: 10px 10px 10px 0px;
+.lemonway-payment .lemonway-payment-container .lemonway-payment-splitpayment-profiles-container {
+    margin: 10px 10px 10px 0px;
 }
 
 .Lemonway_payment_form {
@@ -86,10 +86,8 @@
     background-color: #f6f6f6;
 }
 
-.lemonway_cc_form{
-	
-	padding:10px;
-	
+.lemonway_cc_form {
+    padding: 10px;
 }
 
 .lemonway_cc_form .lw_container_cards_types label input[type="radio"]{
@@ -100,11 +98,10 @@
 	margin-right:10px;
 }
 
-.lemonway_cc_form label img{
-	margin-bottom:5px;
+.lemonway_cc_form label img {
+    margin-bottom: 5px;
 }
 
-
-.lemonway_cc_form .lemonway-payment-oneclic-container{
-	padding:10px 0;
+.lemonway_cc_form .lemonway-payment-oneclic-container {
+    padding: 10px 0;
 }

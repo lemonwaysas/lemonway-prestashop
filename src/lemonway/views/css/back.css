@@ -28,70 +28,70 @@
  */
 
 #content .tab-pane:first-child .panel {
-	border-top-left-radius: 0;
+    border-top-left-radius: 0;
 }
 
 .Lemonway-header .text-branded,
 .Lemonway-content .text-branded {
-	color: #00aff0;
+    color: #00aff0;
 }
 
 .Lemonway-header h4,
 .Lemonway-content h4,
 .Lemonway-content h5 {
-	margin: 2px 0;
-	color: #00aff0;
-	font-size: 1.8em;
+    margin: 2px 0;
+    color: #00aff0;
+    font-size: 1.8em;
 }
 
 .Lemonway-header h4 {
-	margin-top: 5px;
+    margin-top: 5px;
 }
 
 .Lemonway-header .col-md-6 {
-	margin-top: 18px;
+    margin-top: 18px;
 }
 
 .Lemonway-content h4 {
-	margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .Lemonway-content h5 {
-	font-size: 1.4em;
-	margin-bottom: 10px;
+    font-size: 1.4em;
+    margin-bottom: 10px;
 }
 
 .Lemonway-content h6 {
-	font-size: 1.3em;
-	margin: 1px 0 4px 0;
+    font-size: 1.3em;
+    margin: 1px 0 4px 0;
 }
 
 .Lemonway-header > .col-md-4 {
-	height: 65px;
-	vertical-align: middle;
-	border-left: 1px solid #ddd;
+    height: 65px;
+    vertical-align: middle;
+    border-left: 1px solid #ddd;
 }
 
 .Lemonway-header > .col-md-4:first-child {
-	border-left: none;
+    border-left: none;
 }
 
 .Lemonway-header #create-account-btn {
-	margin-top: 14px;
+    margin-top: 14px;
 }
 
 .Lemonway-content dd + dt {
-	margin-top: 5px;
+    margin-top: 5px;
 }
 
 .Lemonway-content ul {
-	padding-left: 15px;
+    padding-left: 15px;
 }
 
 .Lemonway-content .ul-spaced li, .Lemonway-content .ol-spaced li {
-	margin-bottom: 5px;
+    margin-bottom: 5px;
 }
 
 .icon-AdminLemonway:before {
-	content: "\f094";
+    content: "\f094";
 }

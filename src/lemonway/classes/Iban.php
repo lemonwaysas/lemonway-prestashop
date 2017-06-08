@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2017 Lemon way
  *
@@ -21,8 +22,7 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
-
+ */
 class IbanCore extends ObjectModel
 {
     public $id_lw_iban;
@@ -37,7 +37,7 @@ class IbanCore extends ObjectModel
     public $id_status;
     public $date_add;
     public $date_upd;
-    
+
     /**
      * @see ObjectModel::$definition
      */
@@ -53,45 +53,41 @@ class IbanCore extends ObjectModel
             ),
             'id_customer' => array(
                 'type' => self::TYPE_INT,
-                'required'=>true
+                'required' => true
             ),
             'id_wallet' => array(
                 'type' => self::TYPE_STRING,
-                'required'=>true
+                'required' => true
             ),
             'holder' => array(
                 'type' => self::TYPE_STRING,
-                'required'=>true,
+                'required' => true,
                 'validate' => 'isGenericName'
-            ),
-            'iban' => array(
-                'type' => self::TYPE_STRING,
-                'required'=>true
             ),
             'bic' => array(
                 'type' => self::TYPE_STRING,
-                'required'=>false
+                'required' => false
             ),
             'iban' => array(
                 'type' => self::TYPE_STRING,
                 'validate' => 'isGenericName',
-                'required'=>true
+                'required' => true
             ),
             'dom1' => array(
                 'type' => self::TYPE_STRING,
-                'required'=>false
+                'required' => false
             ),
             'dom2' => array(
                 'type' => self::TYPE_STRING,
-                'required'=>false
+                'required' => false
             ),
             'comment' => array(
                 'type' => self::TYPE_STRING,
-                'required'=>false
+                'required' => false
             ),
             'id_status' => array(
                 'type' => self::TYPE_INT,
-                'required'=>false
+                'required' => false
             ),
             'date_add' => array(
                 'type' => self::TYPE_DATE,
@@ -112,15 +108,15 @@ class IbanCore extends ObjectModel
      */
     public static function getCustomerIbans($id_customer)
     {
-        $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_iban` iban ' .
-        'WHERE iban.`id_customer` = ' .(int)pSQL($id_customer);
+        $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_iban` iban WHERE iban.`id_customer` = ' . (int) pSQL($id_customer);
         $sql .= ' ORDER BY iban.`date_add` DESC';
-        
+
         $res = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+
         if (!$res) {
             return array();
         }
-        
+
         return $res;
     }
 }

@@ -21,7 +21,7 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
+ */
 
 require_once 'models/LwError.php';
 
@@ -37,46 +37,46 @@ class ApiResponse
             );
         }
     }
-    
+
     /**
-    * lwXml
-    * @var SimpleXMLElement
-    */
+     * lwXml
+     * @var SimpleXMLElement
+     */
     public $lwXml;
-    
+
     /**
-    * lwError
-    * @var LwError
-    */
+     * lwError
+     * @var LwError
+     */
     public $lwError;
-    
+
     /**
-    * wallet
-    * @var Wallet
-    */
+     * wallet
+     * @var Wallet
+     */
     public $wallet;
-    
+
     /**
-    * operations
-    * @var array Operation
-    */
+     * operations
+     * @var array Operation
+     */
     public $operations;
-    
+
     /**
-    * kycDoc
-    * @var KycDoc
-    */
+     * kycDoc
+     * @var KycDoc
+     */
     public $kycDoc;
-    
+
     /**
-    * iban
-    * @var Iban
-    */
+     * iban
+     * @var Iban
+     */
     public $iban;
-    
+
     /**
-    * sddMandate
-    * @var SddMandate
-    */
+     * sddMandate
+     * @var SddMandate
+     */
     public $sddMandate;
 }

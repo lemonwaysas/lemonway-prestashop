@@ -21,12 +21,12 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
-function installSQL($module){
-	
-	$sql = array();
-	
-	$sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'lemonway_oneclic` (
+ */
+function installSQL($module)
+{
+    $sql = array();
+
+    $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'lemonway_oneclic` (
 	    `id_oneclic` int(11) NOT NULL AUTO_INCREMENT,
 		`id_customer` int(11) NOT NULL,
 		`id_card` int(11) NOT NULL,
@@ -36,9 +36,9 @@ function installSQL($module){
 		`date_add` datetime NOT NULL,
 	    `date_upd` datetime NOT NULL,
 	    PRIMARY KEY  (`id_oneclic`)
-	) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
-	
-	$sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'lemonway_moneyout` (
+	) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
+    $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'lemonway_moneyout` (
 	    `id_moneyout` int(11) NOT NULL AUTO_INCREMENT,
 		`id_lw_wallet` varchar(255) NOT NULL,
 		`id_customer` int(11) NOT NULL DEFAULT 0,
@@ -52,9 +52,9 @@ function installSQL($module){
 		`date_add` datetime NOT NULL,
 	    `date_upd` datetime NOT NULL,
 	    PRIMARY KEY  (`id_moneyout`)
-	) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
-	
-	$sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'lemonway_iban` (
+	) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
+    $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'lemonway_iban` (
 	    `id_iban` int(11) NOT NULL AUTO_INCREMENT,
 		`id_lw_iban` int(11) NOT NULL,
 		`id_customer` int(11) NOT NULL,
@@ -70,9 +70,9 @@ function installSQL($module){
 	    `date_upd` datetime NOT NULL,
 	    PRIMARY KEY  (`id_iban`),
 		UNIQUE KEY (`id_lw_iban`)
-	) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
-	
-	$sql[] = "CREATE TABLE IF NOT EXISTS `"._DB_PREFIX_."lemonway_wallet` (
+	) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
+    $sql[] = "CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "lemonway_wallet` (
 	  `id_wallet` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Wallet ID',
 	  `id_lw_wallet` varchar(255) NOT NULL COMMENT 'Lemonway Wallet ID',
 	  `id_customer` int(11) NOT NULL COMMENT 'Customer ID',
@@ -106,42 +106,40 @@ function installSQL($module){
 	  PRIMARY KEY (`id_wallet`),
 	  UNIQUE KEY (`id_lw_wallet`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Wallet Table' ;";
-	
-	
-	foreach ($sql as $query) {
-	    if (Db::getInstance()->execute($query) == false) {
-	        return false;
-	    }
-	}
-	
- 	$upgrade_path = _PS_MODULE_DIR_  . $module->name . '/upgrade/';
-	if (file_exists($upgrade_path) && ($files = scandir($upgrade_path))) {
-		// Read each file name
-		foreach ($files as $file) {
 
-			if (!in_array($file, array('.', '..', '.svn', 'index.php')) && preg_match('/\.php$/', $file)) {
-				$tab = explode('-', $file);
-				
-				if (!isset($tab[1])) {
-					continue;
-				}
-				
-				$file_version = basename($tab[1], '.php');
-				
-				require $upgrade_path . $file;
-				$upgradeFunc = "upgrade_module_" . str_replace(".", "_", $file_version);
-				
-				if(function_exists($upgradeFunc)){
-					$res = $upgradeFunc($module);		
-					if(!$res) return false;
-				}
-				
-			}
-		}
-	}
-	else{
-		return false;
-	}
 
-	return true;
+    foreach ($sql as $query) {
+        if (Db::getInstance()->execute($query) == false) {
+            return false;
+        }
+    }
+
+    $upgrade_path = _PS_MODULE_DIR_ . $module->name . '/upgrade/';
+
+    if (file_exists($upgrade_path) && ($files = scandir($upgrade_path))) {
+        // Read each file name
+        foreach ($files as $file) {
+            if (!in_array($file, array('.', '..', '.svn', 'index.php')) && preg_match('/\.php$/', $file)) {
+                $tab = explode('-', $file);
+
+                if (!isset($tab[1])) {
+                    continue;
+                }
+
+                $file_version = basename($tab[1], '.php');
+
+                require $upgrade_path . $file;
+                $upgradeFunc = "upgrade_module_" . str_replace(".", "_", $file_version);
+
+                if (function_exists($upgradeFunc)) {
+                    $res = $upgradeFunc($module);
+                    if (!$res) return false;
+                }
+            }
+        }
+    } else {
+        return false;
+    }
+
+    return true;
 }
