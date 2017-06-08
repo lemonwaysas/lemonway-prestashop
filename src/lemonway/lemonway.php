@@ -315,28 +315,30 @@ class Lemonway extends PaymentModule
         Configuration::deleteByName('LEMONWAY_DIRECTKIT_URL_TEST');
         Configuration::deleteByName('LEMONWAY_WEBKIT_URL_TEST');
         Configuration::deleteByName('LEMONWAY_IS_TEST_MODE');
-
-        // METHOD CONFIGURATION
         Configuration::deleteByName('LEMONWAY_CSS_URL');
-        Configuration::deleteByName('LEMONWAY_ONECLIC_ENABLED'); // Keeped for old module versions
 
-        // COMMON CREDIT CARD Configuration
+        //METHOD CONFIGURATION  
+        Configuration::deleteByName('LEMONWAY_ONECLIC_ENABLED'); //Keeped for old module versions
+        
+        //COMMON CREDIT CARD Configuration
         foreach (self::$subMethods as $method) {
-            Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_ONECLIC_ENABLED');
-            Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_ENABLED');
-            Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_TITLE');
-            Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_SPLITPAYMENTS');
+        	Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_ONECLIC_ENABLED');
+        	Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_ENABLED');
+        	Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_TITLE');
+        	Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_SPLITPAYMENTS');
         }
 
         // CREDIT CARD X TIMES (split)
         Configuration::deleteByName('LEMONWAY_SPLITPAYMENT_IS_RUNNING');
         // Configuration::deleteByName('LEMONWAY_SPLIT_PAYMENT_OS');
-
+      
         // Do Not delete this configuration
         // Configuration::deleteByName('LEMONWAY_PENDING_OS');
-
+      
         $this->uninstallModuleTab('AdminMoneyOut');
         $this->uninstallModuleTab('AdminLemonway');
+        $this->uninstallModuleTab('AdminSplitpaymentProfile');
+        $this->uninstallModuleTab('AdminSplitpaymentDeadline');
 
         include(dirname(__FILE__) . '/sql/uninstall.php');
 
@@ -361,6 +363,7 @@ class Lemonway extends PaymentModule
                     'LEMONWAY_DIRECTKIT_URL_TEST' => Configuration::get('LEMONWAY_DIRECTKIT_URL_TEST', null),
                     'LEMONWAY_WEBKIT_URL_TEST' => Configuration::get('LEMONWAY_WEBKIT_URL_TEST', null),
                     'LEMONWAY_IS_TEST_MODE' => Configuration::get('LEMONWAY_IS_TEST_MODE', null),
+                    'LEMONWAY_CSS_URL' => Configuration::get('LEMONWAY_CSS_URL', null)
                 );
                 break;
 
@@ -563,9 +566,20 @@ class Lemonway extends PaymentModule
                 $inputArr = $baseFrom['form']['input'];
 
                 array_splice($inputArr, 2, 0, array($fieldPaymentProfile));
-
                 $baseFrom['form']['input'] = $inputArr;
+                
+                //Create description
+                $cronUrl  = $this->context->link->getModuleLink('lemonway', 'cron', array(), true);
+                $description = sprintf($this->l('To use split payment, you need to schedule a cron task to perform a request on %s.') ,$cronUrl);
+                $description .= '<br />' . sprintf($this->l('E.g: "0 1 * * * wget %s". Execute a request every day at one o\'clock.'),$cronUrl);
+                $baseFrom['form'] = array('description'=>$description) + $baseFrom['form'];
 
+                if(!count($splitpaymentProfiles)){
+                  $adminSplitPaymentTabUrl = $this->context->link->getAdminLink('AdminSplitpaymentProfile', true);
+                  $warningMessage = sprintf('<a href="%s">'.$this->l('To use this method you need to create a split payment profile !').'</a>',$adminSplitPaymentTabUrl);
+                  $baseFrom['form'] = array('warning'=>$warningMessage) + $baseFrom['form'];
+                }
+            
                 $form = $helper->generateForm(array(
                     $baseFrom
                 ));
@@ -631,22 +645,10 @@ class Lemonway extends PaymentModule
             );
         }
 
-
         $container['form']['input'][] = $switch;
-
-        $container['form']['input'][] = array(
-            'col' => 6,
-            'label' => $this->l('CSS URL'),
-            'name' => 'LEMONWAY_CSS_URL',
-            'type' => 'text',
-            'prefix' => '<i class="icon icon-css3"></i>',
-            'is_number' => true,
-            'desc' => '',
-        );
 
         return $container;
     }
-
 
     /**
      * Create the structure of api informations form.
@@ -830,29 +832,16 @@ class Lemonway extends PaymentModule
                     'icon' => 'icon-cogs',
                 ),
                 'input' => array(
-                    /* array(
-                        'type' => 'hidden',
-                        'name' => 'adv_account_config_up'
-                    ),
-                    array(
-                        'type' => 'switch',
-                        'label' => $this->l('Use Advanced parameters'),
-                        'name' => 'adv_account_config_active',
-                        'is_bool' => true,
-                        'values' => array(
-                            array(
-                                'id' => 'adv_account_config_active_on',
-                                'value' => 1,
-                                'label' => $this->l('Enabled')
-                            ),
-                            array(
-                                'id' => 'adv_account_config_active_off',
-                                'value' => 0,
-                                'label' => $this->l('Disabled')
-                                )
-                            )
-                        ), */
-                    array(
+                		array(
+                				'col' => 6,
+                				'label' => $this->l('CSS URL'),
+                				'name' => 'LEMONWAY_CSS_URL',
+                				'type' => 'text',
+                				'prefix' => '<i class="icon icon-css3"></i>',
+                				'is_number' => true,
+                				'desc' => '',
+                		),
+                	array(
                         'col' => 6,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-cloud-upload"></i>',
@@ -1009,9 +998,9 @@ class Lemonway extends PaymentModule
                 $newOption = new PrestaShop\PrestaShop\Core\Payment\PaymentOption();
                 $newOption
                     ->setCallToActionText($methodInstance->getTitle())
-                    // ->setLogo(Media::getMediaPath($this->local_path . 'views/img/paiement-mode.png'))
+                    ->setLogo(Media::getMediaPath($this->local_path . 'views/img/paiement-mode.png'))
+                    ->setModuleName($this->name)
                     ->setForm($this->context->smarty->fetch($methodInstance->getTemplate()));
-
                 $options[] = $newOption;
             }
         }
@@ -1215,7 +1204,7 @@ class Lemonway extends PaymentModule
                 'action' => 'error',
                 'secure_key' => $secure_key
             ), true)),
-            'autoCommission' => 0,
+            'autoCommission' => LemonWayConfig::is4EcommerceMode() ? 0 : 1,
             'registerCard' => (int) $registerCard, // For Atos
             'useRegisteredCard' => (int) $registerCard, // For payline
         );
@@ -1247,12 +1236,9 @@ class Lemonway extends PaymentModule
         // moneyInToken
         $moneyInToken = (string) $res->lwXml->MONEYINWEB->TOKEN;
 
-        // language
-        $language = $this->defaultLang;
-
-        if (array_key_exists($this->context->language->iso_code, $this->supportedLangs)) {
-            $language = $this->supportedLangs[$this->context->language->iso_code];
-        }
+        //language
+        $language = array_key_exists($this->context->language->iso_code, $this->supportedLangs) ?
+        $this->supportedLangs[$this->context->language->iso_code] : $this->defaultLang;
 
         $cardForm = $kit->printCardForm($moneyInToken, urlencode(LemonWayConfig::getCssUrl()), $language);
 

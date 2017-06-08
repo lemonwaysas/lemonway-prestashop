@@ -37,7 +37,7 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_1_3_0($module)
 {
-    $return = false;
+    $return = true;
 
     if ($module->isVersion17()) {
         $return = $module->registerHook('paymentOptions');

@@ -21,8 +21,9 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- */
+*/
 
+require_once _PS_MODULE_DIR_ . 'lemonway/services/LemonWayConfig.php';
 require_once _PS_MODULE_DIR_ . 'lemonway/services/LemonWayKit.php';
 
 class SplitpaymentDeadline extends ObjectModel
@@ -145,7 +146,7 @@ class SplitpaymentDeadline extends ObjectModel
     public function pay($update = false)
     {
         if (!$this->canPaid()) {
-            $message = Tools::displayError('Can\'t pay this pslitpayment.');
+            $message = Tools::displayError('Can\'t pay this splitpayment.');
             throw new Exception($message);
         }
 
@@ -159,7 +160,9 @@ class SplitpaymentDeadline extends ObjectModel
 
             $comment = Configuration::get('PS_SHOP_NAME') . " - " . $order->reference . " - " .
                 $customer->lastname . " " . $customer->firstname . " - " . $customer->email;
-
+          
+            $autocommission = LemonWayConfig::is4EcommerceMode() ? 0 : 1;
+          
             //Call directkit for MoneyInWithCardId to execute this split payment
             $params = array(
                 'wkToken' => $order->id,
@@ -167,7 +170,7 @@ class SplitpaymentDeadline extends ObjectModel
                 'amountTot' => number_format($this->amount_to_pay, 2, '.', ''),
                 'amountCom' => number_format(0, 2, '.', ''),
                 'comment' => $comment . " (Splitpayment #" . $this->id . ")",
-                'autoCommission' => 1,
+                'autoCommission' => $autocommission,
                 'cardId' => $this->token
             );
 
@@ -177,7 +180,7 @@ class SplitpaymentDeadline extends ObjectModel
 
                 if (isset($res->lwError)) {
                     $this->status = SplitpaymentDeadline::STATUS_FAILED;
-                    $message = Tools::displayError('An error occurred while trying to pay split payment.' . " Error code: " . $res->lwError->CODE . " Message: " . $res->lwError->MSG);
+                    $message = Tools::displayError("An error occurred while trying to pay split payment. Error code: " . $res->lwError->CODE . " - Message: " . $res->lwError->MSG);
                     throw new Exception($message, $res->lwError->CODE);
                 } else {
                     Logger::AddLog(print_r($res, true));
@@ -228,7 +231,6 @@ class SplitpaymentDeadline extends ObjectModel
             }
         }
     }
-
 
     /**
      * Updates the current object in the database

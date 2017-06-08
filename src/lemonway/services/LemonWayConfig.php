@@ -100,4 +100,18 @@ class LemonWayConfig
     {
         return Configuration::get('LEMONWAY_' . strtoupper($method) . '_ONECLIC_ENABLED', null);
     }
+    
+    public static function is4EcommerceMode(){
+    	$directKitUrl = Configuration::get('LEMONWAY_DIRECTKIT_URL', null);
+    	if (LemonWayConfig::isTestMode()) {
+    		$directKitUrl = Configuration::get('LEMONWAY_DIRECTKIT_URL_TEST', null);
+    	}
+    	
+    	$webkitUrl = Configuration::get('LEMONWAY_WEBKIT_URL', null);
+    	if (LemonWayConfig::isTestMode()) {
+    		$webkitUrl = Configuration::get('LEMONWAY_WEBKIT_URL_TEST', null);
+    	}
+    	
+    	return !($directKitUrl && $webkitUrl);
+    }
 }

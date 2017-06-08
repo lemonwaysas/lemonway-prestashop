@@ -22,23 +22,23 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-$(function () {
-    $("form.placeOrderForm").submit(function (event) {
-        if (!$("#lw_use_card").is(':checked') && $("#open_basedir").val() == "1") {
-            event.preventDefault();
-            data = "action=placeOrder&" + $(this).serialize();
-
-            var query = $.ajax({
-                type: 'POST',
-                url: baseDir + 'modules/lemonway/ajax.php',
-                data: data,
-                dataType: 'json',
-                success: function (cardForm) {
-                    $(".Lemonway_payment_form").html(cardForm);
-                }
-            });
-        }
-    });
+$(function()
+{
+    /*$("form.placeOrderForm").submit(function( event ) {
+      if (!$("#lw_use_card").is(':checked') && $("#open_basedir").val() == "1") {
+        event.preventDefault();
+        data = "action=placeOrder&" + $(this).serialize();
+        var query = $.ajax({
+          type: 'POST',
+          url: baseDir + 'modules/lemonway/ajax.php',
+          data: data,
+          dataType: 'json',
+          success: function(cardForm) {
+            $(".Lemonway_payment_form").html(cardForm);
+          }
+        });
+      }
+    });*/
 
     /* $(".Lemonway_payment_btn").click(function() {
      $("#placeOrderForm").submit();
@@ -62,5 +62,15 @@ $(function () {
         $('#profile_splitpayment_table_' + selected_profile_id).show();
     }
 
+	$(".lw_no_use_card,.lw_register_card").click(function() {
+		$(this).parents('.lemonway-payment-oneclic-container').prev('.lw_container_cards_types').show();
+	});
 
+	$(".lw_use_card").click(function() {
+		$(this).parents('.lemonway-payment-oneclic-container').prev('.lw_container_cards_types').hide();
+	});
+	
+	 $('input[data-module-name=lemonway]').parent().nextAll('label').find('img')
+	 .css('float', 'left')
+	 .css('width','150px');
 });

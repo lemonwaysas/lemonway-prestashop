@@ -219,41 +219,57 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 $order->addOrderPayment($amount_paid, $methodInstance->getTitle(), Tools::getValue('response_transactionId'), null, null, ($lastInvoice ? $lastInvoice : null));
             }
         } else {
-            if ($methodInstance->isSplitPayment() && !$profile) {
-                throw new Exception("Wrong date for split payment");
-            }
+        	if ($methodInstance->isSplitPayment() && !$profile) {
+        		throw new Exception("Wrong data for split payment");
+        	}
 
-            $order = new Order($order_id);
-
-            try {
-                $history = new OrderHistory();
-                $history->id_order = (int) $order_id;
-
-                $history->changeIdOrderState($id_order_state, $order, false);
-                $history->save();
-            } catch (Exception $e) {
-                Logger::AddLog($e->getMessage(), 4);
-            }
-
+        	$order = new Order($order_id);
+        	
+        	if ($methodInstance->isSplitPayment()) {
+        		//$card = $this->module->getCustomerCard($order->id_customer);
+        		$cardKey = 'LEMONWAY_CARD_ID_' . $order->id_customer .'_' . $order->id_cart;
+        		$cardId = Configuration::get($cardKey);
+        		if ($cardId) {
+        			//Save deadlines
+        			$profile->generateDeadlines($order, $cardId, $methodInstance->getCode(), true, true);
+        			ConfigurationCore::deleteByName($cardKey);
+        		} else {
+        			throw new Exception($this->module->l("Card token not found"));
+        		}
+        	}
+        	
+  			try {
+  				$history = new OrderHistory();
+  				$history->id_order = (int)$order_id;
+  				
+  				$history->changeIdOrderState($id_order_state, $order,false);
+  				$history->save();
+  			} catch (Exception $e) {
+  				Logger::AddLog($e->getMessage(), 4);
+  			}
+            
             if ($methodInstance->isSplitPayment()) {
-                /* @var $invoiceCollection PrestaShopCollectionCore */
-                $invoiceCollection = $order->getInvoicesCollection();
-                $lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
-
-                try {
-                    $order->addOrderPayment($amount_paid, $methodInstance->getTitle(), Tools::getValue('response_transactionId'), null, null, $lastInvoice);
-                } catch (Exception $e) {
-                    Logger::AddLog($e->getMessage(), 4);
-                }
-
-                //get credit card token from oneclic table
-                //Because splitpayment method always save the card data
-                $card = $this->module->getCustomerCard($order->id_customer);
-
-                //Save deadlines
-                $profile->generateDeadlines($order, $card['id_card'], $methodInstance->getCode(), true, true);
+            	/* @var $invoiceCollection PrestaShopCollectionCore */
+	            $invoiceCollection = $order->getInvoicesCollection();
+	            
+	            $lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
+	            try {
+	            	$order->addOrderPayment($amount_paid, $methodInstance->getTitle(), Tools::getValue('response_transactionId'), null, null, $lastInvoice);            	 
+	            } catch (Exception $e) {
+	            	Logger::AddLog($e->getMessage(), 4);
+	            }
             }
-
+            else { //Update order payment
+            	foreach ($order->getOrderPaymentCollection() as $orderPayment) {
+            		try {
+            			$orderPayment->payment_method = $methodInstance->getTitle();
+            			$orderPayment->update();
+            		} catch (Exception $e) {
+            			PrestaShopLogger::addLog($e->getMessage());
+            		}
+            	}
+            }
+          
             $templateVars = array();
             $history->sendEmail($order, $templateVars);
 

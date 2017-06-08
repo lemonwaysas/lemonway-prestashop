@@ -43,7 +43,7 @@ class SplitpaymentProfile extends ObjectModel
     public $period_frequency;
     public $period_max_cycles;
     public $active = true;
-
+  
     /**
      * @see ObjectModel::$definition
      */
@@ -286,4 +286,39 @@ class SplitpaymentProfile extends ObjectModel
 
         return $asJson ? json_encode($paymentsSplit) : $paymentsSplit;
     }
+  
+  /**
+	 * Checks if object field values are valid before database interaction
+	 *
+	 * @param bool $die
+	 * @param bool $error_return
+	 *
+	 * @return bool|string True, false or error message.
+	 * @throws PrestaShopException
+	 */
+	public function validateFields($die = true, $error_return = false) {
+		$return = parent::validateFields($die,$error_return);
+		
+		if(isset($this->period_frequency) && (int)$this->period_frequency < 1) {
+			$message = self::l('This field must have value greater than 0: ') . 'period_frequency';
+			if ($message !== true) {
+				if ($die) {
+					throw new PrestaShopException($message);
+				}
+				return $error_return ? $message : false;
+			}
+		}
+    
+		if(isset($this->period_max_cycles) && (int)$this->period_max_cycles < 1) {
+			$message = self::l('This field must have value greater than 0: ') . 'period_max_cycles';
+			if ($message !== true) {
+				if ($die) {
+					throw new PrestaShopException($message);
+				}
+				return $error_return ? $message : false;
+			}
+		}
+		
+		return $return;
+	}
 }

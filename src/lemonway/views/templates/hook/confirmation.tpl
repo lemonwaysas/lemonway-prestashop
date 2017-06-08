@@ -21,7 +21,7 @@
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *}
-{debug}
+
 {if (isset($status) == true) && ($status == 'ok')}
 {if isset($shop_name)}
 	<h3>{l s='Your order on %s is complete.' sprintf=$shop_name mod='lemonway'}</h3>
