@@ -379,13 +379,13 @@ class AdminMoneyOutController extends ModuleAdminController
                 $res = $this->module->getWalletDetails(LemonWayConfig::getWalletMerchantId());
             } catch (Exception $e) {
                 Logger::AddLog($e->getMessage());
-                $this->errors[] = Tools::displayError($e->getMessage());
+                $this->errors[] = $e->getMessage();
                 return null;
             }
 
             if (isset($res->lwError)) {
                 $this->errors[] =
-                    sprintf(Tools::displayError("Error: %s. Code: %s"), $res->lwError->MSG, $res->lwError->CODE);
+                    sprintf("Error: %s. Code: %s", $res->lwError->MSG, $res->lwError->CODE);
                 return null;
             }
 
