@@ -31,7 +31,7 @@
 				{if $method->getData('splitpayments_profiles_length') == 1}
 					{foreach from=$method->getData('splitpayments_profiles') item='profile'}
 						<div>
-							<h4>{l s='Payment profile' mod='lemonway'}: {$profile->name}</h4>
+							<h4>{l s='Payment profile:' mod='lemonway'} {$profile->name}</h4>
 							<input type="hidden" value="{$profile->id}" name="splitpayment_profile_id" />
 						</div>
 					{/foreach}

@@ -123,9 +123,9 @@ $_MODULE['<{lemonway}prestashop>wallet_infos_99a808d8d16122d70e44bd7f709d30fb'] 
 $_MODULE['<{lemonway}prestashop>wallet_infos_ec53a8c4f07baed5d8825072c89799be'] = 'Statut';
 $_MODULE['<{lemonway}prestashop>wallet_infos_053c435ea18cd85bc90a3eb7edaab16e'] = 'Ibans';
 $_MODULE['<{lemonway}prestashop>error_a25c753ee3e4be15ec0daa5a40deb7b8'] = 'Une erreur est survenue';
-$_MODULE['<{lemonway}prestashop>17_creditcard_53f2932328601bfaeaa2f78878642618'] = 'Profil de paiement';
+$_MODULE['<{lemonway}prestashop>17_creditcard_1b54d8dd4f6de3ae790091241435f4dd'] = 'Profile de paiement :';
 $_MODULE['<{lemonway}prestashop>17_creditcard_904475ebb7ed5c70472a8a3fcee54fc5'] = 'Sélectionnez un paiement en plusieurs fois';
-$_MODULE['<{lemonway}prestashop>17_creditcard_750e377952b9c7d934d1ccb5e7ac15de'] = 'Aucun paiement en plusieurs fois. Votre commande sera payer en une fois.';
+$_MODULE['<{lemonway}prestashop>17_creditcard_750e377952b9c7d934d1ccb5e7ac15de'] = 'Aucun paiement en plusieurs fois. Votre commande sera payée en une fois.';
 $_MODULE['<{lemonway}prestashop>17_creditcard_5095362d82d1a866726367cc26af82aa'] = 'Vos prochaines échéances';
 $_MODULE['<{lemonway}prestashop>17_creditcard_e916a54d43c613365ea4a22afdd1a0cd'] = 'Date de prélèvement';
 $_MODULE['<{lemonway}prestashop>17_creditcard_be70f834552c4f1aac6da269ab46b64e'] = 'Montant du prélèvement';
@@ -137,7 +137,7 @@ $_MODULE['<{lemonway}prestashop>17_creditcard_8c1279db4db86553e4b9682f78cf500e']
 $_MODULE['<{lemonway}prestashop>17_creditcard_4e20e79a875785545757b7ee3bc34087'] = 'Enregistrer une nouvelle empreinte de carte';
 $_MODULE['<{lemonway}prestashop>17_creditcard_b8b4087d7d5f84a425f9f408be045b87'] = 'Ne pas utiliser de carte enregistrée';
 $_MODULE['<{lemonway}prestashop>check_334485fe66d62906a68016c4aac7d248'] = 'Payez par chèque';
-$_MODULE['<{lemonway}prestashop>creditcard_53f2932328601bfaeaa2f78878642618'] = 'Profil de paiement';
+$_MODULE['<{lemonway}prestashop>creditcard_1b54d8dd4f6de3ae790091241435f4dd'] = 'Profile de paiement :';
 $_MODULE['<{lemonway}prestashop>creditcard_904475ebb7ed5c70472a8a3fcee54fc5'] = 'Sélectionnez un paiement en plusieurs fois';
 $_MODULE['<{lemonway}prestashop>creditcard_750e377952b9c7d934d1ccb5e7ac15de'] = 'Aucun paiement en plusieurs fois. Votre commande sera payer en une fois.';
 $_MODULE['<{lemonway}prestashop>creditcard_5095362d82d1a866726367cc26af82aa'] = 'Vos prochaines échéances';
