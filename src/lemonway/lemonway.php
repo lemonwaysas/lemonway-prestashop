@@ -752,15 +752,16 @@ class Lemonway extends PaymentModule
                         'col' => 3,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-user"></i>',
-                        'desc' => $this->l('Production Api login'),
+                        'desc' => "<a href='https://www.lemonway.com/ecommerce' target='_blank'>" . $this->l('Create account') . "</a>",
                         'name' => 'LEMONWAY_API_LOGIN',
-                        'label' => $this->l('Login Lemon Way for E-commerce'),
+                        'label' => $this->l('Login'),
                     ),
                     array(
                         'col' => 3,
                         'type' => 'password',
+                        'desc' => "<a href='" . $this->l('https://ecommerce.lemonway.com/en/seller/lost-password') . "' target='_blank'>" . $this->l('Forgotten password?') . "</a>",
                         'name' => 'LEMONWAY_API_PASSWORD',
-                        'label' => $this->l('Password Lemon Way for E-commerce'),
+                        'label' => $this->l('Password'),
                     ),
                     array(
                         'col' => 3,
@@ -781,11 +782,10 @@ class Lemonway extends PaymentModule
 
         $switch = array(
             'type' => 'switch',
-            'label' => $this->l('Activate test mode'),
+            'label' => $this->l('Test mode?'),
             'name' => 'LEMONWAY_IS_TEST_MODE',
             'is_bool' => true,
             'class' => 't',
-            'desc' => $this->l('YES to go on Test, NO to go on Live'),
             'values' => array(
                 array(
                     'id' => 'active_on',
@@ -806,10 +806,9 @@ class Lemonway extends PaymentModule
         if (version_compare(_PS_VERSION_, "1.6.0.0") == -1) {
             $switch = array(
                 'type' => 'select',
-                'label' => $this->l('Enable test mode'),
+                'label' => $this->l('Test mode?'),
                 'name' => 'LEMONWAY_IS_TEST_MODE',
                 'is_bool' => true,
-                'desc' => $this->l('YES to go on Test, NO to go on Live'),
                 'options' => array(
                     'query' => array(
                         array(
@@ -834,15 +833,14 @@ class Lemonway extends PaymentModule
                     'icon' => 'icon-cogs',
                 ),
                 'input' => array(
-                        array(
-                                'col' => 6,
-                                'label' => $this->l('CSS URL'),
-                                'name' => 'LEMONWAY_CSS_URL',
-                                'type' => 'text',
-                                'prefix' => '<i class="icon icon-css3"></i>',
-                                'is_number' => true,
-                                'desc' => '',
-                        ),
+                    array(
+                        'col' => 6,
+                        'label' => $this->l('Payment page CSS URL'),
+                        'name' => 'LEMONWAY_CSS_URL',
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-css3"></i>',
+                        'desc' => $this->l('Customise the stylesheet of the payment page (Notice: If your website is in https, the CSS URL has to be in https too)'),
+                    ),
                     array(
                         'col' => 6,
                         'type' => 'text',
