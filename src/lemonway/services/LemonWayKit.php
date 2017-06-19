@@ -503,6 +503,8 @@ class LemonWayKit
 
     private function cleanRequest($str)
     {
+        $str = strtr($str, 'ÁÀÂÄÃÅÇÉÈÊËÍÏÎÌÑÓÒÔÖÕÚÙÛÜÝ', 'AAAAAACEEEEEIIIINOOOOOUUUUY');
+        $str = strtr($str, 'áàâäãåçéèêëíìîïñóòôöõúùûüýÿ', 'aaaaaaceeeeiiiinooooouuuuyy');
         $str = str_replace('&', htmlentities('&'), $str);
         $str = str_replace('<', htmlentities('<'), $str);
         $str = str_replace('>', htmlentities('>'), $str);
