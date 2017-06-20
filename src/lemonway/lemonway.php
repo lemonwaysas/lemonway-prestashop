@@ -478,8 +478,7 @@ class Lemonway extends PaymentModule
             }
         }
         
-        
-
+        $this->context->smarty->assign('module_version', $this->version);
         $this->context->smarty->assign('module_dir', $this->_path);
         $this->context->smarty->assign('api_configuration_form', $this->renderForm('API'));
         

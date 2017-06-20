@@ -24,18 +24,30 @@
 
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist">
-	<li class="active"><a href="#about_us" role="tab" data-toggle="tab">{l s='About us' mod='lemonway'}</a></li>
-	<li class=""><a href="#access_api" role="tab" data-toggle="tab">{l s='Account configuration' mod='lemonway'}</a></li>
-	{foreach from=$methodForms item=method key=methodCode}
-	<li class=""><a href="#method_{$methodCode}" role="tab" data-toggle="tab">{$method['title']}</a></li>
-	{/foreach}
+    <li class="active"><a href="#about_us" role="tab" data-toggle="tab">{l s='About us' mod='lemonway'}</a></li>
+    <li class=""><a href="#access_api" role="tab" data-toggle="tab">{l s='Account configuration' mod='lemonway'}</a></li>
+    {foreach from=$methodForms item=method key=methodCode}
+    <li class=""><a href="#method_{$methodCode}" role="tab" data-toggle="tab">{$method['title']}</a></li>
+    {/foreach}
 </ul>
 
 <!-- Tab panes -->
 <div class="tab-content">
-<div class="tab-pane active" id="about_us">{include file='./about_us.tpl'}</div>
-<div class="tab-pane" id="access_api">{$api_configuration_form}</div>
-{foreach from=$methodForms item=method key=methodCode}
-<div class="tab-pane" id="method_{$methodCode}">{$method['form']}</div>
-{/foreach}
+    <div class="tab-pane active" id="about_us">
+        {include file='./about_us.tpl'}
+    </div>
+    
+    <div class="tab-pane" id="access_api">
+        {$api_configuration_form}
+    </div>
+    
+    {foreach from=$methodForms item=method key=methodCode}
+    <div class="tab-pane" id="method_{$methodCode}">
+        {$method['form']}
+    </div>
+    {/foreach}
+
+    <div class="text-right">
+        <small>v{$module_version}</small>
+    </div>
 </div>
