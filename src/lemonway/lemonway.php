@@ -218,7 +218,7 @@ class Lemonway extends PaymentModule
                 'fr'=> 'Paiement en plusieurs fois accepté'
         );
         
-        return $this->addStatus(self::LEMONWAY_SPLIT_PAYMENT_OS,$translationsStatus,'#32CD32',false,false,true,true,true,false,true);
+        return $this->addStatus(self::LEMONWAY_SPLIT_PAYMENT_OS, $translationsStatus, '#32CD32', false, false, true, true, true, false, true);
     }
 
     /**
@@ -252,12 +252,14 @@ class Lemonway extends PaymentModule
         //COMMON CREDIT CARD Configuration
         foreach (self::$subMethods as $method){
             Configuration::updateValue('LEMONWAY_' . strtoupper($method['code']) . '_ONECLIC_ENABLED', null);
-            Configuration::updateValue('LEMONWAY_' . strtoupper($method['code']) . '_ENABLED', null);
             Configuration::updateValue('LEMONWAY_' . strtoupper($method['code']) . '_TITLE', $method['title']);
         }
 
+        Configuration::updateValue('LEMONWAY_CC_ENABLED', 1);
+        Configuration::updateValue('LEMONWAY_CC_XTIMES_ENABLED', null);
+
         //CREDIT CARD X TIMES (split)
-        Configuration::updateValue('LEMONWAY_CC_XTIMES_SPLITPAYMENTS',null);
+        Configuration::updateValue('LEMONWAY_CC_XTIMES_SPLITPAYMENTS', null);
 
         //Prepare status values
         $key = self::LEMONWAY_PENDING_OS;
@@ -1195,4 +1197,3 @@ class Lemonway extends PaymentModule
         return (bool)version_compare(_PS_VERSION_ ,'1.7','>=');
     }
 }
-
