@@ -23,57 +23,65 @@
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
+
 class LemonWayConfig
 {
+    const LEMONWAY_DEFAULT_ENVIRONMENT = 'lwecommerce';
 
-    const LEMONWAY_WEBKIT_4ECOMMERCE_URL_PROD = 'https://webkit.lemonway.fr/mb/lwecommerce/prod/';
-    const LEMONWAY_WEBKIT_4ECOMMERCE_URL_TEST = 'https://sandbox-webkit.lemonway.fr/lwecommerce/dev/';
-    const LEMONWAY_DIRECTKIT_4ECOMMERCE_URL_PROD = 'https://ws.lemonway.fr/mb/lwecommerce/prod/directkitxml/service.asmx';
-    const LEMONWAY_DIRECTKIT_4ECOMMERCE_URL_TEST = 'https://sandbox-api.lemonway.fr/mb/lwecommerce/dev/directkitxml/service.asmx';
+    const LEMONWAY_DIRECTKIT_FORMAT_URL_PROD = 'https://ws.lemonway.fr/mb/%s/prod/directkitxml/service.asmx';
+    const LEMONWAY_DIRECTKIT_FORMAT_URL_TEST = 'https://sandbox-api.lemonway.fr/mb/%s/dev/directkitxml/service.asmx';
+    const LEMONWAY_WEBKIT_FORMAT_URL_PROD = 'https://webkit.lemonway.fr/mb/%s/prod';
+    const LEMONWAY_WEBKIT_FORMAT_URL_TEST = 'https://sandbox-webkit.lemonway.fr/%s/dev';
+
+    private function getEvironmentName()
+    {
+        $env_name = Configuration::get('CUSTOM_ENVIRONMENT_NAME', null);
+
+        //If no custom environment we use lwecommerce
+        if (empty($env_name)) {
+            $env_name = self::LEMONWAY_DEFAULT_ENVIRONMENT;
+        }
+
+        return $env_name;
+    }
 
     public static function isTestMode()
     {
         return (bool) Configuration::get('LEMONWAY_IS_TEST_MODE', null);
     }
 
+    public static function is4EcommerceMode()
+    {
+        $env_name = Configuration::get('CUSTOM_ENVIRONMENT_NAME', null);
+
+        // If no custom environment name so lwecommerce
+        return (empty($env_name));
+    }
+
     public static function getDirectkitUrl()
     {
-        $url = Configuration::get('LEMONWAY_DIRECTKIT_URL', null);
-
+        $env_name = LemonWayConfig::getEvironmentName();
+        
         if (LemonWayConfig::isTestMode()) {
-            $url = Configuration::get('LEMONWAY_DIRECTKIT_URL_TEST', null);
+            $url = sprintf(self::LEMONWAY_DIRECTKIT_FORMAT_URL_TEST, $env_name);
+        } else {
+            $url = sprintf(self::LEMONWAY_DIRECTKIT_FORMAT_URL_PROD, $env_name);
         }
 
-        //If not custom urls was entered we use 4ecommerce urls
-        if (empty($url)) {
-            $url = self::LEMONWAY_DIRECTKIT_4ECOMMERCE_URL_PROD;
-
-            if (LemonWayConfig::isTestMode()) {
-                $url = self::LEMONWAY_DIRECTKIT_4ECOMMERCE_URL_TEST;
-            }
-        }
-
-        return rtrim($url, '/');
+        return $url;
     }
 
     public static function getWebkitUrl()
     {
-        $url = Configuration::get('LEMONWAY_WEBKIT_URL', null);
+        $env_name = LemonWayConfig::getEvironmentName();
 
         if (LemonWayConfig::isTestMode()) {
-            $url = Configuration::get('LEMONWAY_WEBKIT_URL_TEST', null);
+            $url = sprintf(self::LEMONWAY_WEBKIT_FORMAT_URL_TEST, $env_name);
+        } else {
+            $url = sprintf(self::LEMONWAY_WEBKIT_FORMAT_URL_PROD, $env_name);
         }
 
-        //If not custom urls was entered we use 4ecommerce urls
-        if (empty($url)) {
-            $url = self::LEMONWAY_WEBKIT_4ECOMMERCE_URL_PROD;
-
-            if (LemonWayConfig::isTestMode()) {
-                $url = self::LEMONWAY_WEBKIT_4ECOMMERCE_URL_TEST;
-            }
-        }
-
-        return rtrim($url, '/');
+        return $url;
     }
 
     public static function getWalletMerchantId()
@@ -99,19 +107,5 @@ class LemonWayConfig
     public static function getOneclicEnabled($method)
     {
         return Configuration::get('LEMONWAY_' . strtoupper($method) . '_ONECLIC_ENABLED', null);
-    }
-    
-    public static function is4EcommerceMode(){
-    	$directKitUrl = Configuration::get('LEMONWAY_DIRECTKIT_URL', null);
-    	if (LemonWayConfig::isTestMode()) {
-    		$directKitUrl = Configuration::get('LEMONWAY_DIRECTKIT_URL_TEST', null);
-    	}
-    	
-    	$webkitUrl = Configuration::get('LEMONWAY_WEBKIT_URL', null);
-    	if (LemonWayConfig::isTestMode()) {
-    		$webkitUrl = Configuration::get('LEMONWAY_WEBKIT_URL_TEST', null);
-    	}
-    	
-    	return !($directKitUrl && $webkitUrl);
     }
 }
