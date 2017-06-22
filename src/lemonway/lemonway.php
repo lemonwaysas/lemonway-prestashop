@@ -1194,6 +1194,6 @@ class Lemonway extends PaymentModule
     
     public function isVersion17()
     {
-        return (bool)version_compare(_PS_VERSION_ ,'1.7','>=');
+        return (bool)version_compare(_PS_VERSION_ , '1.7', '>=');
     }
 }
