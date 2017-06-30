@@ -505,9 +505,9 @@ class LemonWayKit
     {
         $str = strtr($str, 'ÁÀÂÄÃÅÇÉÈÊËÍÏÎÌÑÓÒÔÖÕÚÙÛÜÝ', 'AAAAAACEEEEEIIIINOOOOOUUUUY');
         $str = strtr($str, 'áàâäãåçéèêëíìîïñóòôöõúùûüýÿ', 'aaaaaaceeeeiiiinooooouuuuyy');
-        $str = str_replace('&', htmlentities('&'), $str);
-        $str = str_replace('<', htmlentities('<'), $str);
-        $str = str_replace('>', htmlentities('>'), $str);
+        $str = strtr($str, '&', '_');
+        $str = strtr($str, '<', '_');
+        $str = strtr($str, '>', '_');
 
         return $str;
     }
