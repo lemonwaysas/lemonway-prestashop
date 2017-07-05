@@ -44,7 +44,7 @@ abstract class Method
 
         $this->context = Context::getContext();
         $this->module = Module::getInstanceByName('lemonway');
-        $this->code = strtoupper($this->code);
+        $this->code = Tools::strtoupper($this->code);
     }
 
     protected function prepareData()
@@ -92,7 +92,7 @@ abstract class Method
 
     public function getConfig($key)
     {
-        return Configuration::get('LEMONWAY_' . $this->code . '_' . strtoupper($key));
+        return Configuration::get('LEMONWAY_' . $this->code . '_' . Tools::strtoupper($key));
     }
 
     /**

@@ -251,8 +251,8 @@ class Lemonway extends PaymentModule
         
         //COMMON CREDIT CARD Configuration
         foreach (self::$subMethods as $method){
-            Configuration::updateValue('LEMONWAY_' . strtoupper($method['code']) . '_ONECLIC_ENABLED', null);
-            Configuration::updateValue('LEMONWAY_' . strtoupper($method['code']) . '_TITLE', $method['title']);
+            Configuration::updateValue('LEMONWAY_' . Tools::strtoupper($method['code']) . '_ONECLIC_ENABLED', null);
+            Configuration::updateValue('LEMONWAY_' . Tools::strtoupper($method['code']) . '_TITLE', $method['title']);
         }
 
         Configuration::updateValue('LEMONWAY_CC_ENABLED', 1);
@@ -312,10 +312,10 @@ class Lemonway extends PaymentModule
         
         //COMMON CREDIT CARD Configuration
         foreach (self::$subMethods as $method) {
-            Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_ONECLIC_ENABLED');
-            Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_ENABLED');
-            Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_TITLE');
-            Configuration::deleteByName('LEMONWAY_' . strtoupper($method['code']) . '_SPLITPAYMENTS');
+            Configuration::deleteByName('LEMONWAY_' . Tools::strtoupper($method['code']) . '_ONECLIC_ENABLED');
+            Configuration::deleteByName('LEMONWAY_' . Tools::strtoupper($method['code']) . '_ENABLED');
+            Configuration::deleteByName('LEMONWAY_' . Tools::strtoupper($method['code']) . '_TITLE');
+            Configuration::deleteByName('LEMONWAY_' . Tools::strtoupper($method['code']) . '_SPLITPAYMENTS');
         }
         
         
@@ -341,7 +341,7 @@ class Lemonway extends PaymentModule
      */
     protected function getConfigFormValues($formCode)
     {
-        $formCode = strtoupper($formCode);
+        $formCode = Tools::strtoupper($formCode);
 
         switch ($formCode) {
             case 'API':
@@ -389,7 +389,7 @@ class Lemonway extends PaymentModule
      */
     protected function postProcess($formCode)
     {
-        $formCode = strtoupper($formCode);
+        $formCode = Tools::strtoupper($formCode);
         $form_values = $this->getConfigFormValues($formCode);
     
         foreach (array_keys($form_values) as $key) {
@@ -463,7 +463,7 @@ class Lemonway extends PaymentModule
         }
         
         foreach (self::$subMethods as $methodCode=>$method){
-            if(((bool)Tools::isSubmit('submitLemonwayMethodConfig_' . strtoupper($methodCode))) == true){
+            if(((bool)Tools::isSubmit('submitLemonwayMethodConfig_' . Tools::strtoupper($methodCode))) == true){
                 $this->postProcess($methodCode);
             }
         }
@@ -579,7 +579,7 @@ class Lemonway extends PaymentModule
     
     protected function getBaseMethodCcConfigForm($methodCode) {
         
-        $methodCode = strtoupper($methodCode);
+        $methodCode = Tools::strtoupper($methodCode);
         $container = $this->getBaseMethodConfigForm($methodCode);
         
         $switch = array(
@@ -640,7 +640,7 @@ class Lemonway extends PaymentModule
     */
     protected function getBaseMethodConfigForm($methodCode)
     {
-        $methodCode = strtoupper($methodCode);
+        $methodCode = Tools::strtoupper($methodCode);
         $container = array(
             'form' => array(
                 'legend'=>array(

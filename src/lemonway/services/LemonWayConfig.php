@@ -106,6 +106,6 @@ class LemonWayConfig
 
     public static function getOneclicEnabled($method)
     {
-        return Configuration::get('LEMONWAY_' . strtoupper($method) . '_ONECLIC_ENABLED', null);
+        return Configuration::get('LEMONWAY_' . Tools::strtoupper($method) . '_ONECLIC_ENABLED', null);
     }
 }
