@@ -166,18 +166,18 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 . $this->module->l('Payment')
                 . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
                  
-                $this->context->smarty->assign(
-                    array(
-                        'path'=>$path,
-                        'errors'=>$this->errors
-                    )
-                );
+        $this->context->smarty->assign(
+            array(
+                'path'=>$path,
+                'errors'=>$this->errors
+            )
+        );
     
-                $template = 'error.tpl';
-                if ($this->module->isVersion17()) {
-                    $template = 'module:' . $this->module->name . '/views/templates/front/error.tpl';
-                }
+        $template = 'error.tpl';
+        if ($this->module->isVersion17()) {
+            $template = 'module:' . $this->module->name . '/views/templates/front/error.tpl';
+        }
     
-                return $this->setTemplate($template);
+        return $this->setTemplate($template);
     }
 }

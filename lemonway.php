@@ -77,19 +77,24 @@ class Lemonway extends PaymentModule
     );
     
     public static $subMethods = array(
-            'CC' => array(
-                'classname'=>'Cc',
-                "code"=>'CC',
-                "title"=> 'Credit Card',
-                'template'=>'../front/methods/creditcard.tpl'
-            ),
-            'CC_XTIMES' => array(
-                'classname'=>'CcXtimes',
-                "code"=>'CC_XTIMES',
-                "title"=>'Credit Card (Split Payment)',
-                'template'=>'../front/methods/creditcard.tpl'
-            ),
-            //'CHECK' => array('classname'=>'Check', "code"=>'CHECK',"title"=>'Check','template'=>'../front/methods/check.tpl'),   
+        'CC' => array(
+            'classname'=>'Cc',
+            "code"=>'CC',
+            "title"=> 'Credit Card',
+            'template'=>'../front/methods/creditcard.tpl'
+        ),
+        'CC_XTIMES' => array(
+            'classname'=>'CcXtimes',
+            "code"=>'CC_XTIMES',
+            "title"=>'Credit Card (Split Payment)',
+            'template'=>'../front/methods/creditcard.tpl'
+        ),
+        /*'CHECK' => array(
+            'classname'=>'Check',
+            "code"=>'CHECK',
+            "title"=>'Check',
+            'template'=>'../front/methods/check.tpl'
+        ),*/
     );
 
     public function __construct()
@@ -184,8 +189,7 @@ class Lemonway extends PaymentModule
         $pdf_invoice = false,
         $paid = false,
         $send_email = false
-    )
-    {
+    ) {
         if (!Configuration::get($key)) {
             $os = new OrderState();
             $os->name = array();
@@ -294,12 +298,12 @@ class Lemonway extends PaymentModule
         
         $translationsStatus = array(
             'en' => 'Pending payment validation from Lemonway',
-            'fr'=> 'En attente de validation par Lemonway'
+            'fr' => 'En attente de validation par Lemonway'
         );
 
         $translationsAdminMoneyOut = array(
-            'en'=>'Money out',
-            'fr'=>'Virements bancaire'
+            'en' => 'Money out',
+            'fr' => 'Virements bancaire'
         );
         
         $adminLemonwayId = Db::getInstance()->getValue(
@@ -504,7 +508,7 @@ class Lemonway extends PaymentModule
             $this->postProcess('API');
         }
         
-        foreach (self::$subMethods as $methodCode=>$method){
+        foreach (self::$subMethods as $methodCode=>$method) {
             if (((bool)Tools::isSubmit('submitLemonwayMethodConfig_' . Tools::strtoupper($methodCode))) == true) {
                 $this->postProcess($methodCode);
             }
@@ -565,13 +569,14 @@ class Lemonway extends PaymentModule
                         $this->getApiConfigForm()
                 );
                 break;
+                
             case 'CC':
                 $form = $helper->generateForm(array(
                         $this->getBaseMethodCcConfigForm($type)
                 ));
                 break;
+
             case 'CC_XTIMES':
- 
                 $splitpaymentProfiles = $this->getSplitpaymentProfiles();
                 $baseFrom = $this->getBaseMethodCcConfigForm($type);
                 $fieldPaymentProfile = array(
@@ -585,10 +590,10 @@ class Lemonway extends PaymentModule
                         'name' => 'name'
                     ),
                     'expand' => array(
-                            'print_total' => count($splitpaymentProfiles),
-                            'default' => 'hide',
-                            'show' => array('text' => $this->l('show'), 'icon' => 'plus-sign-alt'),
-                            'hide' => array('text' => $this->l('hide'), 'icon' => 'minus-sign-alt')
+                        'print_total' => count($splitpaymentProfiles),
+                        'default' => 'hide',
+                        'show' => array('text' => $this->l('show'), 'icon' => 'plus-sign-alt'),
+                        'hide' => array('text' => $this->l('hide'), 'icon' => 'minus-sign-alt')
                     )
                 );
                 $inputArr = $baseFrom['form']['input'];
@@ -642,16 +647,16 @@ class Lemonway extends PaymentModule
                 'class' => 't',
                 'desc' => $this->l('Display oneclic form on payment step'),
                 'values' => array(
-                        array(
-                                'id' => 'active_on',
-                                'value' => 1,
-                                'label' => $this->l('Enabled')
-                        ),
-                        array(
-                                'id' => 'active_off',
-                                'value' => 0,
-                                'label' => $this->l('Disabled')
-                        )
+                    array(
+                            'id' => 'active_on',
+                            'value' => 1,
+                            'label' => $this->l('Enabled')
+                    ),
+                    array(
+                            'id' => 'active_off',
+                            'value' => 0,
+                            'label' => $this->l('Disabled')
+                    )
                 )
         );
         
@@ -985,7 +990,7 @@ class Lemonway extends PaymentModule
             if ($methodInstance->isValid()) {
                 $this->context->smarty->assign(array(
                         'module_dir' => $this->_path,
-                        'method'=>$methodInstance,
+                        'method' => $methodInstance,
                         'open_basedir' => (ini_get('open_basedir') == '') ? "1" : "0"
                 ));
                 
@@ -1054,7 +1059,7 @@ class Lemonway extends PaymentModule
     {
         $list = &$params['list'];
 
-        foreach ($list as $index=>$tr) {
+        foreach ($list as $index => $tr) {
             switch ($tr['status']) {
                 case "failed":
                     $list[$index]['color'] = 'red';
