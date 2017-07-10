@@ -469,13 +469,13 @@ class Lemonway extends PaymentModule
                             //die('value: '. $value);
                             if ($value == 'on' && !in_array($profile['id_profile'], $values)) {   //Add new profile
                                 $values[] = $profile['id_profile'];
-                            } else if ($value != 'on' && in_array($profile['id_profile'], $values)) { //remove profile
+                            } elseif ($value != 'on' && in_array($profile['id_profile'], $values)) { //remove profile
                                 $index = array_search($profile['id_profile'], $values);
                                 unset($values[$index]);
                             }
                         }
 
-                        $value = implode(',', $values);    
+                        $value = implode(',', $values);
                     }
                     break;
 
@@ -508,7 +508,7 @@ class Lemonway extends PaymentModule
             $this->postProcess('API');
         }
         
-        foreach (self::$subMethods as $methodCode=>$method) {
+        foreach (self::$subMethods as $methodCode => $method) {
             if (((bool)Tools::isSubmit('submitLemonwayMethodConfig_' . Tools::strtoupper($methodCode))) == true) {
                 $this->postProcess($methodCode);
             }
@@ -519,7 +519,7 @@ class Lemonway extends PaymentModule
         $this->context->smarty->assign('api_configuration_form', $this->renderForm('API'));
         
         $methodForms = array();
-        foreach (self::$subMethods as $methodCode=>$method) {
+        foreach (self::$subMethods as $methodCode => $method) {
             $configurationKey = $methodCode;
             $methodForms[$methodCode] = array(
                 'form'=> $this->renderForm($configurationKey),
@@ -566,7 +566,7 @@ class Lemonway extends PaymentModule
         switch ($type) {
             case 'API':
                 $form = $helper->generateForm(
-                        $this->getApiConfigForm()
+                    $this->getApiConfigForm()
                 );
                 break;
                 
@@ -617,7 +617,8 @@ class Lemonway extends PaymentModule
                         '<a href="%s">' .
                             $this->l('To use this method you need to create a split payment profile') .
                             '</a>',
-                        $adminSplitPaymentTabUrl);
+                        $adminSplitPaymentTabUrl
+                    );
                     $baseFrom['form'] = array('warning' => $warningMessage) + $baseFrom['form'];
                 }
 
@@ -809,7 +810,8 @@ class Lemonway extends PaymentModule
                         'col' => 3,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-google-wallet"></i>',
-                        'desc' => $this->l('This information has been sent by email'). ' (' . $this->l('Wallet ID') . ')',
+                        'desc' => $this->l('This information has been sent by email') .
+                            ' (' . $this->l('Wallet ID') . ')',
                         'name' => 'LEMONWAY_MERCHANT_ID',
                         'label' => $this->l('Your account name') ,
                     ),
@@ -1189,66 +1191,67 @@ class Lemonway extends PaymentModule
         $wkToken = $this->saveWkToken($cart->id);
         $comment = Configuration::get('PS_SHOP_NAME') . " - " . $cart->id . " - " .
                 $customer->lastname . " " . $customer->firstname . " - " . $customer->email;
-                $secure_key = $customer->secure_key;
-                $registerCard = (Tools::getValue('lw_oneclic') === 'register_card');
+
+        $secure_key = $customer->secure_key;
+        $registerCard = (Tools::getValue('lw_oneclic') === 'register_card');
     
-                //call directkit to get Webkit Token
-                $params = array(
-                        'wkToken' => $wkToken,
-                        'wallet' => LemonWayConfig::getWalletMerchantId(),
-                        'amountTot' => number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
-                        'amountCom' => "0.00",
-                        'comment' => $comment,
-                        'returnUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
-                                'register_card' => (int)$registerCard,
-                                'action' => 'return',
-                                'secure_key' => $secure_key
-                        ), true)),
-                        'cancelUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
-                                'action' => 'cancel',
-                                'secure_key' => $secure_key
-                        ), true)),
-                        'errorUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
-                                'action' => 'error',
-                                'secure_key' => $secure_key
-                        ), true)),
-                        'autoCommission' => LemonWayConfig::is4EcommerceMode() ? 0 : 1,
-                        'registerCard' => (int)$registerCard, //For Atos
-                        'useRegisteredCard' => (int)$registerCard, //For payline
-                );
+        //call directkit to get Webkit Token
+        $params = array(
+                'wkToken' => $wkToken,
+                'wallet' => LemonWayConfig::getWalletMerchantId(),
+                'amountTot' => number_format((float)$cart->getOrderTotal(true, 3), 2, '.', ''),
+                'amountCom' => "0.00",
+                'comment' => $comment,
+                'returnUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
+                        'register_card' => (int)$registerCard,
+                        'action' => 'return',
+                        'secure_key' => $secure_key
+                ), true)),
+                'cancelUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
+                        'action' => 'cancel',
+                        'secure_key' => $secure_key
+                ), true)),
+                'errorUrl' => urlencode($this->context->link->getModuleLink('lemonway', 'validation', array(
+                        'action' => 'error',
+                        'secure_key' => $secure_key
+                ), true)),
+                'autoCommission' => LemonWayConfig::is4EcommerceMode() ? 0 : 1,
+                'registerCard' => (int)$registerCard, //For Atos
+                'useRegisteredCard' => (int)$registerCard, //For payline
+        );
     
-                try {
-                    $res = $kit->moneyInWebInit($params);
-    
-                    //Oops, an error occured.
-                    if (isset($res->lwError)) {
-                        throw new Exception((string)$res->lwError->MSG, (int)$res->lwError->CODE);
-                    }
-    
-                    if ($customer->id && isset($res->lwXml->MONEYINWEB->CARD) && $registerCard) {
-                        $card = $this->getCustomerCard($customer->id);
-                        if (!$card) {
-                            $card = array();
-                        }
-    
-                        $card['id_customer'] = $customer->id;
-                        $card['id_card'] = (string)$res->lwXml->MONEYINWEB->CARD->ID;
-    
-                        $this->insertOrUpdateCard($customer->id, $card);
-                    }
-                } catch (Exception $e) {
-                    return $this->displayError($e->getMessage() . " - " . $e->getCode());
+        try {
+            $res = $kit->moneyInWebInit($params);
+
+            //Oops, an error occured.
+            if (isset($res->lwError)) {
+                throw new Exception((string)$res->lwError->MSG, (int)$res->lwError->CODE);
+            }
+
+            if ($customer->id && isset($res->lwXml->MONEYINWEB->CARD) && $registerCard) {
+                $card = $this->getCustomerCard($customer->id);
+                if (!$card) {
+                    $card = array();
                 }
-    
-                //moneyInToken
-                $moneyInToken = (string)$res->lwXml->MONEYINWEB->TOKEN;
-    
-                //language
-                $language = array_key_exists($this->context->language->iso_code, $this->supportedLangs) ?
-                $this->supportedLangs[$this->context->language->iso_code] : $this->defaultLang;
-    
-                $cardForm = $kit->printCardForm($moneyInToken, urlencode(LemonWayConfig::getCssUrl()), $language);
-                return $cardForm;
+
+                $card['id_customer'] = $customer->id;
+                $card['id_card'] = (string)$res->lwXml->MONEYINWEB->CARD->ID;
+
+                $this->insertOrUpdateCard($customer->id, $card);
+            }
+        } catch (Exception $e) {
+            return $this->displayError($e->getMessage() . " - " . $e->getCode());
+        }
+
+        //moneyInToken
+        $moneyInToken = (string)$res->lwXml->MONEYINWEB->TOKEN;
+
+        //language
+        $language = array_key_exists($this->context->language->iso_code, $this->supportedLangs) ?
+        $this->supportedLangs[$this->context->language->iso_code] : $this->defaultLang;
+
+        $cardForm = $kit->printCardForm($moneyInToken, urlencode(LemonWayConfig::getCssUrl()), $language);
+        return $cardForm;
     }
     
     public function isVersion17()

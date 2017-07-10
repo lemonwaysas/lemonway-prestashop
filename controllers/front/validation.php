@@ -268,7 +268,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                         null,
                         null,
                         $lastInvoice
-                    );    
+                    );
                 } catch (Exception $e) {
                     Logger::AddLog($e->getMessage(), 4);
                 }
