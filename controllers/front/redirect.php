@@ -257,7 +257,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 }
             }
 
-             Tools::redirect($lwUrl);
+            Tools::redirect($lwUrl);
         } else {
             if (($card = $this->module->getCustomerCard($customer->id)) && $customer->isLogged()) {
                 //Call directkit for MoneyInWithCardId
@@ -345,7 +345,13 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                                 /* @var $invoiceCollection PrestaShopCollectionCore */
                                 $invoiceCollection = $order->getInvoicesCollection();
                                 
-                                $lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
+                                $lastInvoice =
+                                    $invoiceCollection
+                                    ->orderBy('date_add')
+                                    ->setPageNumber(1)
+                                    ->setPageSize(1)
+                                    ->getFirst();
+
                                 try {
                                     $order->addOrderPayment(
                                         $amountTot,
