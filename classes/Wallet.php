@@ -228,7 +228,8 @@ class WalletCore extends ObjectModel
 
     public function getByCustomerId($id_customer)
     {
-        $query = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_wallet` lw WHERE lw.`id_customer` = ' . (int) pSQL($id_customer);
+        $query = 'SELECT * FROM `' . _DB_PREFIX_ . 'lemonway_wallet` lw 
+            WHERE lw.`id_customer` = ' . (int) pSQL($id_customer);
         $result = Db::getInstance()->getRow($query);
 
         if (!$result) {

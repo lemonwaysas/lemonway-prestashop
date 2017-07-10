@@ -130,7 +130,6 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
         if (isset($this->toolbar_btn['new'])) {
             unset($this->toolbar_btn['new']);
         }
-
     }
 
     public function initPageHeaderToolbar()
@@ -141,7 +140,8 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
         if ($this->display === 'edit' && $this->object->canPaid()) {
             $this->page_header_toolbar_btn['pay_now'] = array(
                 //'href' => self::$currentIndex.'&addlemonway_moneyout&token=' . $this->token,
-                'href' => self::$currentIndex . '&action=pay_now&' . $this->identifier . '=' . $this->object->id . '&token=' . $this->token,
+                'href' => self::$currentIndex . '&action=pay_now&' . $this->identifier . '=' . $this->object->id .
+                    '&token=' . $this->token,
                 'desc' => $this->l('Pay now'),
                 'icon' => 'process-icon-payment'
             );
@@ -178,7 +178,8 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
         try {
             $this->object->pay(true);
         } catch (Exception $e) {
-            $this->errors[] = Tools::displayError('An error occurred while executing payment.') . ' (' . $e->getMessage() . ')';
+            $this->errors[] = Tools::displayError('An error occurred while executing payment.') .
+                ' (' . $e->getMessage() . ')';
         }
 
         if (count($this->errors)) {

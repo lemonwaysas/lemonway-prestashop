@@ -134,7 +134,9 @@ function installSQL($module)
 
                 if (function_exists($upgradeFunc)) {
                     $res = $upgradeFunc($module);
-                    if (!$res) return false;
+                    if (!$res) {
+                        return false;
+                    }
                 }
             }
         }

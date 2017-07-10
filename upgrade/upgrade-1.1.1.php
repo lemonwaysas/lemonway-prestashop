@@ -30,7 +30,6 @@ if (!defined('_PS_VERSION_')) {
 /**
 * Create wkToken table
 * Used to keep card's token
-* 
 * @return boolean
 */
 function upgrade_module_1_1_1()

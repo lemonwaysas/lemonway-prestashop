@@ -206,7 +206,8 @@ class SplitpaymentProfile extends ObjectModel
             }
 
             $splitDealine->method_code = $methodCode;
-            $splitDealine->status = $completeFirst ? SplitpaymentDeadline::STATUS_COMPLETE : SplitpaymentDeadline::STATUS_PENDING;
+            $splitDealine->status = $completeFirst ?
+             SplitpaymentDeadline::STATUS_COMPLETE : SplitpaymentDeadline::STATUS_PENDING;
             $splitDealine->token = $token;
             $splitDealine->total_amount = $order->total_paid;
 
@@ -242,7 +243,8 @@ class SplitpaymentProfile extends ObjectModel
         $todayDate = new \DateTime();
 
         if ($maxCycles < 1) {
-            throw new Exception("Period max cycles is equals zero or negative for Payment Profile ID: " . $this->getId());
+            throw new Exception("Period max cycles is equals zero or negative for Payment Profile ID: " .
+                $this->getId());
         }
 
 
@@ -281,44 +283,48 @@ class SplitpaymentProfile extends ObjectModel
             $dateToPay = $todayClone->add($interval)->format($format);
 
             $amountToPay = $i == 0 ? ($part + $fmod) : $part;
-            $paymentsSplit[] = array('dateToPay' => $dateToPay, 'amountToPay' => $formatPrice ? Tools::displayPrice($amountToPay, $id_currency) : $amountToPay);
+            $paymentsSplit[] = array(
+                'dateToPay' => $dateToPay,
+                'amountToPay' => $formatPrice ? Tools::displayPrice($amountToPay, $id_currency) : $amountToPay
+            );
         }
 
         return $asJson ? json_encode($paymentsSplit) : $paymentsSplit;
     }
   
   /**
-	 * Checks if object field values are valid before database interaction
-	 *
-	 * @param bool $die
-	 * @param bool $error_return
-	 *
-	 * @return bool|string True, false or error message.
-	 * @throws PrestaShopException
-	 */
-	public function validateFields($die = true, $error_return = false) {
-		$return = parent::validateFields($die,$error_return);
-		
-		if(isset($this->period_frequency) && (int)$this->period_frequency < 1) {
-			$message = self::l('This field must have value greater than 0: ') . 'period_frequency';
-			if ($message !== true) {
-				if ($die) {
-					throw new PrestaShopException($message);
-				}
-				return $error_return ? $message : false;
-			}
-		}
+     * Checks if object field values are valid before database interaction
+     *
+     * @param bool $die
+     * @param bool $error_return
+     *
+     * @return bool|string True, false or error message.
+     * @throws PrestaShopException
+     */
+    public function validateFields($die = true, $error_return = false)
+    {
+        $return = parent::validateFields($die, $error_return);
+        
+        if (isset($this->period_frequency) && (int)$this->period_frequency < 1) {
+            $message = self::l('This field must have value greater than 0: ') . 'period_frequency';
+            if ($message !== true) {
+                if ($die) {
+                    throw new PrestaShopException($message);
+                }
+                return $error_return ? $message : false;
+            }
+        }
     
-		if(isset($this->period_max_cycles) && (int)$this->period_max_cycles < 1) {
-			$message = self::l('This field must have value greater than 0: ') . 'period_max_cycles';
-			if ($message !== true) {
-				if ($die) {
-					throw new PrestaShopException($message);
-				}
-				return $error_return ? $message : false;
-			}
-		}
-		
-		return $return;
-	}
+        if (isset($this->period_max_cycles) && (int)$this->period_max_cycles < 1) {
+            $message = self::l('This field must have value greater than 0: ') . 'period_max_cycles';
+            if ($message !== true) {
+                if ($die) {
+                    throw new PrestaShopException($message);
+                }
+                return $error_return ? $message : false;
+            }
+        }
+        
+        return $return;
+    }
 }

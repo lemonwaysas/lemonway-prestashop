@@ -180,7 +180,8 @@ class SplitpaymentDeadline extends ObjectModel
 
                 if (isset($res->lwError)) {
                     $this->status = SplitpaymentDeadline::STATUS_FAILED;
-                    $message = Tools::displayError("An error occurred while trying to pay split payment. Error code: " . $res->lwError->CODE . " - Message: " . $res->lwError->MSG);
+                    $message = Tools::displayError("An error occurred while trying to pay split payment. 
+                        Error code: " . $res->lwError->CODE . " - Message: " . $res->lwError->MSG);
                     throw new Exception($message, $res->lwError->CODE);
                 } else {
                     Logger::AddLog(print_r($res, true));
@@ -192,10 +193,18 @@ class SplitpaymentDeadline extends ObjectModel
 
                             /* @var $invoiceCollection PrestaShopCollectionCore */
                             $invoiceCollection = $order->getInvoicesCollection();
-                            $lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
+                            $lastInvoice =
+                                $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
 
                             try {
-                                $order->addOrderPayment($this->amount_to_pay, $methodInstance->getTitle(), $op->ID, null, null, $lastInvoice);
+                                $order->addOrderPayment(
+                                    $this->amount_to_pay,
+                                    $methodInstance->getTitle(),
+                                    $op->ID,
+                                    null,
+                                    null,
+                                    $lastInvoice
+                                );
                             } catch (Exception $e) {
                                 Logger::AddLog($e->getMessage(), 4);
                             }
@@ -243,7 +252,8 @@ class SplitpaymentDeadline extends ObjectModel
      */
     public function update($null_values = false)
     {
-        if ($this->status == self::STATUS_COMPLETE && ($this->paid_at == null || $this->paid_at == '0000-00-00 00:00:00')) {
+        if ($this->status == self::STATUS_COMPLETE &&
+            ($this->paid_at == null || $this->paid_at == '0000-00-00 00:00:00')) {
             $this->paid_at = date('Y-m-d H:i:s');
         } else {
             $this->paid_at = null;

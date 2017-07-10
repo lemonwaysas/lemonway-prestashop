@@ -117,12 +117,15 @@ abstract class Method
 
         switch ($this->getCode()) {
             case "creditcard_xtimes":
-                if (!in_array(Tools::getValue('splitpayment_profile_id'), $this->getModule()->getSplitpaymentProfiles())) {
+                if (!in_array(
+                    Tools::getValue('splitpayment_profile_id'),
+                    $this->getModule()->getSplitpaymentProfiles()
+                )) {
                     return false;
                 } else {
                     return true;
                 }
-
+                // return so no need to break
             default:
                 return true;
         }

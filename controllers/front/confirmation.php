@@ -27,7 +27,9 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
 {
     public function postProcess()
     {
-        if (Tools::isSubmit('cart_id') == false || Tools::isSubmit('secure_key') == false || Tools::isSubmit('action') == false) {
+        if (Tools::isSubmit('cart_id') == false ||
+            Tools::isSubmit('secure_key') == false ||
+            Tools::isSubmit('action') == false) {
             return false;
         }
 
@@ -43,7 +45,8 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         $cart_total_paid = (float) Tools::ps_round((float) $cart->getOrderTotal(true, Cart::BOTH), 2);
 
         //If is X times method, we split the payment
-        if ($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))) {
+        if ($methodInstance->isSplitPayment() &&
+            ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))) {
             $profile = new SplitpaymentProfile($splitPaypentProfileId);
 
             if ($profile) {
@@ -69,7 +72,8 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         Context::getContext()->currency = new Currency((int) Context::getContext()->cart->id_currency);
         Context::getContext()->language = new Language((int) Context::getContext()->customer->id_lang);
 
-        $payment_status = Configuration::get(Lemonway::LEMONWAY_PENDING_OS); // Default value for a payment that succeed.
+        // Default value for a payment that succeed.
+        $payment_status = Configuration::get(Lemonway::LEMONWAY_PENDING_OS);
         $message = $this->module->l("Order in pending validation payment.");
 
         $currency_id = (int) Context::getContext()->currency->id;
@@ -141,37 +145,39 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
     
     protected function addError($message, $description = false)
     {
-    	/**
-    	 * Set error message and description for the template.
-    	 */
-    	array_push($this->errors, $this->module->l($message), $description);
+        /**
+         * Set error message and description for the template.
+         */
+        array_push($this->errors, $this->module->l($message), $description);
     }
     
     protected function displayError()
     {
-    	
-    	if($this->module->isVersion17()){
-    		$cartUrl = 'index.php?controller=cart&action=show';
-    		return $this->redirectWithNotifications($cartUrl);
-    	}
-    	
-    	/**
-    	 * Create the breadcrumb for your ModuleFrontController.
-    	 */
-    	$path = '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
-    			. $this->module->l('Payment')
-    			. '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
-    			 
-    			$this->context->smarty->assign(
-    					array('path'=>$path,
-    							'errors'=>$this->errors
-    					)
+        
+        if ($this->module->isVersion17()) {
+            $cartUrl = 'index.php?controller=cart&action=show';
+            return $this->redirectWithNotifications($cartUrl);
+        }
+        
+        /**
+         * Create the breadcrumb for your ModuleFrontController.
+         */
+        $path = '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
+                . $this->module->l('Payment')
+                . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
+                 
+                $this->context->smarty->assign(
+                    array(
+                        'path'=>$path,
+                        'errors'=>$this->errors
+                    )
+                );
     
-    					);
+                $template = 'error.tpl';
+                if ($this->module->isVersion17()) {
+                    $template = 'module:' . $this->module->name . '/views/templates/front/error.tpl';
+                }
     
-    			$template = 'error.tpl';
-    			if($this->module->isVersion17()) $template = 'module:' . $this->module->name . '/views/templates/front/error.tpl';
-    
-    			return $this->setTemplate($template);
+                return $this->setTemplate($template);
     }
 }

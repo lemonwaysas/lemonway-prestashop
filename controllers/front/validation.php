@@ -87,7 +87,8 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         $profile = new SplitpaymentProfile();
 
         // If is X times method, we split the payment
-        if ($methodInstance->isSplitPayment() && ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))) {
+        if ($methodInstance->isSplitPayment() &&
+            ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))) {
             $profile = new SplitpaymentProfile($splitPaypentProfileId);
 
             if ($profile) {
@@ -166,8 +167,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                         $message = $this->module->l('Order cancel by customer.');
                         break;
 
-                    case 'error':
-
                     default:
                 }
             }
@@ -180,7 +179,8 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         }
 
         $isSameAmount = (
-            number_format($cart_total_paid, _PS_PRICE_COMPUTE_PRECISION_) === number_format($amount_paid, _PS_PRICE_COMPUTE_PRECISION_)
+            number_format($cart_total_paid, _PS_PRICE_COMPUTE_PRECISION_) ===
+                number_format($amount_paid, _PS_PRICE_COMPUTE_PRECISION_)
         );
 
         if (!$isSameAmount) {
@@ -216,58 +216,71 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 $invoiceCollection = $order->getInvoicesCollection();
                 $lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
 
-                $order->addOrderPayment($amount_paid, $methodInstance->getTitle(), Tools::getValue('response_transactionId'), null, null, ($lastInvoice ? $lastInvoice : null));
+                $order->addOrderPayment(
+                    $amount_paid,
+                    $methodInstance->getTitle(),
+                    Tools::getValue('response_transactionId'),
+                    null,
+                    null,
+                    ($lastInvoice ? $lastInvoice : null)
+                );
             }
         } else {
-        	if ($methodInstance->isSplitPayment() && !$profile) {
-        		throw new Exception("Wrong data for split payment");
-        	}
+            if ($methodInstance->isSplitPayment() && !$profile) {
+                throw new Exception("Wrong data for split payment");
+            }
 
-        	$order = new Order($order_id);
-        	
-        	if ($methodInstance->isSplitPayment()) {
-        		//$card = $this->module->getCustomerCard($order->id_customer);
-        		$cardKey = 'LEMONWAY_CARD_ID_' . $order->id_customer .'_' . $order->id_cart;
-        		$cardId = Configuration::get($cardKey);
-        		if ($cardId) {
-        			//Save deadlines
-        			$profile->generateDeadlines($order, $cardId, $methodInstance->getCode(), true, true);
-        			ConfigurationCore::deleteByName($cardKey);
-        		} else {
-        			throw new Exception($this->module->l("Card token not found"));
-        		}
-        	}
-        	
-  			try {
-  				$history = new OrderHistory();
-  				$history->id_order = (int)$order_id;
-  				
-  				$history->changeIdOrderState($id_order_state, $order,false);
-  				$history->save();
-  			} catch (Exception $e) {
-  				Logger::AddLog($e->getMessage(), 4);
-  			}
+            $order = new Order($order_id);
             
             if ($methodInstance->isSplitPayment()) {
-            	/* @var $invoiceCollection PrestaShopCollectionCore */
-	            $invoiceCollection = $order->getInvoicesCollection();
-	            
-	            $lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
-	            try {
-	            	$order->addOrderPayment($amount_paid, $methodInstance->getTitle(), Tools::getValue('response_transactionId'), null, null, $lastInvoice);            	 
-	            } catch (Exception $e) {
-	            	Logger::AddLog($e->getMessage(), 4);
-	            }
+                //$card = $this->module->getCustomerCard($order->id_customer);
+                $cardKey = 'LEMONWAY_CARD_ID_' . $order->id_customer .'_' . $order->id_cart;
+                $cardId = Configuration::get($cardKey);
+                if ($cardId) {
+                    //Save deadlines
+                    $profile->generateDeadlines($order, $cardId, $methodInstance->getCode(), true, true);
+                    ConfigurationCore::deleteByName($cardKey);
+                } else {
+                    throw new Exception($this->module->l("Card token not found"));
+                }
             }
-            else { //Update order payment
-            	foreach ($order->getOrderPaymentCollection() as $orderPayment) {
-            		try {
-            			$orderPayment->payment_method = $methodInstance->getTitle();
-            			$orderPayment->update();
-            		} catch (Exception $e) {
-            			PrestaShopLogger::addLog($e->getMessage());
-            		}
-            	}
+            
+            try {
+                $history = new OrderHistory();
+                $history->id_order = (int)$order_id;
+                
+                $history->changeIdOrderState($id_order_state, $order, false);
+                $history->save();
+            } catch (Exception $e) {
+                Logger::AddLog($e->getMessage(), 4);
+            }
+            
+            if ($methodInstance->isSplitPayment()) {
+                /* @var $invoiceCollection PrestaShopCollectionCore */
+                $invoiceCollection = $order->getInvoicesCollection();
+                
+                $lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
+                try {
+                    $order->addOrderPayment(
+                        $amount_paid,
+                        $methodInstance->getTitle(),
+                        Tools::getValue('response_transactionId'),
+                        null,
+                        null,
+                        $lastInvoice
+                    );              
+                } catch (Exception $e) {
+                    Logger::AddLog($e->getMessage(), 4);
+                }
+            } else { //Update order payment
+                foreach ($order->getOrderPaymentCollection() as $orderPayment) {
+                    try {
+                        $orderPayment->payment_method = $methodInstance->getTitle();
+                        $orderPayment->update();
+                    } catch (Exception $e) {
+                        PrestaShopLogger::addLog($e->getMessage());
+                    }
+                }
             }
           
             $templateVars = array();

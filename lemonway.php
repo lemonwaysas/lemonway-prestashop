@@ -77,10 +77,19 @@ class Lemonway extends PaymentModule
     );
     
     public static $subMethods = array(
-            'CC' => array('classname'=>'Cc' ,"code"=>'CC',"title"=> 'Credit Card' ,'template'=>'../front/methods/creditcard.tpl'),
-            'CC_XTIMES' => array('classname'=>'CcXtimes', "code"=>'CC_XTIMES',"title"=>'Credit Card (Split Payment)','template'=>'../front/methods/creditcard.tpl'),
-            //'CHECK' => array('classname'=>'Check', "code"=>'CHECK',"title"=>'Check','template'=>'../front/methods/check.tpl'),
-            
+            'CC' => array(
+                'classname'=>'Cc',
+                "code"=>'CC',
+                "title"=> 'Credit Card',
+                'template'=>'../front/methods/creditcard.tpl'
+            ),
+            'CC_XTIMES' => array(
+                'classname'=>'CcXtimes',
+                "code"=>'CC_XTIMES',
+                "title"=>'Credit Card (Split Payment)',
+                'template'=>'../front/methods/creditcard.tpl'
+            ),
+            //'CHECK' => array('classname'=>'Check', "code"=>'CHECK',"title"=>'Check','template'=>'../front/methods/check.tpl'),   
     );
 
     public function __construct()
@@ -142,7 +151,8 @@ class Lemonway extends PaymentModule
         return true;
     }
     
-    public function uninstallModuleTab($tabClass) {
+    public function uninstallModuleTab($tabClass)
+    {
         $idTab = Tab::getIdFromClassName($tabClass);
         if ($idTab != 0) {
             $tab = new Tab($idTab);
@@ -154,7 +164,6 @@ class Lemonway extends PaymentModule
     }
     
     /**
-    * 
     * @param string $key Configuration key
     * @param array $translations array of name by lang
     * @param string $color Hex code or color's name
@@ -175,9 +184,9 @@ class Lemonway extends PaymentModule
         $pdf_invoice = false,
         $paid = false,
         $send_email = false
-        ) {
+    )
+    {
         if (!Configuration::get($key)) {
-
             $os = new OrderState();
             $os->name = array();
             foreach (Language::getLanguages(false) as $language) {
@@ -212,13 +221,25 @@ class Lemonway extends PaymentModule
         return true;
     }
     
-    public function addStatusSplitpayment(){
+    public function addStatusSplitpayment()
+    {
         $translationsStatus = array(
                 'en' => 'Split Payment accepted',
                 'fr'=> 'Paiement en plusieurs fois accepté'
         );
         
-        return $this->addStatus(self::LEMONWAY_SPLIT_PAYMENT_OS, $translationsStatus, '#32CD32', false, false, true, true, true, false, true);
+        return $this->addStatus(
+            self::LEMONWAY_SPLIT_PAYMENT_OS,
+            $translationsStatus,
+            '#32CD32',
+            false,
+            false,
+            true,
+            true,
+            true,
+            false,
+            true
+        );
     }
 
     /**
@@ -250,7 +271,7 @@ class Lemonway extends PaymentModule
         );
         
         //COMMON CREDIT CARD Configuration
-        foreach (self::$subMethods as $method){
+        foreach (self::$subMethods as $method) {
             Configuration::updateValue('LEMONWAY_' . Tools::strtoupper($method['code']) . '_ONECLIC_ENABLED', null);
             Configuration::updateValue('LEMONWAY_' . Tools::strtoupper($method['code']) . '_TITLE', $method['title']);
         }
@@ -307,7 +328,7 @@ class Lemonway extends PaymentModule
         Configuration::deleteByName('LEMONWAY_IS_TEST_MODE');
         Configuration::deleteByName('LEMONWAY_CSS_URL');
 
-        //METHOD CONFIGURATION  
+        //METHOD CONFIGURATION
         Configuration::deleteByName('LEMONWAY_ONECLIC_ENABLED'); //Keeped for old module versions
         
         //COMMON CREDIT CARD Configuration
@@ -356,27 +377,51 @@ class Lemonway extends PaymentModule
 
             case 'CC_XTIMES':
                 //Manage checkboxes splitpayment profiles
-                $splitpaymentIds = explode(',', Configuration::get('LEMONWAY_' . $formCode . '_SPLITPAYMENTS',''));
+                $splitpaymentIds = explode(',', Configuration::get('LEMONWAY_' . $formCode . '_SPLITPAYMENTS', ''));
                 $splitpaymentFormValues = array();
-                if(count($splitpaymentIds)){
-                    foreach ($splitpaymentIds as $id){
+                if (count($splitpaymentIds)) {
+                    foreach ($splitpaymentIds as $id) {
                         $splitpaymentFormValues['LEMONWAY_' . $formCode . '_SPLITPAYMENTS_' . $id] = $id;
                     }
                 }
                 
-                return array_merge(array(
-                    'LEMONWAY_' . $formCode . '_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ENABLED', null),
-                    'LEMONWAY_' . $formCode . '_TITLE' => Configuration::get('LEMONWAY_' . $formCode . '_TITLE', self::$subMethods[$formCode]['title']),
-                    'LEMONWAY_' . $formCode . '_ONECLIC_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ONECLIC_ENABLED', null),
-                    'LEMONWAY_' . $formCode . '_SPLITPAYMENTS' =>   Configuration::get('LEMONWAY_' . $formCode . '_SPLITPAYMENTS', '')             
-                ), $splitpaymentFormValues);
+                return array_merge(
+                    array(
+                        'LEMONWAY_' . $formCode . '_ENABLED' => Configuration::get(
+                            'LEMONWAY_' . $formCode . '_ENABLED',
+                            null
+                        ),
+                        'LEMONWAY_' . $formCode . '_TITLE' => Configuration::get(
+                            'LEMONWAY_' . $formCode . '_TITLE',
+                            self::$subMethods[$formCode]['title']
+                        ),
+                        'LEMONWAY_' . $formCode . '_ONECLIC_ENABLED' => Configuration::get(
+                            'LEMONWAY_' . $formCode . '_ONECLIC_ENABLED',
+                            null
+                        ),
+                        'LEMONWAY_' . $formCode . '_SPLITPAYMENTS' => Configuration::get(
+                            'LEMONWAY_' . $formCode . '_SPLITPAYMENTS',
+                            ''
+                        )
+                    ),
+                    $splitpaymentFormValues
+                );
 
             default:
                 return array(
                     //CREDIT CARD
-                    'LEMONWAY_' . $formCode . '_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ENABLED',null),
-                    'LEMONWAY_' . $formCode . '_TITLE' => Configuration::get('LEMONWAY_' . $formCode . '_TITLE',self::$subMethods[$formCode]['title']),
-                    'LEMONWAY_' . $formCode . '_ONECLIC_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ONECLIC_ENABLED', null)
+                    'LEMONWAY_' . $formCode . '_ENABLED' => Configuration::get(
+                        'LEMONWAY_' . $formCode . '_ENABLED',
+                        null
+                    ),
+                    'LEMONWAY_' . $formCode . '_TITLE' => Configuration::get(
+                        'LEMONWAY_' . $formCode . '_TITLE',
+                        self::$subMethods[$formCode]['title']
+                    ),
+                    'LEMONWAY_' . $formCode . '_ONECLIC_ENABLED' => Configuration::get(
+                        'LEMONWAY_' . $formCode . '_ONECLIC_ENABLED',
+                        null
+                    )
                 );
         }
     }
@@ -390,12 +435,10 @@ class Lemonway extends PaymentModule
         $form_values = $this->getConfigFormValues($formCode);
     
         foreach (array_keys($form_values) as $key) {
-            
             $value = Tools::getValue($key);
             
-            switch($formCode){
+            switch ($formCode) {
                 case 'API':
-
                     if ($key == 'LEMONWAY_API_PASSWORD' && trim($value) == "") {
                         continue;
                     }
@@ -404,36 +447,38 @@ class Lemonway extends PaymentModule
                         $value = trim($value);
                     }
                     break;
+
                 case 'CC_XTIMES':
-                    if(strpos($key, 'LEMONWAY_CC_XTIMES_SPLITPAYMENTS_') !== false){
+                    if (strpos($key, 'LEMONWAY_CC_XTIMES_SPLITPAYMENTS_') !== false) {
                         continue;
                     }
                     //manage checkbox
-                    if($key == 'LEMONWAY_CC_XTIMES_SPLITPAYMENTS'){
+                    if ($key == 'LEMONWAY_CC_XTIMES_SPLITPAYMENTS') {
                         $values = array();
                          
-                        if(!empty($form_values[$key]))
-                            $values = explode(',',$form_values[$key]);
+                        if (!empty($form_values[$key])) {
+                            $values = explode(',', $form_values[$key]);
+                        }
                              
-                            foreach ($this->getSplitpaymentProfiles() as $profile){
-                                $value = Tools::getValue($key . '_' . $profile['id_profile']);
-                                //die('value: '. $value);
-                                if ($value == 'on' && !in_array($profile['id_profile'],$values)) {   //Add new profile
-                                    $values[] = $profile['id_profile'];
-                                } else if ($value != 'on' && in_array($profile['id_profile'],$values)) { //remove profile
-                                    $index = array_search($profile['id_profile'], $values);
-                                    unset($values[$index]);
-                                }
+                        foreach ($this->getSplitpaymentProfiles() as $profile) {
+                            $value = Tools::getValue($key . '_' . $profile['id_profile']);
+                            //die('value: '. $value);
+                            if ($value == 'on' && !in_array($profile['id_profile'], $values)) {   //Add new profile
+                                $values[] = $profile['id_profile'];
+                            } else if ($value != 'on' && in_array($profile['id_profile'], $values)) { //remove profile
+                                $index = array_search($profile['id_profile'], $values);
+                                unset($values[$index]);
                             }
-                            $value = implode(',', $values);
-                            
+                        }
+
+                        $value = implode(',', $values);    
                     }
                     break;
+
                 default:
             }
 
             Configuration::updateValue($key, $value);
-   
         }
     }
 
@@ -460,7 +505,7 @@ class Lemonway extends PaymentModule
         }
         
         foreach (self::$subMethods as $methodCode=>$method){
-            if(((bool)Tools::isSubmit('submitLemonwayMethodConfig_' . Tools::strtoupper($methodCode))) == true){
+            if (((bool)Tools::isSubmit('submitLemonwayMethodConfig_' . Tools::strtoupper($methodCode))) == true) {
                 $this->postProcess($methodCode);
             }
         }
@@ -470,13 +515,17 @@ class Lemonway extends PaymentModule
         $this->context->smarty->assign('api_configuration_form', $this->renderForm('API'));
         
         $methodForms = array();
-        foreach (self::$subMethods as $methodCode=>$method){
+        foreach (self::$subMethods as $methodCode=>$method) {
             $configurationKey = $methodCode;
-            $methodForms[$methodCode] = array('form'=> $this->renderForm($configurationKey),'title'=>$this->l($method['title']));
+            $methodForms[$methodCode] = array(
+                'form'=> $this->renderForm($configurationKey),
+                'title'=>$this->l($method['title'])
+            );
             
             //$this->context->smarty->assign($configurationKey.'_form', $this->renderForm($configurationKey));
         }
-        $this->context->smarty->assign('methodForms',$methodForms);
+
+        $this->context->smarty->assign('methodForms', $methodForms);
         
         $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/configure.tpl');
 
@@ -526,19 +575,19 @@ class Lemonway extends PaymentModule
                 $splitpaymentProfiles = $this->getSplitpaymentProfiles();
                 $baseFrom = $this->getBaseMethodCcConfigForm($type);
                 $fieldPaymentProfile = array(
-                    'type'=>'checkbox',
-                    'label'=>$this->l('Split Payment profile'),
-                    'desc'=> $this->l('Choose split payment to show in front'),
-                    'name'=>'LEMONWAY_CC_XTIMES_SPLITPAYMENTS',
-                    'values'=>array(
-                        'query'=>$splitpaymentProfiles,
-                        'id'=>'id_profile',
-                        'name'=>'name'
+                    'type' => 'checkbox',
+                    'label' => $this->l('Split Payment profile'),
+                    'desc' => $this->l('Choose split payment to show in front'),
+                    'name' => 'LEMONWAY_CC_XTIMES_SPLITPAYMENTS',
+                    'values' => array(
+                        'query' => $splitpaymentProfiles,
+                        'id' => 'id_profile',
+                        'name' => 'name'
                     ),
-                    'expand'=>array(
-                            'print_total'=>count($splitpaymentProfiles),
-                            'default'=>'hide',
-                            'show'=> array('text' => $this->l('show'), 'icon' => 'plus-sign-alt'),
+                    'expand' => array(
+                            'print_total' => count($splitpaymentProfiles),
+                            'default' => 'hide',
+                            'show' => array('text' => $this->l('show'), 'icon' => 'plus-sign-alt'),
                             'hide' => array('text' => $this->l('hide'), 'icon' => 'minus-sign-alt')
                     )
                 );
@@ -550,13 +599,20 @@ class Lemonway extends PaymentModule
                 
                 //Create description
                 $cronUrl  = $this->context->link->getModuleLink('lemonway', 'cron', array(), true);
-                $description = $this->l('To use split payment, you need to schedule a cron task to perform a request on ') . sprintf('<a href="%s">%s</a>', $cronUrl, $cronUrl) . '<br/>';
-                $description .= sprintf('E.g: "0 1 * * * wget <a href="%s">%s</a>". ', $cronUrl, $cronUrl) . $this->l('Execute a request every day at 1h00');
+                $description =
+                    $this->l('To use split payment, you need to schedule a cron task to perform a request on ') .
+                    sprintf('<a href="%s">%s</a>', $cronUrl, $cronUrl) . '<br/>';
+                $description .= sprintf('E.g: "0 1 * * * wget <a href="%s">%s</a>". ', $cronUrl, $cronUrl) .
+                    $this->l('Execute a request every day at 1h00');
                 $baseFrom['form'] = array('description' => $description) + $baseFrom['form'];
                 
-                if(!count($splitpaymentProfiles)){
+                if (!count($splitpaymentProfiles)) {
                     $adminSplitPaymentTabUrl = $this->context->link->getAdminLink('AdminSplitpaymentProfile', true);
-                    $warningMessage = sprintf('<a href="%s">'.$this->l('To use this method you need to create a split payment profile').'</a>',$adminSplitPaymentTabUrl);
+                    $warningMessage = sprintf(
+                        '<a href="%s">' .
+                            $this->l('To use this method you need to create a split payment profile') .
+                            '</a>',
+                        $adminSplitPaymentTabUrl);
                     $baseFrom['form'] = array('warning' => $warningMessage) + $baseFrom['form'];
                 }
 
@@ -565,17 +621,16 @@ class Lemonway extends PaymentModule
                 ));
                 
                 break;
+
             default:
                 $form = $helper->generateForm(array($this->getBaseMethodConfigForm($type)));
-                
         }
         
         return $form;
-
     }
     
-    protected function getBaseMethodCcConfigForm($methodCode) {
-        
+    protected function getBaseMethodCcConfigForm($methodCode)
+    {
         $methodCode = Tools::strtoupper($methodCode);
         $container = $this->getBaseMethodConfigForm($methodCode);
         
@@ -604,25 +659,25 @@ class Lemonway extends PaymentModule
         //Switch type not exists
         if (version_compare(_PS_VERSION_, "1.6.0.0") == -1) {
             $switch = array(
-                    'type' => 'select',
-                    'label' => $this->l('Enable Oneclic'),
-                    'name' => 'LEMONWAY_' . $methodCode . '_ONECLIC_ENABLED',
-                    'is_bool' => true,
-                    'desc' => $this->l('Display oneclic form on payment step'),
-                    'options' => array(
-                            'query' => array(
-                                    array(
-                                            'id' => 1,
-                                            'label' => $this->l('Enabled')
-                                    ),
-                                    array(
-                                            'id' => 0,
-                                            'label' => $this->l('Disabled')
-                                    )
-                            ),
-                            'id' => 'id',
-                            'name' => 'label'
+                'type' => 'select',
+                'label' => $this->l('Enable Oneclic'),
+                'name' => 'LEMONWAY_' . $methodCode . '_ONECLIC_ENABLED',
+                'is_bool' => true,
+                'desc' => $this->l('Display oneclic form on payment step'),
+                'options' => array(
+                    'query' => array(
+                        array(
+                                'id' => 1,
+                                'label' => $this->l('Enabled')
+                        ),
+                        array(
+                                'id' => 0,
+                                'label' => $this->l('Disabled')
+                        )
                     ),
+                    'id' => 'id',
+                    'name' => 'label'
+                ),
             );
         }
         
@@ -630,7 +685,6 @@ class Lemonway extends PaymentModule
         
         return $container;
     }
-    
     
     /**
     * Create the structure of api informations form.
@@ -733,14 +787,16 @@ class Lemonway extends PaymentModule
                         'col' => 3,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-user"></i>',
-                        'desc' => "<a href='https://www.lemonway.com/ecommerce' target='_blank'>" . $this->l('Create account') . "</a>",
+                        'desc' => "<a href='https://www.lemonway.com/ecommerce' target='_blank'>" .
+                            $this->l('Create account') . "</a>",
                         'name' => 'LEMONWAY_API_LOGIN',
                         'label' => $this->l('Login'),
                     ),
                     array(
                         'col' => 3,
                         'type' => 'password',
-                        'desc' => "<a href='" . $this->l('https://ecommerce.lemonway.com/en/seller/lost-password') . "' target='_blank'>" . $this->l('Forgotten password?') . "</a>",
+                        'desc' => "<a href='" . $this->l('https://ecommerce.lemonway.com/en/seller/lost-password') .
+                            "' target='_blank'>" . $this->l('Forgotten password?') . "</a>",
                         'name' => 'LEMONWAY_API_PASSWORD',
                         'label' => $this->l('Password'),
                     ),
@@ -842,18 +898,22 @@ class Lemonway extends PaymentModule
         return array($form_config,$form_config_advanced);
     }
     
-    public function getSplitpaymentProfiles(){
-        if(is_null($this->splitpaymentProfiles)){
+    public function getSplitpaymentProfiles()
+    {
+        if (is_null($this->splitpaymentProfiles)) {
             $this->splitpaymentProfiles = SplitpaymentProfile::getProfiles();
         }
+
         return $this->splitpaymentProfiles;
     }
     
-    public function methodFactory($methodCode){
+    public function methodFactory($methodCode)
+    {
         return self::methodInstanceFactory($methodCode);
     }
     
-    public static function methodInstanceFactory($methodCode){
+    public static function methodInstanceFactory($methodCode)
+    {
         //Create method instance and return it
         $methodClassName =  self::$subMethods[$methodCode]['classname'];
         return new $methodClassName();
@@ -915,7 +975,6 @@ class Lemonway extends PaymentModule
      */
     public function hookPaymentOptions($params)
     {
-
         $options = array();
 
         foreach (self::$subMethods as $method) {
@@ -924,12 +983,10 @@ class Lemonway extends PaymentModule
         
             //Check if method is enbaled
             if ($methodInstance->isValid()) {
-                
                 $this->context->smarty->assign(array(
                         'module_dir' => $this->_path,
                         'method'=>$methodInstance,
                         'open_basedir' => (ini_get('open_basedir') == '') ? "1" : "0"
-                
                 ));
                 
                 /*$inputs = array(
@@ -974,7 +1031,7 @@ class Lemonway extends PaymentModule
             'id_order' => $order->id,
             'reference' => $order->reference,
             'params' => $params,
-            'total' => Tools::displayPrice($total_to_pay,$currency, false),
+            'total' => Tools::displayPrice($total_to_pay, $currency, false),
         ));
 
         return $this->getHookPaymentReturnOutput();
@@ -982,8 +1039,9 @@ class Lemonway extends PaymentModule
     
     public function getHookPaymentReturnOutput()
     {
-        if($this->isVersion17())
+        if ($this->isVersion17()) {
             return $this->fetch('module:' . $this->name . '/views/templates/hook/confirmation.tpl');
+        }
         
         return $this->display(__FILE__, 'views/templates/hook/confirmation.tpl');
     }
@@ -996,8 +1054,8 @@ class Lemonway extends PaymentModule
     {
         $list = &$params['list'];
 
-        foreach ($list as $index=>$tr){
-            switch ($tr['status']){
+        foreach ($list as $index=>$tr) {
+            switch ($tr['status']) {
                 case "failed":
                     $list[$index]['color'] = 'red';
                     break;
@@ -1109,8 +1167,7 @@ class Lemonway extends PaymentModule
         }
 
         throw new Exception($this->l("Cart not found!"), 406);
-    } 
-    
+    }
     
     public function ajaxPlaceOrder()
     {
@@ -1191,6 +1248,6 @@ class Lemonway extends PaymentModule
     
     public function isVersion17()
     {
-        return (bool)version_compare(_PS_VERSION_ , '1.7', '>=');
+        return (bool)version_compare(_PS_VERSION_, '1.7', '>=');
     }
 }
