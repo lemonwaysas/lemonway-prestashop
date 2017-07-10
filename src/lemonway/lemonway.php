@@ -345,43 +345,40 @@ class Lemonway extends PaymentModule
 
         switch ($formCode) {
             case 'API':
-                return array(
+                return [
                 'LEMONWAY_API_LOGIN' => Configuration::get('LEMONWAY_API_LOGIN', null),
                 'LEMONWAY_API_PASSWORD' => Configuration::get('LEMONWAY_API_PASSWORD', null),
                 'LEMONWAY_MERCHANT_ID' => Configuration::get('LEMONWAY_MERCHANT_ID', null),
                 'CUSTOM_ENVIRONMENT_NAME' => Configuration::get('CUSTOM_ENVIRONMENT_NAME', null),
                 'LEMONWAY_IS_TEST_MODE' => Configuration::get('LEMONWAY_IS_TEST_MODE', null),
                 'LEMONWAY_CSS_URL' => Configuration::get('LEMONWAY_CSS_URL', null)
-                );
-                break;
+                ];
 
             case 'CC_XTIMES':
                 //Manage checkboxes splitpayment profiles
-                $splitpaymentIds = explode(',',Configuration::get('LEMONWAY_' . $formCode . '_SPLITPAYMENTS',''));
-                $splitpaymentFormValues = array();
+                $splitpaymentIds = explode(',', Configuration::get('LEMONWAY_' . $formCode . '_SPLITPAYMENTS',''));
+                $splitpaymentFormValues = [];
                 if(count($splitpaymentIds)){
                     foreach ($splitpaymentIds as $id){
                         $splitpaymentFormValues['LEMONWAY_' . $formCode . '_SPLITPAYMENTS_' . $id] = $id;
                     }
                 }
                 
-                return array_merge( array(
+                return array_merge([
+                    'LEMONWAY_' . $formCode . '_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ENABLED', null),
+                    'LEMONWAY_' . $formCode . '_TITLE' => Configuration::get('LEMONWAY_' . $formCode . '_TITLE', self::$subMethods[$formCode]['title']),
+                    'LEMONWAY_' . $formCode . '_ONECLIC_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ONECLIC_ENABLED', null),
+                    'LEMONWAY_' . $formCode . '_SPLITPAYMENTS' =>   Configuration::get('LEMONWAY_' . $formCode . '_SPLITPAYMENTS', '')             
+                ], $splitpaymentFormValues);
+
+            default:
+                return [
+                    //CREDIT CARD
                     'LEMONWAY_' . $formCode . '_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ENABLED',null),
                     'LEMONWAY_' . $formCode . '_TITLE' => Configuration::get('LEMONWAY_' . $formCode . '_TITLE',self::$subMethods[$formCode]['title']),
-                    'LEMONWAY_' . $formCode . '_ONECLIC_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ONECLIC_ENABLED', null),
-                    'LEMONWAY_' . $formCode . '_SPLITPAYMENTS' =>   Configuration::get('LEMONWAY_' . $formCode . '_SPLITPAYMENTS',''),              
-                ),$splitpaymentFormValues);
-                break;
-            default:
-                return array(
-                //CREDIT CARD
-                'LEMONWAY_' . $formCode . '_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ENABLED',null),
-                'LEMONWAY_' . $formCode . '_TITLE' => Configuration::get('LEMONWAY_' . $formCode . '_TITLE',self::$subMethods[$formCode]['title']),
-                'LEMONWAY_' . $formCode . '_ONECLIC_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ONECLIC_ENABLED', null),
-
-                );
+                    'LEMONWAY_' . $formCode . '_ONECLIC_ENABLED' => Configuration::get('LEMONWAY_' . $formCode . '_ONECLIC_ENABLED', null)
+                ];
         }
-
     }
     
     /**
@@ -890,7 +887,7 @@ class Lemonway extends PaymentModule
     * This method is used to render the payment button,
     * Take care if the button should be displayed or not.
     */
-    public function hookPayment($params)
+    /*public function hookPayment($params)
     {
         $methodsEnabled = array();
 
@@ -911,7 +908,7 @@ class Lemonway extends PaymentModule
         ));
 
         return $this->display(__FILE__, 'views/templates/hook/payment.tpl');
-    }
+    }*/
     
     /**
      * This hook is used to pass options to payment method in version >= 1.7
@@ -928,19 +925,19 @@ class Lemonway extends PaymentModule
             //Check if method is enbaled
             if ($methodInstance->isValid()) {
                 
-                $this->context->smarty->assign(array(
+                $this->context->smarty->assign([
                         'module_dir' => $this->_path,
                         'method'=>$methodInstance,
                         'open_basedir' => (ini_get('open_basedir') == '') ? "1" : "0"
                 
-                ));
+                ]);
                 
-                $inputs = array(
+                /*$inputs = array(
                             'method_code' => array(
                                         'name' =>'method_code',
                                         'type' =>'hidden',
                                         'value' =>$methodInstance->getCode(),
-                            ));
+                            ));*/
                 
                 $newOption = new PrestaShop\PrestaShop\Core\Payment\PaymentOption();
                 $newOption

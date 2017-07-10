@@ -85,7 +85,7 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_splitpayment_profile'] = array(
                 'href' => self::$currentIndex . '&addlemonway_splitpayment_profile&token=' . $this->token,
-                'desc' => $this->l('Add Splitpayment profile', null, null, false),
+                'desc' => $this->l('Add Splitpayment profile'),
                 'icon' => 'process-icon-new'
             );
         }
@@ -112,12 +112,12 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
 
         if ($this->display == 'add') {
             $this->toolbar_title = array();
-            $this->toolbar_title[] = $this->l('New split payment profile', null, null, false);
-            $this->addMetaTitle($this->l('New split payment profile', null, null, false));
+            $this->toolbar_title[] = $this->l('New split payment profile');
+            $this->addMetaTitle($this->l('New split payment profile'));
         } else {
             $this->toolbar_title = array();
             $this->toolbar_title[] = $this->l('Split payment profiles');
-            $this->addMetaTitle($this->l('Split payment profiles', null, null, false));
+            $this->addMetaTitle($this->l('Split payment profiles'));
         }
     }
 
@@ -274,7 +274,7 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
     }
 
 
-    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
+    protected function l($string)
     {
         $module = Module::getInstanceByName('lemonway');
         return $module->l($string, 'ADMINSPLITPAYMENTPROFILECONTROLLER');

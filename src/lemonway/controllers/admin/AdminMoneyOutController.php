@@ -110,7 +110,7 @@ class AdminMoneyOutController extends ModuleAdminController
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_moneyout'] = array(
                 'href' => self::$currentIndex . '&addlemonway_moneyout&token=' . $this->token,
-                'desc' => $this->l('Do new Money out', null, null, false),
+                'desc' => $this->l('Do new Money out'),
                 'icon' => 'process-icon-new'
             );
         }
@@ -137,12 +137,12 @@ class AdminMoneyOutController extends ModuleAdminController
 
         if ($this->display == 'add') {
             $this->toolbar_title = array();
-            $this->toolbar_title[] = $this->l('Do a Money out', null, null, false);
-            $this->addMetaTitle($this->l('Do a Money out', null, null, false));
+            $this->toolbar_title[] = $this->l('Do a Money out');
+            $this->addMetaTitle($this->l('Do a Money out'));
         } else {
             $this->toolbar_title = array();
             $this->toolbar_title[] = $this->l('Money outs');
-            $this->addMetaTitle($this->l('Money outs', null, null, false));
+            $this->addMetaTitle($this->l('Money outs'));
         }
     }
 
@@ -395,7 +395,7 @@ class AdminMoneyOutController extends ModuleAdminController
         return $this->walletDetails;
     }
 
-    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
+    protected function l($string)
     {
         $module = Module::getInstanceByName('lemonway');
         return $module->l($string, 'ADMINMONEYOUTCONTROLLER');

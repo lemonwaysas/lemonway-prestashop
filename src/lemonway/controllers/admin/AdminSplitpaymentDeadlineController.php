@@ -142,7 +142,7 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
             $this->page_header_toolbar_btn['pay_now'] = array(
                 //'href' => self::$currentIndex.'&addlemonway_moneyout&token=' . $this->token,
                 'href' => self::$currentIndex . '&action=pay_now&' . $this->identifier . '=' . $this->object->id . '&token=' . $this->token,
-                'desc' => $this->l('Pay now', null, null, false),
+                'desc' => $this->l('Pay now'),
                 'icon' => 'process-icon-payment'
             );
         }
@@ -159,7 +159,7 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
 
         $this->toolbar_title = array();
         $this->toolbar_title[] = $this->l('Split payment deadlines');
-        $this->addMetaTitle($this->l('Split payment deadlines', null, null, false));
+        $this->addMetaTitle($this->l('Split payment deadlines'));
 
         /*  if ($this->display == 'edit') {
              $this->toolbar_title = array();
@@ -276,7 +276,7 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
         $this->addJS(_PS_MODULE_DIR_ . $this->module->name . "/views/js/back.js");
     }
 
-    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
+    protected function l($string)
     {
         $module = Module::getInstanceByName('lemonway');
         return $module->l($string, 'ADMINSPLITPAYMENTDEADLINECONTROLLER');

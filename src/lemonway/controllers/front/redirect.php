@@ -340,8 +340,6 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                                     'index.php?controller=order-confirmation&id_cart=' . $cart->id
                                     . '&id_module=' . $module_id . '&id_order=' . $order_id . '&key='. $secure_key
                                     );
-                    
-                            break;
                         } else {
                             $this->addError($op->MSG);
                             return $this->displayError();
