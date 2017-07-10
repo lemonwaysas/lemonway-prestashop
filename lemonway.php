@@ -115,7 +115,8 @@ class Lemonway extends PaymentModule
         parent::__construct();
 
         $this->displayName = $this->l('Lemon Way for E-commerce');
-        $this->description = $this->l('A one minute integration for the cheapest payment solution in Europe. Accept payment by credit cards from all around the world.');
+        $this->description = $this->l('A one minute integration for the cheapest payment solution in Europe.') . ' ' .
+            $this->l('Accept payment by credit cards from all around the world.');
 
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall? You will lose your datas!');
         
@@ -883,7 +884,8 @@ class Lemonway extends PaymentModule
                         'name' => 'LEMONWAY_CSS_URL',
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-css3"></i>',
-                        'desc' => $this->l('Customise the stylesheet of the payment page (Notice: If your website is in https, the CSS URL has to be in https too)'),
+                        'desc' => $this->l('Customise the stylesheet of the payment page') . " " .
+                            $this->l('(Notice: If your website is in https, the CSS URL has to be in https too)'),
                     ),
                     array(
                         'col' => 3,
