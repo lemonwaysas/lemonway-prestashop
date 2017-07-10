@@ -117,7 +117,7 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
         return Tools::displayPrice($amount, (int) $order->id_currency);
     }
 
-    public static function setMethodTitle($methodCode, $tr)
+    public static function setMethodTitle($methodCode)
     {
         $methodInstance = Lemonway::methodInstanceFactory($methodCode);
         return $methodInstance->getTitle();
