@@ -30,30 +30,6 @@ If you want to do any changes follow this steps:
   
 6. Finally, send pull request
 
-### Build Prestashop package
-
-You can easily build Prestashop package with composer.  
-If you don't have composer see: https://getcomposer.org/.  
-The following example take in consideration you have command `composer` available in your PATH environment.  
-Instead you can use `composer.phar` directly but it is less convenient.  
-`zip` command is also required.
-
-**IMPORTANT**: For now, make sure you are in master branch (`$ git checkout master`)
-
-1.  Install dependencies
-  In project's root run:
-  ```
-  $ composer install
-  ```
-
-2.  Build package
-  ```
-  $ composer package
-  ```
-
-  If build package is successful you can see *zip file* in `dist/`.
-
-
 ## Wiki
 ---
 You can find some informations about installation, configuration and how to use this module in [Wiki](https://github.com/lemonwaysas/prestashop-lemonway-plugin/wiki).
