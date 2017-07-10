@@ -115,13 +115,9 @@ class Lemonway extends PaymentModule
         parent::__construct();
 
         $this->displayName = $this->l('Lemon Way for E-commerce');
-        $this->description = $this->l('A one minute integration for the cheapest payment solution in Europe.') . ' ' .
-            $this->l('Accept payment by credit cards from all around the world.');
-
+        $this->description = $this->l('A one minute integration for the cheapest payment solution in Europe. Accept payment by credit cards from all around the world.');
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall? You will lose your datas!');
-        
         $this->limited_countries = array();
-        
         $this->local_path = _PS_MODULE_DIR_ . $this->name . '/';
         
         /* Backward compatibility */

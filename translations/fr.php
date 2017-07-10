@@ -3,8 +3,7 @@
 global $_MODULE;
 $_MODULE = array();
 $_MODULE['<{lemonway}prestashop>lemonway_dd20016d9fa14f2b1bf8294d1b7d88fe'] = 'Lemon Way for E-commerce';
-$_MODULE['<{lemonway}prestashop>lemonway_8bbb4fb1a64467c134b63d5ccce6eac1'] = 'Intégrez en 1 minute la solution de paiement la moins chère d’Europe.';
-$_MODULE['<{lemonway}prestashop>lemonway_3dff16c9ab53850105b908f5ef7c1399'] = ' Acceptez les paiements par carte bancaire du monde entier.';
+$_MODULE['<{lemonway}prestashop>lemonway_cc9c0f0ebace3fd25c1e230901c77dfd'] = 'Intégrez en 1 minute la solution de paiement la moins chère d’Europe.  Acceptez les paiements par carte bancaire du monde entier.';
 $_MODULE['<{lemonway}prestashop>lemonway_9042fdbe33e275d7b2807cfb3ab12fcc'] = ' Êtes-vous sûr de vouloir désinstaller ? Vous perdrez vos données !';
 $_MODULE['<{lemonway}prestashop>lemonway_92d4773a9f32fc3333cb8238471cf763'] = 'Vous devez activer l\'extension cURL pour installer ce module.';
 $_MODULE['<{lemonway}prestashop>lemonway_c185518b409ba74234863187c8f1128c'] = 'Profile de paiement en plusieurs fois';
