@@ -579,7 +579,7 @@ class Lemonway extends PaymentModule
                 $fieldPaymentProfile = array(
                     'type' => 'checkbox',
                     'label' => $this->l('Split Payment profile'),
-                    'desc' => $this->l('Choose split payment to show in front'),
+                    'desc' => $this->l('Choose split payment to show in front') . "<br/>" . sprintf('<a href="%s">%s</a>', $adminSplitPaymentTabUrl, $this->l('Create a split payment profile')),
                     'name' => 'LEMONWAY_CC_XTIMES_SPLITPAYMENTS',
                     'values' => array(
                         'query' => $splitpaymentProfiles,
@@ -605,15 +605,15 @@ class Lemonway extends PaymentModule
                     $this->l('To use split payment, you need to schedule a cron task to perform a request on ') .
                     sprintf('<a href="%s">%s</a>', $cronUrl, $cronUrl) . '<br/>';
                 $description .= sprintf('E.g: "0 1 * * * wget <a href="%s">%s</a>". ', $cronUrl, $cronUrl) .
-                    $this->l('Execute a request every day at 1h00');
+                    $this->l('Execute a request every day at 01h00');
                 $baseFrom['form'] = array('description' => $description) + $baseFrom['form'];
                 
                 if (!count($splitpaymentProfiles)) {
                     $adminSplitPaymentTabUrl = $this->context->link->getAdminLink('AdminSplitpaymentProfile', true);
                     $warningMessage = sprintf(
                         '<a href="%s">' .
-                            $this->l('To use this method you need to create a split payment profile') .
-                            '</a>',
+                            $this->l('Create a split payment profile') .
+                        '</a>',
                         $adminSplitPaymentTabUrl
                     );
                     $baseFrom['form'] = array('warning' => $warningMessage) + $baseFrom['form'];
