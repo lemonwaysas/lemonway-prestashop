@@ -118,7 +118,7 @@ $_MODULE['<{lemonway}prestashop>about_us_6280c2f0c69a84ffe2735621c512fd85'] = 'F
 $_MODULE['<{lemonway}prestashop>about_us_6a78686ddee061140683699ffdb50475'] = 'Sortez vos fonds quand le vous le souhaitez sans limite de temps ni de montant.';
 $_MODULE['<{lemonway}prestashop>about_us_9e41e9ce1c9cdbe09a59376e725152e8'] = 'Pour plus d’informations, contactez-nous :';
 $_MODULE['<{lemonway}prestashop>about_us_e81c4e4f2b7b93b481e13a8553c2ae1b'] = 'ou';
-$_MODULE['<{lemonway}prestashop>configure_cf23ee279844016288ea1c076638f3be'] = 'A propos';
+$_MODULE['<{lemonway}prestashop>configure_cf23ee279844016288ea1c076638f3be'] = 'À propos';
 $_MODULE['<{lemonway}prestashop>configure_886beff3dde0a8c541ec248f48fdd52a'] = 'CONFIGURATION DE VOTRE COMPTE';
 $_MODULE['<{lemonway}prestashop>wallet_infos_d6a0bc72fe7314bf9e5a823476464f35'] = 'Porteur du wallet';
 $_MODULE['<{lemonway}prestashop>wallet_infos_156e132b014314b1eae89410e54bcc8c'] = 'Wallet';
@@ -126,6 +126,7 @@ $_MODULE['<{lemonway}prestashop>wallet_infos_99a808d8d16122d70e44bd7f709d30fb'] 
 $_MODULE['<{lemonway}prestashop>wallet_infos_ec53a8c4f07baed5d8825072c89799be'] = 'Statut';
 $_MODULE['<{lemonway}prestashop>wallet_infos_053c435ea18cd85bc90a3eb7edaab16e'] = 'Ibans';
 $_MODULE['<{lemonway}prestashop>error_a25c753ee3e4be15ec0daa5a40deb7b8'] = 'Une erreur est survenue';
+$_MODULE['<{lemonway}prestashop>17_creditcard_1b54d8dd4f6de3ae790091241435f4dd'] = 'Profil de paiement :';
 $_MODULE['<{lemonway}prestashop>17_creditcard_904475ebb7ed5c70472a8a3fcee54fc5'] = 'Sélectionnez un paiement en plusieurs fois';
 $_MODULE['<{lemonway}prestashop>17_creditcard_750e377952b9c7d934d1ccb5e7ac15de'] = 'Aucun paiement en plusieurs fois. Votre commande sera payer en une fois.';
 $_MODULE['<{lemonway}prestashop>17_creditcard_5095362d82d1a866726367cc26af82aa'] = 'Vos prochaines échéances';
@@ -139,6 +140,7 @@ $_MODULE['<{lemonway}prestashop>17_creditcard_8c1279db4db86553e4b9682f78cf500e']
 $_MODULE['<{lemonway}prestashop>17_creditcard_4e20e79a875785545757b7ee3bc34087'] = 'Enregistrer une nouvelle empreinte de carte';
 $_MODULE['<{lemonway}prestashop>17_creditcard_b8b4087d7d5f84a425f9f408be045b87'] = 'Ne pas utiliser de carte enregistrée';
 $_MODULE['<{lemonway}prestashop>check_334485fe66d62906a68016c4aac7d248'] = 'Payez par chèque';
+$_MODULE['<{lemonway}prestashop>creditcard_1b54d8dd4f6de3ae790091241435f4dd'] = 'Profil de paiement :';
 $_MODULE['<{lemonway}prestashop>creditcard_904475ebb7ed5c70472a8a3fcee54fc5'] = 'Sélectionnez un paiement en plusieurs fois';
 $_MODULE['<{lemonway}prestashop>creditcard_750e377952b9c7d934d1ccb5e7ac15de'] = 'Aucun paiement en plusieurs fois. Votre commande sera payer en une fois.';
 $_MODULE['<{lemonway}prestashop>creditcard_5095362d82d1a866726367cc26af82aa'] = 'Vos prochaines échéances';
