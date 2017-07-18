@@ -222,7 +222,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     /*curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); */
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-                    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+                    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !Configuration::get('LEMONWAY_IS_TEST_MODE', false));
                     
                     //curl_exec($ch);
