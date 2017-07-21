@@ -32,7 +32,7 @@ class LemonWayConfig
     const LEMONWAY_WEBKIT_FORMAT_URL_PROD = 'https://webkit.lemonway.fr/mb/%s/prod';
     const LEMONWAY_WEBKIT_FORMAT_URL_TEST = 'https://sandbox-webkit.lemonway.fr/%s/dev';
 
-    public static function getEvironmentName()
+    private static function getEvironmentName()
     {
         $env_name = Configuration::get('CUSTOM_ENVIRONMENT_NAME', null);
 
