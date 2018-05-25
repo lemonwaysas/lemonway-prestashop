@@ -83,7 +83,7 @@ class LemonWayKit
         return $res;
     }
 
-    public function getWalletDetails($params)
+    public static function getWalletDetails($params)
     {
         $res = self::sendRequest('GetWalletDetails', $params, '1.5');
 
@@ -106,6 +106,7 @@ class LemonWayKit
 
     public function moneyInWebInit($params)
     {
+
         return self::sendRequest('MoneyInWebInit', $params, '1.3');
     }
 
@@ -358,107 +359,74 @@ class LemonWayKit
             $ip = $_SERVER['REMOTE_ADDR'];
         }
 
-        $xml_soap = '<?xml version="1.0" encoding="utf-8"?><soap12:Envelope xmlns:xsi=
-        "http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12=
-        "http://www.w3.org/2003/05/soap-envelope"><soap12:Body><' . $methodName . ' xmlns="Service_mb_xml">';
+        $baseParams = array(
+            'wlLogin' => $accessConfig['wlLogin'],
+            'wlPass' => $accessConfig['wlPass'],
+            'language' => 'fr',
+            'version' => $version,
+            'walletIp' => $ip,
+            'walletUa' => $ua,
+        );
 
-        foreach ($params as $key => $value) {
-            $xml_soap .= '<' . $key . '>' . $this->cleanRequest($value) . '</' . $key . '>';
-        }
+        $requestParams = array_merge($baseParams, $params);
+        $requestParams = array('p' => $requestParams);
 
-        $xml_soap .= '<version>' . $version . '</version>';
-        $xml_soap .= '<wlPass>' . $this->cleanRequest($accessConfig['wlPass']) . '</wlPass>';
-        $xml_soap .= '<wlLogin>' . $this->cleanRequest($accessConfig['wlLogin']) . '</wlLogin>';
-        $xml_soap .= '<language>' . $accessConfig['language'] . '</language>';
-        $xml_soap .= '<walletIp>' . $ip . '</walletIp>';
-        $xml_soap .= '<walletUa>' . $ua . '</walletUa>';
-
-        $xml_soap .= '</' . $methodName . '></soap12:Body></soap12:Envelope>';
-        self::printDirectkitInput($xml_soap);
 
         $headers = array(
-            "Content-type: text/xml;charset=utf-8",
-            "Accept: application/xml",
+            "Content-type: application/json; charset=utf-8",
+            "Accept: application/json",
             "Cache-Control: no-cache",
-            "Pragma: no-cache",
-            'SOAPAction: "Service_mb_xml/' . $methodName . '"',
-            "Content-length: " . Tools::strlen($xml_soap)
+            "Pragma: no-cache"
         );
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $accessConfig['directKitUrl']);
+        curl_setopt($ch, CURLOPT_URL, $accessConfig['directKitUrl'] . '/' . $methodName);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml_soap);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestParams));
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$accessConfig['isTestMode']);
-
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $response = curl_exec($ch);
 
         if (curl_errno($ch)) {
             throw new Exception(curl_error($ch));
         } else {
-            $returnCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            $responseCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-            switch ($returnCode) {
+            switch ($responseCode) {
                 case 200:
-                    //General parsing
-                    //Cleanup XML
-                    $response = (string) str_replace(
-                        '<?xml version="1.0" encoding="utf-8"?>' .
-                        '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" ' .
-                        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' .
-                        'xmlns:xsd="http://www.w3.org/2001/XMLSchema">',
-                        '',
-                        $response
-                    );
-                    $response = (string) str_replace('</soap:Envelope>', '', $response);
-                    libxml_use_internal_errors(true);
-                    $xml = new \SimpleXMLElement($response);
-
-                    //Retrieve result
-                    $content = '';
-
-                    switch ($methodName) {
-                        case 'UnregisterSddMandate':
-                            $content = $xml->{$methodName . 'Response'}->{'UnRegisterSddMandateResult'};
-                            break;
-
-                        case 'MoneyInWithCardId':
-                            $content = $xml->{$methodName . 'Response'}->{'MoneyInResult'};
-                            break;
-
-                        default:
-                            $content = $xml->{$methodName . 'Response'}->{$methodName . 'Result'};
-                            break;
-                    }
-
-                    return new ApiResponse($content);
-
+                    break;
                 case 400:
-                    throw new Exception("Bad Request: The server cannot or will not process the request due to something
-                     that is perceived to be a client error", 400);
-
+                    $message = "Bad Request : The server cannot or will not process the request due to something that is perceived to be a client error";
+                    break;
                 case 403:
-                    throw new Exception("IP is not allowed to access Lemon Way's API,
-                        please contact support@lemonway.fr", 403);
-
+                    $message = "IP is not allowed to access Lemon Way's API, please contact support@lemonway.fr";
+                    break;
                 case 404:
-                    throw new Exception("Check that the access URLs are correct. If yes,
-                        please contact support@lemonway.fr", 404);
-
+                    $message = "Check that the access URLs are correct. If yes, please contact support@lemonway.fr";
+                    break;
                 case 500:
-                    throw new Exception("Lemon Way internal server error, please contact support@lemonway.fr", 500);
-
+                    $message = "Lemon Way internal server error, please contact support@lemonway.fr";
+                    break;
                 default:
+                    sprintf("HTTP CODE %d IS NOT SUPPORTED", $responseCode);
                     break;
             }
 
-            throw new Exception("HTTP CODE IS NOT SUPPORTED ", $returnCode);
+            if ($responseCode == 200) {
+                //General parsing
+                $response = json_decode($response);
+                //Check error
+                if (isset($response->d->E)) {
+                    throw new Exception($response->d->E->Msg . " (Error code: " . $response->d->E->Code . ")");
+                }
+                return $response->d;
+            }
         }
+        curl_close($ch);
     }
 
     public function printCardForm($moneyInToken, $cssUrl = '', $language = 'en')

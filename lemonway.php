@@ -261,7 +261,7 @@ class Lemonway extends PaymentModule
         //API CONFIGURATION
         Configuration::updateValue('LEMONWAY_API_LOGIN', '');
         Configuration::updateValue('LEMONWAY_API_PASSWORD', '');
-        Configuration::updateValue('LEMONWAY_MERCHANT_ID', '');
+        Configuration::updateValue('LEMONWAY_MERCHANT_ID', LemonWayConfig::getWalletMerchantId());
         Configuration::updateValue('CUSTOM_ENVIRONMENT_NAME', '');
         Configuration::updateValue('LEMONWAY_IS_TEST_MODE', false);
         
@@ -576,6 +576,7 @@ class Lemonway extends PaymentModule
             case 'CC_XTIMES':
                 $splitpaymentProfiles = $this->getSplitpaymentProfiles();
                 $baseFrom = $this->getBaseMethodCcConfigForm($type);
+                $adminSplitPaymentTabUrl = $this->context->link->getAdminLink('AdminSplitpaymentProfile', true);
                 $fieldPaymentProfile = array(
                     'type' => 'checkbox',
                     'label' => $this->l('Split Payment profile'),

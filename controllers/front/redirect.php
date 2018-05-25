@@ -81,11 +81,11 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
         $amountTotRaw = $cart->getOrderTotal(true, 3);
         $amountTot = number_format((float)$amountTotRaw, 2, '.', '');
-        
+
         $autocommission = LemonWayConfig::is4EcommerceMode() ? 0 : 1;
-       
+
         $methodCode = Tools::getValue('method_code');
-        
+
         try {
             /* @var $methodInstance Method */
             $methodInstance = $this->module->methodFactory($methodCode);
@@ -93,7 +93,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             $this->addError('Payment method is not allowed');
             return $this->displayError();
         }
-        
+
         if (!$methodInstance->isAllowed()) {
             $this->addError('Payment method is not allowed');
             return $this->displayError();
@@ -113,7 +113,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             if ($profile) {
                 $splitpayments = $profile->splitPaymentAmount($amountTotRaw);
                 $firstSplit = $splitpayments[0];
-                $amountTot = number_format((float) $firstSplit['amountToPay'], 2, '.', '');
+                $amountTot = number_format((float)$firstSplit['amountToPay'], 2, '.', '');
 
                 //Add prodile Id to base callbackparamters
                 $baseCallbackParams['splitpayment_profile_id'] = $splitPaypentProfileId;
@@ -124,7 +124,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         }
 
         $returnlCallbackParams = array_merge($baseCallbackParams, array(
-            'register_card' => (int) $this->registerCard(),
+            'register_card' => (int)$this->registerCard(),
             'action' => 'return'
         ));
 
@@ -164,8 +164,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     true
                 )),
                 'autoCommission' => $autocommission,
-                'registerCard' => $this->registerCard() || $methodInstance->isSplitPayment(), //For Atos
-                'useRegisteredCard' => $this->registerCard() || $methodInstance->isSplitPayment(), //For payline
+                'registerCard' => (int) ($this->registerCard() || $methodInstance->isSplitPayment()), //For Atos
             );
 
             try {
@@ -175,10 +174,10 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                  * Oops, an error occured.
                  */
                 if (isset($res->lwError)) {
-                    throw new Exception((string) $res->lwError->MSG, (int) $res->lwError->CODE);
+                    throw new Exception((string)$res->lwError->MSG, (int)$res->lwError->CODE);
                 }
 
-                if ($customer->id && isset($res->lwXml->MONEYINWEB->CARD) && $this->registerCard()) {
+                if ($customer->id && isset($res->MONEYINWEB->CARD) && $this->registerCard()) {
                     $card = $this->module->getCustomerCard($customer->id);
 
                     if (!$card) {
@@ -186,7 +185,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     }
 
                     $card['id_customer'] = $customer->id;
-                    $card['id_card'] = (string) $res->lwXml->MONEYINWEB->CARD->ID;
+                    $card['id_card'] = (string)$res->MONEYINWEB->CARD->ID;
 
                     $this->module->insertOrUpdateCard($customer->id, $card);
                 }
@@ -197,22 +196,21 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                         throw new Exception('Unable to save card token!');
                     }
                     ConfigurationCore::updateValue(
-                        'LEMONWAY_CARD_ID_' . $customer->id .'_' . $cart->id,
-                        (string)$res->lwXml->MONEYINWEB->CARD->ID
+                        'LEMONWAY_CARD_ID_' . $customer->id . '_' . $cart->id,
+                        (string)$res->MONEYINWEB->CARD->ID
                     );
                 }
             } catch (Exception $e) {
                 $this->addError($e->getMessage());
                 return $this->displayError();
             }
-
-            $moneyInToken = (string) $res->lwXml->MONEYINWEB->TOKEN;
+            $moneyInToken = (string)$res->MONEYINWEB->TOKEN;
 
             $language = $this->getLang();
 
             $lwUrl = LemonWayConfig::getWebkitUrl() . '?moneyintoken=' . $moneyInToken . '&p='
                 . urlencode(LemonWayConfig::getCssUrl()) . '&lang=' . $language;
-            
+
             //Get selected card type
             if (($ccType = Tools::getValue('cc_type', ''))) {
                 $allowedCcType = array('CB', 'VISA', 'MASTERCARD');
@@ -224,7 +222,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
                     curl_setopt($ch, CURLOPT_TIMEOUT, 60);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !Configuration::get('LEMONWAY_IS_TEST_MODE', false));
-                    
+
                     //curl_exec($ch);
                     $response = $this->curlExecFollow($ch);
 
@@ -265,12 +263,12 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     'wkToken' => $wkToken,
                     'wallet' => LemonWayConfig::getWalletMerchantId(),
                     'amountTot' => $amountTot,
-                    'amountCom'=> $amountCom,
-                    'comment' => $comment .  " (Money In with Card Id)",
+                    'amountCom' => $amountCom,
+                    'comment' => $comment . " (Money In with Card Id)",
                     'autoCommission' => $autocommission,
                     'cardId' => $card['id_card']
                 );
-             
+
                 try {
                     $res = $kit->moneyInWithCardId($params);
                 } catch (Exception $e) {
@@ -285,7 +283,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     );
                     return $this->displayError();
                 }
-                
+
                 $currency_id = (int)$this->context->currency->id;
                 $message = Tools::getValue('response_msg');
                 $id_order_state = Configuration::get(Lemonway::LEMONWAY_PENDING_OS);
@@ -304,7 +302,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     $order_id = (int)Order::getOrderByCartId($cart->id); //Get new order id
                     /* @var $order OrderCore */
                     $order = new Order($order_id);
-                    
+
                     /* @var $op Operation */
                     foreach ($res->operations as $op) {
                         //If transaction is valid change order state
@@ -324,33 +322,33 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                                     throw new Exception($this->module->l("Card token not found"));
                                 }
                             }
-                            
+
                             $id_order_state = Configuration::get('PS_OS_PAYMENT');
                             if ($methodInstance->isSplitPayment()) {
                                 $id_order_state = Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
                             }
-                            
+
                             try {
                                 $history = new OrderHistory();
                                 $history->id_order = (int)$order_id;
-                            
+
                                 $history->changeIdOrderState($id_order_state, $order, false);
                                 $history->save();
                             } catch (Exception $e) {
                                 $this->addError($e->getMessage());
                                 return $this->displayError();
                             }
-                            
+
                             if ($methodInstance->isSplitPayment()) {
                                 /* @var $invoiceCollection PrestaShopCollectionCore */
                                 $invoiceCollection = $order->getInvoicesCollection();
-                                
+
                                 $lastInvoice =
                                     $invoiceCollection
-                                    ->orderBy('date_add')
-                                    ->setPageNumber(1)
-                                    ->setPageSize(1)
-                                    ->getFirst();
+                                        ->orderBy('date_add')
+                                        ->setPageNumber(1)
+                                        ->setPageSize(1)
+                                        ->getFirst();
 
                                 try {
                                     $order->addOrderPayment(
@@ -376,11 +374,11 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                                     }
                                 }
                             }
-                            
+
                             $module_id = $this->module->id;
                             return Tools::redirect(
                                 'index.php?controller=order-confirmation&id_cart=' . $cart->id .
-                                    '&id_module=' . $module_id . '&id_order=' . $order_id . '&key='. $secure_key
+                                '&id_module=' . $module_id . '&id_order=' . $order_id . '&key=' . $secure_key
                             );
                         } else {
                             $this->addError($op->MSG);
@@ -394,27 +392,27 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             }
         }
     }
-    
+
     protected function curlExecFollow(&$ch, $redirects = 5, $curlopt_header = false)
     {
         if ((!ini_get('open_basedir') && !ini_get('safe_mode')) || $redirects < 1) {
             curl_setopt($ch, CURLOPT_HEADER, $curlopt_header);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $redirects > 0);
             curl_setopt($ch, CURLOPT_MAXREDIRS, $redirects);
-            
+
             return curl_exec($ch);
         } else {
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
             curl_setopt($ch, CURLOPT_HEADER, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FORBID_REUSE, false);
-        
+
             do {
                 $data = curl_exec($ch);
                 if (curl_errno($ch)) {
                     break;
                 }
-                    
+
                 $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 if ($code != 301 && $code != 302) {
                     break;
@@ -441,19 +439,19 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     E_USER_WARNING
                 );
             }
-                 
+
             if (!$curlopt_header) {
-                $data = Tools::substr($data, strpos($data, "\r\n\r\n")+4);
+                $data = Tools::substr($data, strpos($data, "\r\n\r\n") + 4);
             }
-                        
+
             return $data;
         }
     }
-    
+
     protected function registerCard()
     {
-        return Tools::getValue('lw_oneclic') === 'register_card'
-        /*|| is_numeric(Tools::getValue('splitpayment_profile_id'))*/ ;
+        return Tools::getValue('lw_oneclic') === 'register_card'/*|| is_numeric(Tools::getValue('splitpayment_profile_id'))*/
+            ;
     }
 
     protected function useCard()
@@ -489,14 +487,14 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             $cartUrl = 'index.php?controller=cart&action=show';
             return $this->redirectWithNotifications($cartUrl);
         }
-        
+
         /**
          * Create the breadcrumb for your ModuleFrontController.
          */
         $path = '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
             . $this->module->l('Payment')
             . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
-        
+
         $this->context->smarty->assign(
             array('path' => $path,
                 'errors' => $this->errors
