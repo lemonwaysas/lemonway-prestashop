@@ -56,7 +56,12 @@ class LemonwayCronModuleFrontController extends ModuleFrontController
 
         /* @var $splitpayment SplitpaymentDeadline */
         foreach ($splitpaymentCollection as $splitpayment) {
-            $splitpayment->pay(true);
+            try {
+                $splitpayment->pay(true);
+            } catch (Exception $e) {
+                echo $e;
+                continue;
+            }
         }
 
         $this->setRunningState(false);

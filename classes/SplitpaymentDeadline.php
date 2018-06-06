@@ -182,7 +182,7 @@ class SplitpaymentDeadline extends ObjectModel
                     $this->status = SplitpaymentDeadline::STATUS_FAILED;
                     $message = Tools::displayError("An error occurred while trying to pay split payment. 
                         Error code: " . $res->lwError->CODE . " - Message: " . $res->lwError->MSG);
-                    throw new Exception($message, $res->lwError->CODE);
+                    throw new Exception($message, (int)$res->lwError->CODE);
                 } else {
                     Logger::AddLog(print_r($res, true));
 
