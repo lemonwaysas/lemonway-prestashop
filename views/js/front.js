@@ -62,15 +62,19 @@ $(function()
         $('#profile_splitpayment_table_' + selected_profile_id).show();
     }
 
-	$(".lw_no_use_card,.lw_register_card").click(function() {
-		$(this).parents('.lemonway-payment-oneclic-container').prev('.lw_container_cards_types').show();
-	});
+    $(".lw_no_use_card,.lw_register_card").click(function() {
+        $(this).parents('.lemonway-payment-oneclic-container').prev('.lw_container_cards_types').show();
+    });
 
-	$(".lw_use_card").click(function() {
-		$(this).parents('.lemonway-payment-oneclic-container').prev('.lw_container_cards_types').hide();
-	});
-	
-	 $('input[data-module-name=lemonway]').parent().nextAll('label').find('img')
-	 .css('float', 'left')
-	 .css('width','150px');
+    $(".lw_use_card").click(function() {
+        $(this).parents('.lemonway-payment-oneclic-container').prev('.lw_container_cards_types').hide();
+    });
+    
+    $('input[data-module-name=lemonway]').parent().nextAll('label').find('img')
+    .css('float', 'left')
+    .css('width','150px');
+
+    $(".clickable").click(function() {
+        $(this).parents("form").submit();
+    });
 });

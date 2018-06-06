@@ -211,6 +211,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             $language = $this->getLang();
 
             $lwUrl = LemonWayConfig::getWebkitUrl() . '?moneyintoken=' . $moneyInToken . '&p='
+                . urlencode(LemonWayConfig::getCssUrl()) . '&tpl='
                 . urlencode(LemonWayConfig::getCssUrl()) . '&lang=' . $language;
             
             //Get selected card type

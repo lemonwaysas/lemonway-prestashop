@@ -101,7 +101,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.3.2';
+        $this->version = '1.3.2.3';
         $this->author = 'SIRATECK';
         $this->need_instance = 0;
 

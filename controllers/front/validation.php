@@ -112,7 +112,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
             Tools::redirect($this->context->link->getModuleLink('lemonway', 'confirmation', $redirectParams, true));
         } elseif ($this->isPost()) { // Is instant payment notification
             // wait for GET redirection finish in front
-            sleep(4);
+            sleep(40);
 
             if (Tools::isSubmit('response_code') == false) {
                 die;
