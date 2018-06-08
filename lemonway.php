@@ -574,6 +574,7 @@ class Lemonway extends PaymentModule
                 break;
 
             case 'CC_XTIMES':
+                $adminSplitPaymentTabUrl = $this->context->link->getAdminLink('AdminSplitpaymentProfile', true);
                 $splitpaymentProfiles = $this->getSplitpaymentProfiles();
                 $baseFrom = $this->getBaseMethodCcConfigForm($type);
                 $fieldPaymentProfile = array(
