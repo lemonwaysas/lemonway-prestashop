@@ -33,7 +33,7 @@
                     {if $method->getCode() == 'CC_XTIMES' || $method->getData('oneclic_allowed') == 1}
                     <div class="lemonway-payment-container" id="lemonway_{$method->getCode()}_payment_form_container">
                     {else}
-                    <div class="lemonway-payment-container clickable" id="lemonway_{$method->getCode()}_payment_form_container">
+                    <div class="lemonway-payment-container clickable" onClick="javascript:this.closest('form.placeOrderForm').submit();" id="lemonway_{$method->getCode()}_payment_form_container">
                     {/if}
                         <div class="lemonway-payment-img-container">
                             <img class="lemonway-payment-icon img-responsive"

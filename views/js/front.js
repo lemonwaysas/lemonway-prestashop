@@ -73,8 +73,4 @@ $(function()
     $('input[data-module-name=lemonway]').parent().nextAll('label').find('img')
     .css('float', 'left')
     .css('width','150px');
-
-    $(".clickable").click(function() {
-        $(this).parents("form").submit();
-    });
 });
