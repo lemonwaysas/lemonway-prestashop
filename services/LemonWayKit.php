@@ -52,7 +52,7 @@ class LemonWayKit
 
     public function registerWallet($params)
     {
-        $res = self::sendRequest('RegisterWallet', $params, '1.1');
+        $res = self::sendRequest('RegisterWallet', $params);
 
         if (!isset($res->lwError)) {
             $res->wallet = new Wallet($res->lwXml->WALLET);
@@ -63,7 +63,7 @@ class LemonWayKit
 
     public function moneyIn($params)
     {
-        $res = self::sendRequest('MoneyIn', $params, '1.1');
+        $res = self::sendRequest('MoneyIn', $params);
 
         if (!isset($res->lwError)) {
             $res->operations = array(new Operation($res->lwXml->TRANS->HPAY));
@@ -74,7 +74,7 @@ class LemonWayKit
 
     public function updateWalletDetails($params)
     {
-        $res = self::sendRequest('UpdateWalletDetails', $params, '1.0');
+        $res = self::sendRequest('UpdateWalletDetails', $params);
 
         if (!isset($res->lwError)) {
             $res->wallet = new Wallet($res->lwXml->WALLET);
@@ -83,45 +83,44 @@ class LemonWayKit
         return $res;
     }
 
-    public function getWalletDetails($params)
+    public  function getWalletDetails($params)
     {
-        $res = self::sendRequest('GetWalletDetails', $params, '1.5');
 
-        if (!isset($res->lwError)) {
-            $res->wallet = new Wallet($res->lwXml->WALLET);
-        }
+        $res = self::sendRequest('GetWalletDetails', $params);
+
 
         return $res;
     }
 
     public function moneyIn3DInit($params)
     {
-        return self::sendRequest('MoneyIn3DInit', $params, '1.1');
+        return self::sendRequest('MoneyIn3DInit', $params);
     }
 
     public function moneyIn3DConfirm($params)
     {
-        return self::sendRequest('MoneyIn3DConfirm', $params, '1.1');
+        return self::sendRequest('MoneyIn3DConfirm', $params);
     }
 
     public function moneyInWebInit($params)
     {
-        return self::sendRequest('MoneyInWebInit', $params, '1.3');
+
+        return self::sendRequest('MoneyInWebInit', $params);
     }
 
     public function registerCard($params)
     {
-        return self::sendRequest('RegisterCard', $params, '1.1');
+        return self::sendRequest('RegisterCard', $params);
     }
 
     public function unregisterCard($params)
     {
-        return self::sendRequest('UnregisterCard', $params, '1.0');
+        return self::sendRequest('UnregisterCard', $params);
     }
 
     public function moneyInWithCardId($params)
     {
-        $res = self::sendRequest('MoneyInWithCardId', $params, '1.1');
+        $res = self::sendRequest('MoneyInWithCardId', $params);
 
         if (!isset($res->lwError)) {
             $res->operations = array(
@@ -134,12 +133,12 @@ class LemonWayKit
 
     public function moneyInValidate($params)
     {
-        return self::sendRequest('MoneyInValidate', $params, '1.0');
+        return self::sendRequest('MoneyInValidate', $params);
     }
 
     public function sendPayment($params)
     {
-        $res = self::sendRequest('SendPayment', $params, '1.0');
+        $res = self::sendRequest('SendPayment', $params);
 
         if (!isset($res->lwError)) {
             $res->operations = array(
@@ -152,7 +151,7 @@ class LemonWayKit
 
     public function registerIBAN($params)
     {
-        $res = self::sendRequest('RegisterIBAN', $params, '1.1');
+        $res = self::sendRequest('RegisterIBAN', $params);
 
         if (!isset($res->lwError)) {
             $res->iban = new Iban($res->lwXml->IBAN);
@@ -161,22 +160,9 @@ class LemonWayKit
         return $res;
     }
 
-    public function moneyOut($params)
-    {
-        $res = self::sendRequest('MoneyOut', $params, '1.3');
-
-        if (!isset($res->lwError)) {
-            $res->operations = array(
-                new Operation($res->lwXml->TRANS->HPAY)
-            );
-        }
-
-        return $res;
-    }
-
     public function getPaymentDetails($params)
     {
-        $res = self::sendRequest('GetPaymentDetails', $params, '1.0');
+        $res = self::sendRequest('GetPaymentDetails', $params);
 
         if (!isset($res->lwError)) {
             $res->operations = array();
@@ -191,27 +177,12 @@ class LemonWayKit
 
     public function getMoneyInTransDetails($params)
     {
-        $res = self::sendRequest('GetMoneyInTransDetails', $params, '1.8');
+        $res = self::sendRequest('GetMoneyInTransDetails', $params);
 
         if (!isset($res->lwError)) {
             $res->operations = array();
 
-            foreach ($res->lwXml->TRANS->HPAY as $HPAY) {
-                $res->operations[] = new Operation($HPAY);
-            }
-        }
-
-        return $res;
-    }
-
-    public function getMoneyOutTransDetails($params)
-    {
-        $res = self::sendRequest('GetMoneyOutTransDetails', $params, '1.4');
-
-        if (!isset($res->lwError)) {
-            $res->operations = array();
-
-            foreach ($res->lwXml->TRANS->HPAY as $HPAY) {
+            foreach ($res->TRANS->HPAY as $HPAY) {
                 $res->operations[] = new Operation($HPAY);
             }
         }
@@ -221,7 +192,7 @@ class LemonWayKit
 
     public function uploadFile($params)
     {
-        $res = self::sendRequest('UploadFile', $params, '1.1');
+        $res = self::sendRequest('UploadFile', $params);
 
         if (!isset($res->lwError)) {
             $res->kycDoc = new KycDoc($res->lwXml->UPLOAD);
@@ -232,42 +203,42 @@ class LemonWayKit
 
     public function getKycStatus($params)
     {
-        return self::sendRequest('GetKycStatus', $params, '1.5');
+        return self::sendRequest('GetKycStatus', $params);
     }
 
     public function getMoneyInIBANDetails($params)
     {
-        return self::sendRequest('GetMoneyInIBANDetails', $params, '1.4');
+        return self::sendRequest('GetMoneyInIBANDetails', $params);
     }
 
     public function refundMoneyIn($params)
     {
-        return self::sendRequest('RefundMoneyIn', $params, '1.2');
+        return self::sendRequest('RefundMoneyIn', $params);
     }
 
     public function getBalances($params)
     {
-        return self::sendRequest('GetBalances', $params, '1.0');
+        return self::sendRequest('GetBalances', $params);
     }
 
     public function moneyIn3DAuthenticate($params)
     {
-        return self::sendRequest('MoneyIn3DAuthenticate', $params, '1.0');
+        return self::sendRequest('MoneyIn3DAuthenticate', $params);
     }
 
     public function moneyInIDealInit($params)
     {
-        return self::sendRequest('MoneyInIDealInit', $params, '1.0');
+        return self::sendRequest('MoneyInIDealInit', $params);
     }
 
     public function moneyInIDealConfirm($params)
     {
-        return self::sendRequest('MoneyInIDealConfirm', $params, '1.0');
+        return self::sendRequest('MoneyInIDealConfirm', $params);
     }
 
     public function registerSddMandate($params)
     {
-        $res = self::sendRequest('RegisterSddMandate', $params, '1.0');
+        $res = self::sendRequest('RegisterSddMandate', $params);
 
         if (!isset($res->lwError)) {
             $res->sddMandate = new SddMandate($res->lwXml->SDDMANDATE);
@@ -278,22 +249,22 @@ class LemonWayKit
 
     public function unregisterSddMandate($params)
     {
-        return self::sendRequest('UnregisterSddMandate', $params, '1.0');
+        return self::sendRequest('UnregisterSddMandate', $params);
     }
 
     public function moneyInSddInit($params)
     {
-        return self::sendRequest('MoneyInSddInit', $params, '1.0');
+        return self::sendRequest('MoneyInSddInit', $params);
     }
 
     public function getMoneyInSdd($params)
     {
-        return self::sendRequest('GetMoneyInSdd', $params, '1.0');
+        return self::sendRequest('GetMoneyInSdd', $params);
     }
 
     public function getMoneyInChequeDetails($params)
     {
-        return self::sendRequest('GetMoneyInChequeDetails', $params, '1.4');
+        return self::sendRequest('GetMoneyInChequeDetails', $params);
     }
 
     private function printDirectkitOutput($res)
@@ -337,7 +308,7 @@ class LemonWayKit
         }
     }
 
-    private function sendRequest($methodName, $params, $version)
+    private function sendRequest($methodName, $params)
     {
         $accessConfig = self::accessConfig();
         $ua = '';
@@ -358,107 +329,74 @@ class LemonWayKit
             $ip = $_SERVER['REMOTE_ADDR'];
         }
 
-        $xml_soap = '<?xml version="1.0" encoding="utf-8"?><soap12:Envelope xmlns:xsi=
-        "http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12=
-        "http://www.w3.org/2003/05/soap-envelope"><soap12:Body><' . $methodName . ' xmlns="Service_mb_xml">';
+        $baseParams = array(
+            'wlLogin' => $accessConfig['wlLogin'],
+            'wlPass' => $accessConfig['wlPass'],
+            'language' => 'fr',
+            'version' => '10.0',
+            'walletIp' => $ip,
+            'walletUa' => $ua,
+        );
 
-        foreach ($params as $key => $value) {
-            $xml_soap .= '<' . $key . '>' . $this->cleanRequest($value) . '</' . $key . '>';
-        }
+        $requestParams = array_merge($baseParams, $params);
+        $requestParams = array('p' => $requestParams);
 
-        $xml_soap .= '<version>' . $version . '</version>';
-        $xml_soap .= '<wlPass>' . $this->cleanRequest($accessConfig['wlPass']) . '</wlPass>';
-        $xml_soap .= '<wlLogin>' . $this->cleanRequest($accessConfig['wlLogin']) . '</wlLogin>';
-        $xml_soap .= '<language>' . $accessConfig['language'] . '</language>';
-        $xml_soap .= '<walletIp>' . $ip . '</walletIp>';
-        $xml_soap .= '<walletUa>' . $ua . '</walletUa>';
-
-        $xml_soap .= '</' . $methodName . '></soap12:Body></soap12:Envelope>';
-        self::printDirectkitInput($xml_soap);
 
         $headers = array(
-            "Content-type: text/xml;charset=utf-8",
-            "Accept: application/xml",
+            "Content-type: application/json; charset=utf-8",
+            "Accept: application/json",
             "Cache-Control: no-cache",
-            "Pragma: no-cache",
-            'SOAPAction: "Service_mb_xml/' . $methodName . '"',
-            "Content-length: " . Tools::strlen($xml_soap)
+            "Pragma: no-cache"
         );
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $accessConfig['directKitUrl']);
+        curl_setopt($ch, CURLOPT_URL, $accessConfig['directKitUrl'] . '/' . $methodName);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml_soap);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestParams));
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$accessConfig['isTestMode']);
-
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $response = curl_exec($ch);
+       // var_dump($params);
 
         if (curl_errno($ch)) {
             throw new Exception(curl_error($ch));
         } else {
-            $returnCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            switch ($returnCode) {
+            $responseCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            switch ($responseCode) {
                 case 200:
-                    //General parsing
-                    //Cleanup XML
-                    $response = (string) str_replace(
-                        '<?xml version="1.0" encoding="utf-8"?>' .
-                        '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" ' .
-                        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' .
-                        'xmlns:xsd="http://www.w3.org/2001/XMLSchema">',
-                        '',
-                        $response
-                    );
-                    $response = (string) str_replace('</soap:Envelope>', '', $response);
-                    libxml_use_internal_errors(true);
-                    $xml = new \SimpleXMLElement($response);
-
-                    //Retrieve result
-                    $content = '';
-
-                    switch ($methodName) {
-                        case 'UnregisterSddMandate':
-                            $content = $xml->{$methodName . 'Response'}->{'UnRegisterSddMandateResult'};
-                            break;
-
-                        case 'MoneyInWithCardId':
-                            $content = $xml->{$methodName . 'Response'}->{'MoneyInResult'};
-                            break;
-
-                        default:
-                            $content = $xml->{$methodName . 'Response'}->{$methodName . 'Result'};
-                            break;
-                    }
-
-                    return new ApiResponse($content);
-
+                    break;
                 case 400:
-                    throw new Exception("Bad Request: The server cannot or will not process the request due to something
-                     that is perceived to be a client error", 400);
-
+                    $message = "Bad Request : The server cannot or will not process the request due to something that is perceived to be a client error";
+                    break;
                 case 403:
-                    throw new Exception("IP is not allowed to access Lemon Way's API,
-                        please contact support@lemonway.fr", 403);
-
+                    $message = "IP is not allowed to access Lemon Way's API, please contact support@lemonway.fr";
+                    break;
                 case 404:
-                    throw new Exception("Check that the access URLs are correct. If yes,
-                        please contact support@lemonway.fr", 404);
-
+                    $message = "Check that the access URLs are correct. If yes, please contact support@lemonway.fr";
+                    break;
                 case 500:
-                    throw new Exception("Lemon Way internal server error, please contact support@lemonway.fr", 500);
-
+                    $message = "Lemon Way internal server error, please contact support@lemonway.fr";
+                    break;
                 default:
+                    sprintf("HTTP CODE %d IS NOT SUPPORTED", $responseCode);
                     break;
             }
 
-            throw new Exception("HTTP CODE IS NOT SUPPORTED ", $returnCode);
+            if ($responseCode == 200) {
+                //General parsing
+                $response = json_decode($response);
+                //Check error
+                if (isset($response->d->E)) {
+                    throw new Exception($response->d->E->Msg . " (Error code: " . $response->d->E->Code . ")");
+                }
+                return $response->d;
+            }
         }
+        curl_close($ch);
     }
 
     public function printCardForm($moneyInToken, $cssUrl = '', $language = 'en')
