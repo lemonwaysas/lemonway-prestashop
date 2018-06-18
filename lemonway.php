@@ -300,15 +300,6 @@ class Lemonway extends PaymentModule
             'fr' => 'En attente de validation par Lemonway'
         );
 
-        $translationsAdminMoneyOut = array(
-            'en' => 'Money out',
-            'fr' => 'Virements bancaire'
-        );
-
-        $adminLemonwayId = Db::getInstance()->getValue(
-            "SELECT `id_tab` FROM " . _DB_PREFIX_ . "tab WHERE `class_name` = 'AdminLemonway'"
-        );
-
         include(dirname(__FILE__) . '/sql/install.php');
 
         return parent::install() &&
@@ -317,7 +308,6 @@ class Lemonway extends PaymentModule
             $this->registerHook('payment') &&
             $this->registerHook('paymentReturn') &&
             $this->addStatus($key, $translationsStatus, 'orange') && //Add new Status
-            $this->installModuleTab('AdminMoneyOut', $translationsAdminMoneyOut, $adminLemonwayId) &&
             installSQL($this);
     }
 
@@ -350,7 +340,6 @@ class Lemonway extends PaymentModule
         //Do Not delete this configuration
         //Configuration::deleteByName('LEMONWAY_PENDING_OS');
 
-        $this->uninstallModuleTab('AdminMoneyOut');
         $this->uninstallModuleTab('AdminLemonway');
         $this->uninstallModuleTab('AdminSplitpaymentProfile');
         $this->uninstallModuleTab('AdminSplitpaymentDeadline');
@@ -1212,7 +1201,7 @@ class Lemonway extends PaymentModule
             'registerCard' => (int)$registerCard, //For Atos
             'useRegisteredCard' => (int)$registerCard, //For payline
         );
-        
+
         try {
             $res = $kit->moneyInWebInit($params);
             var_dump($res);
