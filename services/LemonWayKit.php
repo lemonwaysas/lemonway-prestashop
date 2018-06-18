@@ -83,13 +83,11 @@ class LemonWayKit
         return $res;
     }
 
-    public static function getWalletDetails($params)
+    public  function getWalletDetails($params)
     {
+
         $res = self::sendRequest('GetWalletDetails', $params, '1.5');
 
-        if (!isset($res->lwError)) {
-            $res->wallet = new Wallet($res->lwXml->WALLET);
-        }
 
         return $res;
     }
@@ -197,7 +195,7 @@ class LemonWayKit
         if (!isset($res->lwError)) {
             $res->operations = array();
 
-            foreach ($res->lwXml->TRANS->HPAY as $HPAY) {
+            foreach ($res->TRANS->HPAY as $HPAY) {
                 $res->operations[] = new Operation($HPAY);
             }
         }
@@ -363,7 +361,7 @@ class LemonWayKit
             'wlLogin' => $accessConfig['wlLogin'],
             'wlPass' => $accessConfig['wlPass'],
             'language' => 'fr',
-            'version' => $version,
+            'version' => '10.0',
             'walletIp' => $ip,
             'walletUa' => $ua,
         );
@@ -390,12 +388,12 @@ class LemonWayKit
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $response = curl_exec($ch);
+       // var_dump($params);
 
         if (curl_errno($ch)) {
             throw new Exception(curl_error($ch));
         } else {
             $responseCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
             switch ($responseCode) {
                 case 200:
                     break;
