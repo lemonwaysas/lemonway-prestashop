@@ -21,7 +21,7 @@
  * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
+ */
 
 require_once _PS_MODULE_DIR_ . 'lemonway/classes/SplitpaymentDeadline.php';
 require_once _PS_MODULE_DIR_ . 'lemonway/services/LemonWayKit.php';
@@ -114,7 +114,7 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
     public static function setOrderCurrency($amount, $tr)
     {
         $order = new Order($tr['id_order']);
-        return Tools::displayPrice($amount, (int) $order->id_currency);
+        return Tools::displayPrice($amount, (int)$order->id_currency);
     }
 
     public static function setMethodTitle($methodCode)
@@ -277,9 +277,9 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
         $this->addJS(_PS_MODULE_DIR_ . $this->module->name . "/views/js/back.js");
     }
 
-    protected function l($string)
+    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
     {
         $module = Module::getInstanceByName('lemonway');
-        return $module->l($string, 'ADMINSPLITPAYMENTDEADLINECONTROLLER');
+        return $module->l($string, 'ADMINSPLITPAYMENTDEADLINECONTROLLER', $class, $addslashes, $htmlentities);
     }
 }
