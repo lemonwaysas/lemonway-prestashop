@@ -332,8 +332,8 @@ class SplitpaymentDeadline extends ObjectModel
         return $status;
     }
 
-    public static function l($string,$class = null, $addslashes = false, $htmlentities = true)
+    public static function l($string)
     {
-        return Translate::getModuleTranslation('lemonway', $string, 'splitpaymentdeadline',$class,$addslashes,$htmlentities);
+        return Translate::getModuleTranslation('lemonway', $string, 'splitpaymentdeadline');
     }
 }
