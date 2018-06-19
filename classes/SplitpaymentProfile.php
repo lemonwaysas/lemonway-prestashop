@@ -43,7 +43,7 @@ class SplitpaymentProfile extends ObjectModel
     public $period_frequency;
     public $period_max_cycles;
     public $active = true;
-  
+
     /**
      * @see ObjectModel::$definition
      */
@@ -163,9 +163,9 @@ class SplitpaymentProfile extends ObjectModel
         return $unit;
     }
 
-    public static function l($string)
+    public static function l($string, $class = null, $addslashes = false, $htmlentities = true)
     {
-        return Translate::getModuleTranslation('lemonway', $string, 'splitpaymentprofile');
+        return Translate::getModuleTranslation('lemonway', $string, 'splitpaymentprofile', $class, $addslashes, $htmlentities);
     }
 
     /**
@@ -207,7 +207,7 @@ class SplitpaymentProfile extends ObjectModel
 
             $splitDealine->method_code = $methodCode;
             $splitDealine->status = $completeFirst ?
-             SplitpaymentDeadline::STATUS_COMPLETE : SplitpaymentDeadline::STATUS_PENDING;
+                SplitpaymentDeadline::STATUS_COMPLETE : SplitpaymentDeadline::STATUS_PENDING;
             $splitDealine->token = $token;
             $splitDealine->total_amount = $order->total_paid;
 
@@ -236,8 +236,8 @@ class SplitpaymentProfile extends ObjectModel
     {
         $paymentsSplit = array();
 
-        $maxCycles = (int) $this->period_max_cycles;
-        $periodFrequency = (int) $this->period_frequency;
+        $maxCycles = (int)$this->period_max_cycles;
+        $periodFrequency = (int)$this->period_frequency;
         $periodUnit = $this->period_unit;
 
         $todayDate = new \DateTime();
@@ -248,7 +248,7 @@ class SplitpaymentProfile extends ObjectModel
         }
 
 
-        $part = (int) ($amount / $maxCycles);
+        $part = (int)($amount / $maxCycles);
         $fmod = fmod($amount, $maxCycles);
 
         for ($i = 0; $i <= ($maxCycles - 1); $i++) {
@@ -291,8 +291,8 @@ class SplitpaymentProfile extends ObjectModel
 
         return $asJson ? json_encode($paymentsSplit) : $paymentsSplit;
     }
-  
-  /**
+
+    /**
      * Checks if object field values are valid before database interaction
      *
      * @param bool $die
@@ -304,7 +304,7 @@ class SplitpaymentProfile extends ObjectModel
     public function validateFields($die = true, $error_return = false)
     {
         $return = parent::validateFields($die, $error_return);
-        
+
         if (isset($this->period_frequency) && (int)$this->period_frequency < 1) {
             $message = self::l('This field must have value greater than 0: ') . 'period_frequency';
             if ($message !== true) {
@@ -314,7 +314,7 @@ class SplitpaymentProfile extends ObjectModel
                 return $error_return ? $message : false;
             }
         }
-    
+
         if (isset($this->period_max_cycles) && (int)$this->period_max_cycles < 1) {
             $message = self::l('This field must have value greater than 0: ') . 'period_max_cycles';
             if ($message !== true) {
@@ -324,7 +324,7 @@ class SplitpaymentProfile extends ObjectModel
                 return $error_return ? $message : false;
             }
         }
-        
+
         return $return;
     }
 }
