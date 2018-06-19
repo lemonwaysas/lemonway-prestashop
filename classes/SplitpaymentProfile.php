@@ -163,9 +163,9 @@ class SplitpaymentProfile extends ObjectModel
         return $unit;
     }
 
-    public static function l($string, $class = null, $addslashes = false, $htmlentities = true)
+    public static function l($string)
     {
-        return Translate::getModuleTranslation('lemonway', $string, 'splitpaymentprofile', $class, $addslashes, $htmlentities);
+        return Translate::getModuleTranslation('lemonway', $string, 'splitpaymentprofile');
     }
 
     /**
