@@ -25,8 +25,8 @@
 
 abstract class AdminLemonwayController extends AdminController
 {
-    protected function l($string, $class = null)
+    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
     {
-        return $this->module->l($string, $class);
+        return $this->module->l($string, $class, $addslashes, $htmlentities);
     }
 }
