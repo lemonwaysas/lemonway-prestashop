@@ -1204,20 +1204,20 @@ class Lemonway extends PaymentModule
 
         try {
             $res = $kit->moneyInWebInit($params);
-            var_dump($res);
+
             //Oops, an error occured.
             if (isset($res->lwError)) {
                 throw new Exception((string)$res->lwError->MSG, (int)$res->lwError->CODE);
             }
 
-            if ($customer->id && isset($res->lwXml->MONEYINWEB->CARD) && $registerCard) {
+            if ($customer->id && isset($res->MONEYINWEB->CARD) && $registerCard) {
                 $card = $this->getCustomerCard($customer->id);
                 if (!$card) {
                     $card = array();
                 }
 
                 $card['id_customer'] = $customer->id;
-                $card['id_card'] = (string)$res->lwXml->MONEYINWEB->CARD->ID;
+                $card['id_card'] = (string)$res->MONEYINWEB->CARD->ID;
 
                 $this->insertOrUpdateCard($customer->id, $card);
             }
@@ -1226,7 +1226,7 @@ class Lemonway extends PaymentModule
         }
 
         //moneyInToken
-        $moneyInToken = (string)$res->lwXml->MONEYINWEB->TOKEN;
+        $moneyInToken = (string)$res->MONEYINWEB->TOKEN;
 
         //language
         $language = array_key_exists($this->context->language->iso_code, $this->supportedLangs) ?
