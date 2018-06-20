@@ -247,18 +247,17 @@ class SplitpaymentProfile extends ObjectModel
                 $this->getId());
         }
 
-
         $part = (int)($amount / $maxCycles);
         $fmod = fmod($amount, $maxCycles);
 
         for ($i = 0; $i <= ($maxCycles - 1); $i++) {
-            $j = $i - 1;
+
             $todayClone = clone $todayDate;
             $format = 'Y-m-d';
-            $freqByCycles = $periodFrequency + $j;
+            $freqByCycles = $periodFrequency * $i;
             $interval = null;
-
             switch ($periodUnit) {
+
                 case self::PERIOD_UNIT_MONTH:
                     $interval = new \DateInterval("P" . $freqByCycles . "M");
                     break;
@@ -279,14 +278,14 @@ class SplitpaymentProfile extends ObjectModel
                     $interval = new \DateInterval("P" . $freqByCycles . "Y");
                     break;
             }
-
-            $dateToPay = $todayClone->add($interval)->format($format);
-
             $amountToPay = $i == 0 ? ($part + $fmod) : $part;
+            $dateToPay = $todayClone->add($interval)->format($format);
             $paymentsSplit[] = array(
                 'dateToPay' => $dateToPay,
                 'amountToPay' => $formatPrice ? Tools::displayPrice($amountToPay, $id_currency) : $amountToPay
             );
+
+
         }
 
         return $asJson ? json_encode($paymentsSplit) : $paymentsSplit;
