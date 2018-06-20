@@ -135,13 +135,14 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         $errorCallbackParams = array_merge($baseCallbackParams, array(
             'action' => 'error'
         ));
+        $wallet = Lemonway::getWalletDetails(LemonWayConfig::getApiLogin());
 
 
         if (!$this->useCard()) {
             //call directkit to get Webkit Token
             $params = array(
                 'wkToken' => $wkToken,
-                'wallet' => LemonWayConfig::getWalletMerchantId(),
+                'wallet' => $wallet->WALLET->ID,
                 'amountTot' => $amountTot,
                 'amountCom' => $amountCom, //because money is transfered in merchant wallet
                 'comment' => $comment,
@@ -164,7 +165,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     true
                 )),
                 'autoCommission' => $autocommission,
-                'registerCard' => (int) ($this->registerCard() || $methodInstance->isSplitPayment()), //For Atos
+                'registerCard' => (int)($this->registerCard() || $methodInstance->isSplitPayment()), //For Atos
             );
 
             try {
@@ -192,7 +193,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
                 //Save card id temporarily
                 if ($methodInstance->isSplitPayment()) {
-                    if (!(string)$res->lwXml->MONEYINWEB->CARD->ID) {
+                    if (!(string)$res->MONEYINWEB->CARD->ID) {
                         throw new Exception('Unable to save card token!');
                     }
                     ConfigurationCore::updateValue(
@@ -261,7 +262,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 //Call directkit for MoneyInWithCardId
                 $params = array(
                     'wkToken' => $wkToken,
-                    'wallet' => LemonWayConfig::getWalletMerchantId(),
+                    'wallet' => $wallet->WALLET->ID,
                     'amountTot' => $amountTot,
                     'amountCom' => $amountCom,
                     'comment' => $comment . " (Money In with Card Id)",
