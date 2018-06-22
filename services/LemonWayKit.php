@@ -339,6 +339,7 @@ class LemonWayKit
 
     private function sendRequest($methodName, $params, $version)
     {
+        $version = "10.0";
         $accessConfig = self::accessConfig();
         $ua = '';
 
