@@ -39,10 +39,10 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         /* @var $methodInstance Method */
         $methodInstance = $this->module->methodFactory(Tools::getValue('payment_method'));
 
-        $cart = new Cart((int) $cart_id);
-        $customer = new Customer((int) $cart->id_customer);
+        $cart = new Cart((int)$cart_id);
+        $customer = new Customer((int)$cart->id_customer);
 
-        $cart_total_paid = (float) Tools::ps_round((float) $cart->getOrderTotal(true, Cart::BOTH), 2);
+        $cart_total_paid = (float)Tools::ps_round((float)$cart->getOrderTotal(true, Cart::BOTH), 2);
 
         //If is X times method, we split the payment
         if ($methodInstance->isSplitPayment() &&
@@ -52,7 +52,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
             if ($profile) {
                 $splitpayments = $profile->splitPaymentAmount($cart_total_paid);
                 $firstSplit = $splitpayments[0];
-                $cart_total_paid = (float) Tools::ps_round((float) $firstSplit['amountToPay'], 2);
+                $cart_total_paid = (float)Tools::ps_round((float)$firstSplit['amountToPay'], 2);
             } else {
                 $this->addError('Split payment profile not found!');
                 return $this->displayError();
@@ -69,21 +69,21 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         }
 
         Context::getContext()->customer = $customer;
-        Context::getContext()->currency = new Currency((int) Context::getContext()->cart->id_currency);
-        Context::getContext()->language = new Language((int) Context::getContext()->customer->id_lang);
+        Context::getContext()->currency = new Currency((int)Context::getContext()->cart->id_currency);
+        Context::getContext()->language = new Language((int)Context::getContext()->customer->id_lang);
 
         // Default value for a payment that succeed.
-        $payment_status = Configuration::get(Lemonway::LEMONWAY_PENDING_OS);
+        $payment_status = Configuration::get('PS_OS_PAYMENT');
         $message = $this->module->l("Order in pending validation payment.");
 
-        $currency_id = (int) Context::getContext()->currency->id;
+        $currency_id = (int)Context::getContext()->currency->id;
 
         switch ($action) {
             case 'return':
                 /**
                  * If the order has been validated we try to retrieve it
                  */
-                $order_id = Order::getOrderByCartId((int) $cart->id);
+                $order_id = Order::getOrderByCartId((int)$cart->id);
 
                 if (!$order_id) {
                     /**
@@ -100,7 +100,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                         false,
                         $secure_key
                     );
-                    $order_id = Order::getOrderByCartId((int) $cart->id);
+                    $order_id = Order::getOrderByCartId((int)$cart->id);
                 }
 
                 if ($order_id && ($secure_key == $customer->secure_key)) {
@@ -116,14 +116,14 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 break;
 
             case 'cancel':
-               // $this->errors[] = $this->module->l('Order has been canceled');
+                // $this->errors[] = $this->module->l('Order has been canceled');
                 //redirect to cart
                 Tools::redirect($this->context->link->getPageLink('order', true));
                 //return $this->setTemplate('error.tpl');
                 break;
 
             case 'error':
-                $order_id = Order::getOrderByCartId((int) $cart->id);
+                $order_id = Order::getOrderByCartId((int)$cart->id);
 
                 if ($order_id && ($secure_key == $customer->secure_key)) {
                     $module_id = $this->module->id;
@@ -138,11 +138,11 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                  */
                 $this->addError('An error occured. Please contact the merchant to have more informations');
                 return $this->displayError();
-            
+
             default:
         }
     }
-    
+
     protected function addError($message, $description = false)
     {
         /**
@@ -150,34 +150,34 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
          */
         array_push($this->errors, $this->module->l($message), $description);
     }
-    
+
     protected function displayError()
     {
-        
+
         if ($this->module->isVersion17()) {
             $cartUrl = 'index.php?controller=cart&action=show';
             return $this->redirectWithNotifications($cartUrl);
         }
-        
+
         /**
          * Create the breadcrumb for your ModuleFrontController.
          */
         $path = '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
-                . $this->module->l('Payment')
-                . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
-                 
+            . $this->module->l('Payment')
+            . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
+
         $this->context->smarty->assign(
             array(
-                'path'=>$path,
-                'errors'=>$this->errors
+                'path' => $path,
+                'errors' => $this->errors
             )
         );
-    
+
         $template = 'error.tpl';
         if ($this->module->isVersion17()) {
             $template = 'module:' . $this->module->name . '/views/templates/front/error.tpl';
         }
-    
+
         return $this->setTemplate($template);
     }
 }
