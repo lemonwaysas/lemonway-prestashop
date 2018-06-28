@@ -73,7 +73,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         Context::getContext()->language = new Language((int) Context::getContext()->customer->id_lang);
 
         // Default value for a payment that succeed.
-        $payment_status = Configuration::get(Lemonway::LEMONWAY_PENDING_OS);
+        $payment_status = Tools::getValue('order_status');
         $message = $this->module->l("Order in pending validation payment.");
 
         $currency_id = (int) Context::getContext()->currency->id;

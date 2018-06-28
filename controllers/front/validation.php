@@ -77,11 +77,15 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
             2
         );
 
+        $id_order_state = $this->updateOrderStatus();
+        
+
         $redirectParams = array(
             'action' => $action,
             'secure_key' => Tools::getValue('secure_key'),
             'cart_id' => $cart_id,
             'payment_method' => $methodInstance->getCode(),
+            'order_status' => $id_order_state,
         );
 
         $profile = new SplitpaymentProfile();
@@ -361,5 +365,20 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
     protected function isPost()
     {
         return Tools::strtoupper($_SERVER['REQUEST_METHOD']) == 'POST';
+    }
+
+    protected function updateOrderStatus(){
+        $status = $this->getMoneyInTransDetails()->STATUS;
+        switch($status){
+            case 3:
+                return Configuration::get('PS_OS_PAYMENT');
+                break;
+            case 0:
+                return Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
+                break;
+            default: 
+                return Configuration::get('PS_OS_ERROR');
+                break;
+        }
     }
 }
