@@ -277,7 +277,7 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
         $this->addJS(_PS_MODULE_DIR_ . $this->module->name . "/views/js/back.js");
     }
 
-    protected function l($string)
+    protected function l($string, $class = NULL, $addslashes = false, $htmlentities = true)
     {
         $module = Module::getInstanceByName('lemonway');
         return $module->l($string, 'ADMINSPLITPAYMENTDEADLINECONTROLLER');

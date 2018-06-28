@@ -274,7 +274,7 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
     }
 
 
-    protected function l($string)
+    protected function l($string, $class = NULL, $addslashes = false, $htmlentities = true)
     {
         $module = Module::getInstanceByName('lemonway');
         return $module->l($string, 'ADMINSPLITPAYMENTPROFILECONTROLLER');
