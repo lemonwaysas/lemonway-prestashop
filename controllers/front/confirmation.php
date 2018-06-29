@@ -73,7 +73,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         Context::getContext()->language = new Language((int) Context::getContext()->customer->id_lang);
 
         // Default value for a payment that succeed.
-        $payment_status = Configuration::get(Lemonway::LEMONWAY_PENDING_OS);
+        $payment_status = Configuration::get('PS_OS_PAYMENT');
         $message = $this->module->l("Order in pending validation payment.");
 
         $currency_id = (int) Context::getContext()->currency->id;
@@ -116,10 +116,8 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 break;
 
             case 'cancel':
-               // $this->errors[] = $this->module->l('Order has been canceled');
                 //redirect to cart
                 Tools::redirect($this->context->link->getPageLink('order', true));
-                //return $this->setTemplate('error.tpl');
                 break;
 
             case 'error':
@@ -138,11 +136,11 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                  */
                 $this->addError('An error occured. Please contact the merchant to have more informations');
                 return $this->displayError();
-            
+
             default:
         }
     }
-    
+
     protected function addError($message, $description = false)
     {
         /**
@@ -150,34 +148,34 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
          */
         array_push($this->errors, $this->module->l($message), $description);
     }
-    
+
     protected function displayError()
     {
-        
+
         if ($this->module->isVersion17()) {
             $cartUrl = 'index.php?controller=cart&action=show';
             return $this->redirectWithNotifications($cartUrl);
         }
-        
+
         /**
          * Create the breadcrumb for your ModuleFrontController.
          */
         $path = '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
-                . $this->module->l('Payment')
-                . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
-                 
+            . $this->module->l('Payment')
+            . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
+
         $this->context->smarty->assign(
             array(
-                'path'=>$path,
-                'errors'=>$this->errors
+                'path' => $path,
+                'errors' => $this->errors
             )
         );
-    
+
         $template = 'error.tpl';
         if ($this->module->isVersion17()) {
             $template = 'module:' . $this->module->name . '/views/templates/front/error.tpl';
         }
-    
+
         return $this->setTemplate($template);
     }
 }

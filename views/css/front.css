@@ -51,8 +51,11 @@
 }
 
 .lemonway-payment .lemonway-payment-container:hover {
-    /*background-color: #f6f6f6;
-    cursor:pointer;*/
+    background-color: #f6f6f6;
+}
+
+.lemonway-payment .clickable {
+    cursor: pointer;
 }
 
 .lemonway-payment .lemonway-payment-container button[type="submit"] {
@@ -63,11 +66,7 @@
     margin: 10px 10px 10px 0px;
 }
 
-.Lemonway_payment_form {
-
-}
-
-/* .Lemonway_payment_btn:after {
+.lemonway-payment .clickable .lemonway-payment-button-submit-container:after {
     display: block;
     content: "\f054";
     position: absolute;
@@ -79,11 +78,10 @@
     height: 22px;
     width: 14px;
     color: #777777;
-} */
+}
 
-.Lemonway_payment_btn:hover {
-    cursor: pointer;
-    background-color: #f6f6f6;
+.lemonway-payment .clickable .lemonway-payment-button-submit-container button {
+    display: none;
 }
 
 .lemonway_cc_form {
@@ -91,11 +89,11 @@
 }
 
 .lemonway_cc_form .lw_container_cards_types label input[type="radio"]{
-	margin-right:40%;
+    margin-right:40%;
 }
 
 .lemonway_cc_form .lemonway-payment-oneclic-container label input[type="radio"]{
-	margin-right:10px;
+    margin-right:10px;
 }
 
 .lemonway_cc_form label img {
