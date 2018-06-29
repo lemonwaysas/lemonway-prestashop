@@ -101,8 +101,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.3.2.5';
-        $this->author = 'SIRATECK';
+		$this->version = '1.4.0';        $this->author = 'SIRATECK';
         $this->need_instance = 0;
 
         /**
@@ -574,6 +573,7 @@ class Lemonway extends PaymentModule
                 break;
 
             case 'CC_XTIMES':
+                $adminSplitPaymentTabUrl = $this->context->link->getAdminLink('AdminSplitpaymentProfile', true);
                 $splitpaymentProfiles = $this->getSplitpaymentProfiles();
                 $baseFrom = $this->getBaseMethodCcConfigForm($type);
                 $adminSplitPaymentTabUrl = $this->context->link->getAdminLink('AdminSplitpaymentProfile', true);
