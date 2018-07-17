@@ -161,8 +161,8 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
          * Create the breadcrumb for your ModuleFrontController.
          */
         $path = '<a href="' . $this->context->link->getPageLink('order', null, null, 'step=3') . '">'
-            . $this->module->l('Payment')
-            . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
+                . $this->module->l('Payment')
+                . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
 
         $this->context->smarty->assign(
             array(
