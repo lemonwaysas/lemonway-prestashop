@@ -75,7 +75,7 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
             $this->toolbar_btn['new']['desc'] = $this->l('Split payment profile');
         }
     }
-   
+
 
     public function initPageHeaderToolbar()
     {
@@ -273,10 +273,9 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
         $this->addJS(_PS_MODULE_DIR_ . $this->module->name . "/views/js/back.js");
     }
 
-
-    protected function l($string, $class = NULL, $addslashes = false, $htmlentities = true)
+    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
     {
         $module = Module::getInstanceByName('lemonway');
-        return $module->l($string, 'ADMINSPLITPAYMENTPROFILECONTROLLER');
+        return $module->l($string, 'ADMINSPLITPAYMENTPROFILECONTROLLER', $class, $addslashes, $htmlentities);
     }
 }
