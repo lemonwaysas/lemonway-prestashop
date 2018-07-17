@@ -50,39 +50,6 @@ class LemonWayKit
         ); // @TODO get language and filter with available languages in lw.
     }
 
-    public function registerWallet($params)
-    {
-        $res = self::sendRequest('RegisterWallet', $params, '1.1');
-
-        if (!isset($res->lwError)) {
-            $res->wallet = new Wallet($res->lwXml->WALLET);
-        }
-
-        return $res;
-    }
-
-    public function moneyIn($params)
-    {
-        $res = self::sendRequest('MoneyIn', $params, '1.1');
-
-        if (!isset($res->lwError)) {
-            $res->operations = array(new Operation($res->lwXml->TRANS->HPAY));
-        }
-
-        return $res;
-    }
-
-    public function updateWalletDetails($params)
-    {
-        $res = self::sendRequest('UpdateWalletDetails', $params, '1.0');
-
-        if (!isset($res->lwError)) {
-            $res->wallet = new Wallet($res->lwXml->WALLET);
-        }
-
-        return $res;
-    }
-
     public function getWalletDetails($params)
     {
         $res = self::sendRequest('GetWalletDetails', $params, '1.5');
@@ -94,29 +61,9 @@ class LemonWayKit
         return $res;
     }
 
-    public function moneyIn3DInit($params)
-    {
-        return self::sendRequest('MoneyIn3DInit', $params, '1.1');
-    }
-
-    public function moneyIn3DConfirm($params)
-    {
-        return self::sendRequest('MoneyIn3DConfirm', $params, '1.1');
-    }
-
     public function moneyInWebInit($params)
     {
         return self::sendRequest('MoneyInWebInit', $params, '1.3');
-    }
-
-    public function registerCard($params)
-    {
-        return self::sendRequest('RegisterCard', $params, '1.1');
-    }
-
-    public function unregisterCard($params)
-    {
-        return self::sendRequest('UnregisterCard', $params, '1.0');
     }
 
     public function moneyInWithCardId($params)
@@ -127,50 +74,6 @@ class LemonWayKit
             $res->operations = array(
                 new Operation($res->lwXml->TRANS->HPAY)
             );
-        }
-
-        return $res;
-    }
-
-    public function moneyInValidate($params)
-    {
-        return self::sendRequest('MoneyInValidate', $params, '1.0');
-    }
-
-    public function sendPayment($params)
-    {
-        $res = self::sendRequest('SendPayment', $params, '1.0');
-
-        if (!isset($res->lwError)) {
-            $res->operations = array(
-                new Operation($res->lwXml->TRANS->HPAY)
-            );
-        }
-
-        return $res;
-    }
-
-    public function registerIBAN($params)
-    {
-        $res = self::sendRequest('RegisterIBAN', $params, '1.1');
-
-        if (!isset($res->lwError)) {
-            $res->iban = new Iban($res->lwXml->IBAN);
-        }
-
-        return $res;
-    }
-
-    public function getPaymentDetails($params)
-    {
-        $res = self::sendRequest('GetPaymentDetails', $params, '1.0');
-
-        if (!isset($res->lwError)) {
-            $res->operations = array();
-
-            foreach ($res->lwXml->TRANS->HPAY as $HPAY) {
-                $res->operations[] = new Operation($HPAY);
-            }
         }
 
         return $res;
@@ -189,83 +92,6 @@ class LemonWayKit
         }
 
         return $res;
-    }
-
-    public function uploadFile($params)
-    {
-        $res = self::sendRequest('UploadFile', $params, '1.1');
-
-        if (!isset($res->lwError)) {
-            $res->kycDoc = new KycDoc($res->lwXml->UPLOAD);
-        }
-
-        return $res;
-    }
-
-    public function getKycStatus($params)
-    {
-        return self::sendRequest('GetKycStatus', $params, '1.5');
-    }
-
-    public function getMoneyInIBANDetails($params)
-    {
-        return self::sendRequest('GetMoneyInIBANDetails', $params, '1.4');
-    }
-
-    public function refundMoneyIn($params)
-    {
-        return self::sendRequest('RefundMoneyIn', $params, '1.2');
-    }
-
-    public function getBalances($params)
-    {
-        return self::sendRequest('GetBalances', $params, '1.0');
-    }
-
-    public function moneyIn3DAuthenticate($params)
-    {
-        return self::sendRequest('MoneyIn3DAuthenticate', $params, '1.0');
-    }
-
-    public function moneyInIDealInit($params)
-    {
-        return self::sendRequest('MoneyInIDealInit', $params, '1.0');
-    }
-
-    public function moneyInIDealConfirm($params)
-    {
-        return self::sendRequest('MoneyInIDealConfirm', $params, '1.0');
-    }
-
-    public function registerSddMandate($params)
-    {
-        $res = self::sendRequest('RegisterSddMandate', $params, '1.0');
-
-        if (!isset($res->lwError)) {
-            $res->sddMandate = new SddMandate($res->lwXml->SDDMANDATE);
-        }
-
-        return $res;
-    }
-
-    public function unregisterSddMandate($params)
-    {
-        return self::sendRequest('UnregisterSddMandate', $params, '1.0');
-    }
-
-    public function moneyInSddInit($params)
-    {
-        return self::sendRequest('MoneyInSddInit', $params, '1.0');
-    }
-
-    public function getMoneyInSdd($params)
-    {
-        return self::sendRequest('GetMoneyInSdd', $params, '1.0');
-    }
-
-    public function getMoneyInChequeDetails($params)
-    {
-        return self::sendRequest('GetMoneyInChequeDetails', $params, '1.4');
     }
 
     private function printDirectkitOutput($res)
