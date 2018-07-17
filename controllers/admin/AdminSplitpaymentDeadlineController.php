@@ -139,7 +139,6 @@ class AdminSplitpaymentDeadlineController extends ModuleAdminController
 
         if ($this->display === 'edit' && $this->object->canPaid()) {
             $this->page_header_toolbar_btn['pay_now'] = array(
-                //'href' => self::$currentIndex.'&addlemonway_moneyout&token=' . $this->token,
                 'href' => self::$currentIndex . '&action=pay_now&' . $this->identifier . '=' . $this->object->id .
                     '&token=' . $this->token,
                 'desc' => $this->l('Pay now'),

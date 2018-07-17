@@ -39,22 +39,6 @@ function installSQL($module)
 	    PRIMARY KEY  (`id_oneclic`)
 	) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
-    $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'lemonway_moneyout` (
-	    `id_moneyout` int(11) NOT NULL AUTO_INCREMENT,
-		`id_lw_wallet` varchar(255) NOT NULL,
-		`id_customer` int(11) NOT NULL DEFAULT 0,
-		`id_employee` int(11) NOT NULL DEFAULT 0,
-		`is_admin` tinyint(1) NOT NULL DEFAULT 0,
-		`id_lw_iban` int(11) NOT NULL,
-		`prev_bal` decimal(20,6) NOT NULL,
-		`new_bal`  decimal(20,6) NOT NULL,
-		`iban` varchar(34) NOT NULL,
-		`amount_to_pay`  decimal(20,6) NOT NULL,
-		`date_add` datetime NOT NULL,
-	    `date_upd` datetime NOT NULL,
-	    PRIMARY KEY  (`id_moneyout`)
-	) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
-
     $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'lemonway_iban` (
 	    `id_iban` int(11) NOT NULL AUTO_INCREMENT,
 		`id_lw_iban` int(11) NOT NULL,

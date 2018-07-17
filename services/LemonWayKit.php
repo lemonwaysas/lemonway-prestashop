@@ -161,19 +161,6 @@ class LemonWayKit
         return $res;
     }
 
-    public function moneyOut($params)
-    {
-        $res = self::sendRequest('MoneyOut', $params, '1.3');
-
-        if (!isset($res->lwError)) {
-            $res->operations = array(
-                new Operation($res->lwXml->TRANS->HPAY)
-            );
-        }
-
-        return $res;
-    }
-
     public function getPaymentDetails($params)
     {
         $res = self::sendRequest('GetPaymentDetails', $params, '1.0');
@@ -192,21 +179,6 @@ class LemonWayKit
     public function getMoneyInTransDetails($params)
     {
         $res = self::sendRequest('GetMoneyInTransDetails', $params, '1.8');
-
-        if (!isset($res->lwError)) {
-            $res->operations = array();
-
-            foreach ($res->lwXml->TRANS->HPAY as $HPAY) {
-                $res->operations[] = new Operation($HPAY);
-            }
-        }
-
-        return $res;
-    }
-
-    public function getMoneyOutTransDetails($params)
-    {
-        $res = self::sendRequest('GetMoneyOutTransDetails', $params, '1.4');
 
         if (!isset($res->lwError)) {
             $res->operations = array();
