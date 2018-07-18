@@ -260,46 +260,6 @@ class LemonWayKit
         }
     }
 
-    public function printCardForm($moneyInToken, $cssUrl = '', $language = 'en')
-    {
-        $accessConfig = self::accessConfig();
-
-        $ch = curl_init();
-        curl_setopt(
-            $ch,
-            CURLOPT_URL,
-            $accessConfig['webkitUrl'] . "?moneyintoken=" . $moneyInToken . '&p=' . urlencode($cssUrl)
-            . '&lang=' . $language
-        );
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$accessConfig['isTestMode']);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-
-        $server_output = curl_exec($ch);
-
-        if (curl_errno($ch)) {
-            throw new Exception(curl_error($ch));
-        } else {
-            $returnCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-            switch ($returnCode) {
-                case 200:
-                    curl_close($ch);
-                    $parsedUrl = parse_url($accessConfig['webkitUrl']);
-                    $root = strstr($accessConfig['webkitUrl'], $parsedUrl['path'], true);
-                    $server_output = preg_replace(
-                        "/src=\"([a-zA-Z\/\.]*)\"/i",
-                        "src=\"" . $root . "$1\"",
-                        $server_output
-                    );
-
-                    return $server_output;
-                default:
-                    throw new Exception($returnCode);
-            }
-        }
-    }
-
     private function cleanRequest($str)
     {
         $str = strtr($str, 'ÁÀÂÄÃÅÇÉÈÊËÍÏÎÌÑÓÒÔÖÕÚÙÛÜÝ', 'AAAAAACEEEEEIIIINOOOOOUUUUY');

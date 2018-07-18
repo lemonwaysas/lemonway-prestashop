@@ -81,7 +81,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
             'action' => $action,
             'secure_key' => Tools::getValue('secure_key'),
             'cart_id' => $cart_id,
-            'payment_method' => $methodInstance->getCode(),
+            'payment_method' => $methodInstance->getCode()
         );
 
         $profile = new SplitpaymentProfile();

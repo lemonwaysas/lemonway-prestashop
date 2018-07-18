@@ -24,22 +24,6 @@
 
 $(function()
 {
-    /*$("form.placeOrderForm").submit(function( event ) {
-      if (!$("#lw_use_card").is(':checked') && $("#open_basedir").val() == "1") {
-        event.preventDefault();
-        data = "action=placeOrder&" + $(this).serialize();
-        var query = $.ajax({
-          type: 'POST',
-          url: baseDir + 'modules/lemonway/ajax.php',
-          data: data,
-          dataType: 'json',
-          success: function(cardForm) {
-            $(".Lemonway_payment_form").html(cardForm);
-          }
-        });
-      }
-    });*/
-
     /* $(".Lemonway_payment_btn").click(function() {
      $("#placeOrderForm").submit();
      $(this).removeClass("Lemonway_payment_btn");
