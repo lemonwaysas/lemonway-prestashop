@@ -312,8 +312,8 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 throw $e;
             }
 
-            if (isset($res->lwError)) {
-                throw new Exception((string) $res->lwError->MSG, (int) $res->lwError->CODE);
+            if (isset($res->E)) {
+                throw new Exception((string) $res->E->Msg, (int) $res->E->Code);
             }
 
             $this->moneyin_trans_details = current($res->operations);

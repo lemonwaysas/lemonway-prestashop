@@ -173,11 +173,11 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 /**
                  * Oops, an error occured.
                  */
-                if (isset($res->lwError)) {
-                    throw new Exception((string) $res->lwError->MSG, (int) $res->lwError->CODE);
+                if (isset($res->E)) {
+                    throw new Exception((string) $res->E->Msg, (int) $res->E->Code);
                 }
 
-                if ($customer->id && isset($res->lwXml->MONEYINWEB->CARD) && $this->registerCard()) {
+                if ($customer->id && isset($res->MONEYINWEB->CARD) && $this->registerCard()) {
                     $card = $this->module->getCustomerCard($customer->id);
 
                     if (!$card) {
@@ -185,19 +185,19 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     }
 
                     $card['id_customer'] = $customer->id;
-                    $card['id_card'] = (string) $res->lwXml->MONEYINWEB->CARD->ID;
+                    $card['id_card'] = (string) $res->MONEYINWEB->CARD->ID;
 
                     $this->module->insertOrUpdateCard($customer->id, $card);
                 }
 
                 //Save card id temporarily
                 if ($methodInstance->isSplitPayment()) {
-                    if (!(string)$res->lwXml->MONEYINWEB->CARD->ID) {
+                    if (!(string)$res->MONEYINWEB->CARD->ID) {
                         throw new Exception('Unable to save card token!');
                     }
                     ConfigurationCore::updateValue(
                         'LEMONWAY_CARD_ID_' . $customer->id .'_' . $cart->id,
-                        (string)$res->lwXml->MONEYINWEB->CARD->ID
+                        (string)$res->MONEYINWEB->CARD->ID
                     );
                 }
             } catch (Exception $e) {
@@ -205,7 +205,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 return $this->displayError();
             }
 
-            $moneyInToken = (string) $res->lwXml->MONEYINWEB->TOKEN;
+            $moneyInToken = (string) $res->MONEYINWEB->TOKEN;
 
             $language = $this->getLang();
 
@@ -278,10 +278,10 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     return $this->displayError();
                 }
 
-                if (isset($res->lwError)) {
+                if (isset($res->E)) {
                     $this->addError(
                         'An error occurred while trying to pay with your registered card',
-                        "Error code: " . $res->lwError->CODE . " Message: " . $res->lwError->MSG
+                        "Error code: " . $res->E->Code . " Message: " . $res->E->Msg
                     );
                     return $this->displayError();
                 }
@@ -379,7 +379,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                             $module_id = $this->module->id;
                             return Tools::redirect(
                                 'index.php?controller=order-confirmation&id_cart=' . $cart->id .
-                                '&id_module=' . $module_id . '&id_order=' . $order_id . '&key='. $secure_key
+                                '&id_module=' . $module_id . '&id_order=' . $order_id . '&key=' . $secure_key
                             );
                         } else {
                             $this->addError($op->MSG);

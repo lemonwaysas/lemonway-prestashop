@@ -178,11 +178,11 @@ class SplitpaymentDeadline extends ObjectModel
                 $this->attempts++;
                 $res = $kit->moneyInWithCardId($params);
 
-                if (isset($res->lwError)) {
+                if (isset($res->E)) {
                     $this->status = SplitpaymentDeadline::STATUS_FAILED;
                     $message = Tools::displayError("An error occurred while trying to pay split payment. 
-                        Error code: " . $res->lwError->CODE . " - Message: " . $res->lwError->MSG);
-                    throw new Exception($message, (int)$res->lwError->CODE);
+                        Error code: " . $res->E->Code . " - Message: " . $res->E->Msg);
+                    throw new Exception($message, (int)$res->E->Code);
                 } else {
                     Logger::AddLog(print_r($res, true));
 
