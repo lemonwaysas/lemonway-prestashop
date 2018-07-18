@@ -18,7 +18,7 @@
  * versions in the future. If you wish to customize this addon for your
  * needs please contact us for more information.
  *
- * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
+ * @author Lemon Way <it@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
@@ -61,24 +61,6 @@ class Wallet
      */
     public $EMAIL;
 
-    /**
-     * kycDocs
-     * @var array KycDoc
-     */
-    public $kycDocs;
-
-    /**
-     * ibans
-     * @var array Iban
-     */
-    public $ibans;
-
-    /**
-     * sddMandates
-     * @var array SddMandate
-     */
-    public $sddMandates;
-
     public function __construct($WALLET)
     {
         $this->ID = $WALLET->ID;
@@ -87,28 +69,5 @@ class Wallet
         $this->BAL = $WALLET->BAL;
         $this->NAME = $WALLET->NAME;
         $this->EMAIL = $WALLET->EMAIL;
-        $this->kycDocs = array();
-
-        if (isset($WALLET->DOCS)) {
-            foreach ($WALLET->DOCS->DOC as $DOC) {
-                $this->kycDocs[] = new KycDoc($DOC);
-            }
-        }
-
-        $this->ibans = array();
-
-        if (isset($WALLET->IBANS)) {
-            foreach ($WALLET->IBANS->IBAN as $IBAN) {
-                $this->ibans[] = new Iban($IBAN);
-            }
-        }
-
-        $this->sddMandates = array();
-
-        if (isset($WALLET->SDDMANDATES)) {
-            foreach ($WALLET->SDDMANDATES->SDDMANDATE as $SDDMANDATE) {
-                $this->sddMandates[] = new SddMandate($SDDMANDATE);
-            }
-        }
     }
 }

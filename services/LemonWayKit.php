@@ -18,18 +18,15 @@
  * versions in the future. If you wish to customize this addon for your
  * needs please contact us for more information.
  *
- * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
+ * @author Lemon Way <it@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-require_once 'models/Iban.php';
-require_once 'models/KycDoc.php';
 require_once 'models/LwError.php';
 require_once 'models/LwModel.php';
 require_once 'models/Extra.php';
 require_once 'models/Operation.php';
-require_once 'models/SddMandate.php';
 require_once 'models/Wallet.php';
 require_once 'ApiResponse.php';
 require_once 'LemonWayConfig.php';
@@ -222,10 +219,6 @@ class LemonWayKit
                     $content = '';
 
                     switch ($methodName) {
-                        case 'UnregisterSddMandate':
-                            $content = $xml->{$methodName . 'Response'}->{'UnRegisterSddMandateResult'};
-                            break;
-
                         case 'MoneyInWithCardId':
                             $content = $xml->{$methodName . 'Response'}->{'MoneyInResult'};
                             break;

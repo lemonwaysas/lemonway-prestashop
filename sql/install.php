@@ -18,7 +18,7 @@
  * versions in the future. If you wish to customize this addon for your
  * needs please contact us for more information.
  *
- * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
+ * @author Lemon Way <it@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
@@ -37,24 +37,6 @@ function installSQL($module)
 		`date_add` datetime NOT NULL,
 	    `date_upd` datetime NOT NULL,
 	    PRIMARY KEY  (`id_oneclic`)
-	) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
-
-    $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'lemonway_iban` (
-	    `id_iban` int(11) NOT NULL AUTO_INCREMENT,
-		`id_lw_iban` int(11) NOT NULL,
-		`id_customer` int(11) NOT NULL,
-		`id_wallet` varchar(255) NOT NULL,
-		`holder` varchar(100) NOT NULL,
-		`iban` varchar(34) NOT NULL,
-		`bic` varchar(50) NOT NULL DEFAULT \'\',
-		`dom1` text NOT NULL DEFAULT \'\',
-		`dom2` text NOT NULL DEFAULT \'\',
-		`comment` text NOT NULL DEFAULT \'\',
-		`id_status` int(2) DEFAULT NULL,
-		`date_add` datetime NOT NULL,
-	    `date_upd` datetime NOT NULL,
-	    PRIMARY KEY  (`id_iban`),
-		UNIQUE KEY (`id_lw_iban`)
 	) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
     $sql[] = "CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "lemonway_wallet` (

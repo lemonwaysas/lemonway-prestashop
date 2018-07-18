@@ -18,7 +18,7 @@
  * versions in the future. If you wish to customize this addon for your
  * needs please contact us for more information.
  *
- * @author Kassim Belghait <kassim@sirateck.com>, PHAM Quoc Dat <dpham@lemonway.com>
+ * @author Lemon Way <it@lemonway.com>
  * @copyright  2017 Lemon way
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
@@ -922,7 +922,6 @@ class Lemonway extends PaymentModule
             if ($this->isVersion17() && method_exists($this->context->controller, 'setMedia')) {
                 $this->context->controller->setMedia(true);
             }
-            $this->context->controller->addJS($this->_path . 'views/js/back.js');
         }
 
         $this->context->controller->addCSS($this->_path . 'views/css/back.css');
