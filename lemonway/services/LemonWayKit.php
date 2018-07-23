@@ -72,6 +72,8 @@ class LemonWayKit
     {
         $accessConfig = self::accessConfig();
 
+        $url = $accessConfig['directKitUrl'] . '/' . $methodName;
+
         $ua = "Prestashop-" . _PS_VERSION_;
         $ua .= (isset($_SERVER['HTTP_USER_AGENT'])) ? "/" . $_SERVER['HTTP_USER_AGENT'] : "";
 
@@ -106,7 +108,7 @@ class LemonWayKit
         );
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $accessConfig['directKitUrl'] . '/' . $methodName);
+        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
@@ -116,7 +118,13 @@ class LemonWayKit
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestParams));
 
+
+
         $response = curl_exec($ch);
+
+        // Log
+        unset($requestParams["wlPass"]);
+        PrestaShopLogger::addLog("Lemon Way: " . $url . " - Request: " . json_encode($requestParams) . " - Response: " . $response);
 
         if (curl_errno($ch)) {
             throw new Exception(curl_error($ch));
