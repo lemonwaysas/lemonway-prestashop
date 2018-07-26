@@ -182,10 +182,9 @@ class SplitpaymentDeadline extends ObjectModel
                     $this->status = SplitpaymentDeadline::STATUS_FAILED;
                     $message = Tools::displayError("An error occurred while trying to pay split payment. 
                         Error code: " . $res->E->Code . " - Message: " . $res->E->Msg);
+                    
                     throw new Exception($message, (int)$res->E->Code);
                 } else {
-                    Logger::AddLog(print_r($res, true));
-
                     /* @var $op Operation */
                     foreach ($res->operations as $op) {
                         if ($op->STATUS == "3") {
@@ -206,7 +205,7 @@ class SplitpaymentDeadline extends ObjectModel
                                     $lastInvoice
                                 );
                             } catch (Exception $e) {
-                                Logger::AddLog($e->getMessage(), 4);
+                                PrestaShopLogger::addLog($e->getMessage(), 4);
                             }
 
                             //@TODO change order state if is the last split payment

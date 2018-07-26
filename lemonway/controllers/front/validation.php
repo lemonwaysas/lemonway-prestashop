@@ -32,12 +32,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
     }
 
     /**
-     *
-     * @var Operation
-     */
-    protected $moneyin_trans_details = null;
-
-    /**
      * This class should be use by your Instant Payment
      * Notification system to validate the order remotely
      */
@@ -111,7 +105,8 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 
             Tools::redirect($this->context->link->getModuleLink('lemonway', 'confirmation', $redirectParams, true));
         } elseif ($this->isPost()) { // Is instant payment notification
-
+            PrestaShopLogger::addLog("POST: " . print_r($_POST, true));
+            
             if (Tools::isSubmit('response_code') == false) {
                 die;
             }
@@ -148,9 +143,9 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                             }
 
                             $card['id_customer'] = $customer_id;
-                            $card['card_num'] = $this->getMoneyInTransDetails()->EXTRA->NUM;
-                            $card['card_type'] = $this->getMoneyInTransDetails()->EXTRA->TYP;
-                            $card['card_exp'] = $this->getMoneyInTransDetails()->EXTRA->EXP;
+                            $card['card_num'] = $this->getMoneyInTransDetails()->TRANS[0]->HPAY->EXTRA->NUM;
+                            $card['card_type'] = $this->getMoneyInTransDetails()->TRANS[0]->HPAY->EXTRA->TYP;
+                            $card['card_exp'] = $this->getMoneyInTransDetails()->TRANS[0]->HPAY->EXTRA->EXP;
 
                             $this->module->insertOrUpdateCard($customer_id, $card);
                         }
@@ -195,10 +190,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                     false,
                     $secure_key
                 );
-
-                if (Lemonway::DEBUG_MODE) {
-                    Logger::AddLog('New order added.');
-                }
 
                 if ($methodInstance->isSplitPayment()) {
                     $order_id = (int)Order::getOrderByCartId($cart_id); //Get new order id
@@ -246,7 +237,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                     $history->changeIdOrderState($id_order_state, $order, false);
                     $history->save();
                 } catch (Exception $e) {
-                    Logger::AddLog($e->getMessage(), 4);
+                    PrestaShopLogger::addLog($e->getMessage(), 4);
                 }
 
                 if ($methodInstance->isSplitPayment()) {
@@ -265,7 +256,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                             $lastInvoice
                         );
                     } catch (Exception $e) {
-                        Logger::AddLog($e->getMessage(), 4);
+                        PrestaShopLogger::addLog($e->getMessage(), 4);
                     }
                 } else { //Update order payment
                     foreach ($order->getOrderPaymentCollection() as $orderPayment) {
@@ -273,17 +264,13 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                             $orderPayment->payment_method = $methodInstance->getTitle();
                             $orderPayment->update();
                         } catch (Exception $e) {
-                            PrestaShopLogger::addLog($e->getMessage());
+                            PrestaShopLogger::addLog($e->getMessage(), 4);
                         }
                     }
                 }
 
                 $templateVars = array();
                 $history->sendEmail($order, $templateVars);
-
-                if (Lemonway::DEBUG_MODE) {
-                    Logger::AddLog("Order {$order_id} updated.");
-                }
             }
         } else {
             //@TODO throw error for not http method supported
@@ -297,29 +284,25 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
      */
     protected function getMoneyInTransDetails()
     {
-        if (is_null($this->moneyin_trans_details)) {
-            // Call directkit to get Webkit Token
-            $params = array('transactionMerchantToken' => Tools::getValue('response_wkToken'));
+        // Call directkit to get Webkit Token
+        $params = array('transactionMerchantToken' => Tools::getValue('response_wkToken'));
 
-            // Call api to get transaction detail for this order
-            /* @var $kit LemonWayKit */
-            $kit = new LemonWayKit();
+        // Call api to get transaction detail for this order
+        /* @var $kit LemonWayKit */
+        $kit = new LemonWayKit();
 
-            try {
-                $res = $kit->getMoneyInTransDetails($params);
-            } catch (Exception $e) {
-                Logger::AddLog($e->getMessage());
-                throw $e;
-            }
-
-            if (isset($res->E)) {
-                throw new Exception((string) $res->E->Msg, (int) $res->E->Code);
-            }
-
-            $this->moneyin_trans_details = current($res->operations);
+        try {
+            $res = $kit->getMoneyInTransDetails($params);
+        } catch (Exception $e) {
+            PrestaShopLogger::addLog($e->getMessage(), 4);
+            throw $e;
         }
 
-        return $this->moneyin_trans_details;
+        if (isset($res->E)) {
+            throw new Exception((string) $res->E->Msg, (int) $res->E->Code);
+        }
+
+        return $res;
     }
 
     protected function isValidOrder($action, $response_code)
@@ -342,7 +325,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         $operation = $this->getMoneyInTransDetails();
 
         if ($operation) {
-            if ($operation->STATUS == $actionToStatus[$action]) {
+            if ($operation->TRANS[0]->HPAY->STATUS == $actionToStatus[$action]) {
                 return true;
             }
         }

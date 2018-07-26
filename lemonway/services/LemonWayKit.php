@@ -44,31 +44,31 @@ class LemonWayKit
 
     public function getWalletDetails($params)
     {
-        $res = self::sendRequest('GetWalletDetails', $params, '1.5');
+        $res = self::sendRequest('GetWalletDetails', $params);
 
         return $res;
     }
 
     public function moneyInWebInit($params)
     {
-        return self::sendRequest('MoneyInWebInit', $params, '1.3');
+        return self::sendRequest('MoneyInWebInit', $params);
     }
 
     public function moneyInWithCardId($params)
     {
-        $res = self::sendRequest('MoneyInWithCardId', $params, '1.1');
+        $res = self::sendRequest('MoneyInWithCardId', $params);
 
         return $res;
     }
 
     public function getMoneyInTransDetails($params)
     {
-        $res = self::sendRequest('GetMoneyInTransDetails', $params, '1.8');
+        $res = self::sendRequest('GetMoneyInTransDetails', $params);
 
         return $res;
     }
 
-    private function sendRequest($methodName, $params, $version)
+    private function sendRequest($methodName, $params)
     {
         $accessConfig = self::accessConfig();
 
@@ -118,12 +118,10 @@ class LemonWayKit
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestParams));
 
-
-
         $response = curl_exec($ch);
 
         // Log
-        unset($requestParams["wlPass"]);
+        $requestParams["p"]["wlPass"] = "*masked*";
         PrestaShopLogger::addLog("Lemon Way: " . $url . " - Request: " . json_encode($requestParams) . " - Response: " . $response);
 
         if (curl_errno($ch)) {
