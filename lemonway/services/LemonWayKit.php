@@ -23,9 +23,6 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-require_once 'models/Extra.php';
-require_once 'models/Operation.php';
-require_once 'models/Wallet.php';
 require_once 'LemonWayConfig.php';
 
 class LemonWayKit

@@ -278,10 +278,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         }
     }
 
-    /**
-     * @return bool|Operation
-     * @throws Exception
-     */
     protected function getMoneyInTransDetails()
     {
         // Call directkit to get Webkit Token

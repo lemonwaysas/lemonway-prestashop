@@ -182,45 +182,42 @@ class SplitpaymentDeadline extends ObjectModel
                     $this->status = SplitpaymentDeadline::STATUS_FAILED;
                     $message = Tools::displayError("An error occurred while trying to pay split payment. 
                         Error code: " . $res->E->Code . " - Message: " . $res->E->Msg);
-                    
+
                     throw new Exception($message, (int)$res->E->Code);
                 } else {
-                    /* @var $op Operation */
-                    foreach ($res->operations as $op) {
-                        if ($op->STATUS == "3") {
-                            $this->status = SplitpaymentDeadline::STATUS_COMPLETE;
+                    if ($res->TRANS->HPAY->STATUS == "3") {
+                        $this->status = SplitpaymentDeadline::STATUS_COMPLETE;
 
-                            /* @var $invoiceCollection PrestaShopCollectionCore */
-                            $invoiceCollection = $order->getInvoicesCollection();
-                            $lastInvoice =
-                                $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
+                        /* @var $invoiceCollection PrestaShopCollectionCore */
+                        $invoiceCollection = $order->getInvoicesCollection();
+                        $lastInvoice =
+                            $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
 
-                            try {
-                                $order->addOrderPayment(
-                                    $this->amount_to_pay,
-                                    $methodInstance->getTitle(),
-                                    $op->ID,
-                                    null,
-                                    null,
-                                    $lastInvoice
-                                );
-                            } catch (Exception $e) {
-                                PrestaShopLogger::addLog($e->getMessage(), 4);
-                            }
-
-                            //@TODO change order state if is the last split payment
-                            //$id_order_state = Configuration::get('PS_OS_PAYMENT');
-                            // change order state if is the last split payment
-                            /* if(SplitpaymentDeadline::allIsPaid($order)){
-                                $id_order_state = Configuration::get('PS_OS_PAYMENT');
-                            } */
-
-                            break;
-                        } else {
-                            $this->status = SplitpaymentDeadline::STATUS_FAILED;
-                            $message = Tools::displayError($op->MSG);
-                            throw new Exception($message);
+                        try {
+                            $order->addOrderPayment(
+                                $this->amount_to_pay,
+                                $methodInstance->getTitle(),
+                                $res->TRANS->HPAY->ID,
+                                null,
+                                null,
+                                $lastInvoice
+                            );
+                        } catch (Exception $e) {
+                            PrestaShopLogger::addLog($e->getMessage(), 4);
                         }
+
+                        //@TODO change order state if is the last split payment
+                        //$id_order_state = Configuration::get('PS_OS_PAYMENT');
+                        // change order state if is the last split payment
+                        /* if(SplitpaymentDeadline::allIsPaid($order)){
+                            $id_order_state = Configuration::get('PS_OS_PAYMENT');
+                        } */
+
+                        break;
+                    } else {
+                        $this->status = SplitpaymentDeadline::STATUS_FAILED;
+                        $message = Tools::displayError($res->TRANS->HPAY->MSG);
+                        throw new Exception($message);
                     }
                 }
             } catch (Exception $e) {
