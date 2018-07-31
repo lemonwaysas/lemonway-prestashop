@@ -73,13 +73,12 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         Context::getContext()->language = new Language((int) Context::getContext()->customer->id_lang);
 
         // Default value for a payment that succeed.
-        $payment_status = Configuration::get('PS_OS_PAYMENT');
-        $message = $this->module->l("Order in pending validation payment.");
-
+        
         $currency_id = (int) Context::getContext()->currency->id;
 
         switch ($action) {
             case 'return':
+                $payment_status = Configuration::get('PS_OS_PAYMENT');
                 /**
                  * If the order has been validated we try to retrieve it
                  */
@@ -94,7 +93,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                         $payment_status,
                         $cart_total_paid,
                         $methodInstance->getTitle(),
-                        $message,
+                        null,
                         array(),
                         $currency_id,
                         false,
@@ -121,20 +120,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 break;
 
             case 'error':
-                $order_id = Order::getOrderByCartId((int) $cart->id);
-
-                if ($order_id && ($secure_key == $customer->secure_key)) {
-                    $module_id = $this->module->id;
-                    return Tools::redirect(
-                        'index.php?controller=order-confirmation&id_cart=' . $cart_id
-                        . '&id_module=' . $module_id . '&id_order=' . $order_id . '&key=' . $secure_key
-                    );
-                }
-
-                /**
-                 * An error occured and is shown on a new page.
-                 */
-                $this->addError('An error occured. Please contact the merchant to have more informations');
+                $this->addError($this->module->l("Your payment has been refused. Please try again."));
                 return $this->displayError();
 
             default:

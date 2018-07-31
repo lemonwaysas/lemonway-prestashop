@@ -22,30 +22,16 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *}
 
-{if (isset($status) == true) && ($status == 'ok')}
 {if isset($shop_name)}
-	<h3>{l s='Your order on %s is complete.' sprintf=$shop_name mod='lemonway'}</h3>
+    <h3>{l s='Your order on %s is complete.' sprintf=$shop_name mod='lemonway'}</h3>
 {else}
-	<h3>{l s='Your order is complete.' mod='lemonway'}</h3>
+    <h3>{l s='Your order is complete.' mod='lemonway'}</h3>
 {/if}
 
 <p>
-	<br />- {l s='Amount' mod='lemonway'} : <span class="price"><strong>{$total|escape:'htmlall':'UTF-8'}</strong></span>
-	<br />- {l s='Reference' mod='lemonway'} : <span class="reference"><strong>{$reference|escape:'html':'UTF-8'}</strong></span>
-	<br /><br />{l s='An email has been sent with this information.' mod='lemonway'}
-	<br /><br />{l s='If you have questions, comments or concerns, please contact our' mod='lemonway'} <a href="{$link->getPageLink('contact', true)|escape:'html':'UTF-8'}">{l s='expert customer support team.' mod='lemonway'}</a>
+    <br />- {l s='Amount' mod='lemonway'} : <span class="price"><strong>{$total|escape:'htmlall':'UTF-8'}</strong></span>
+    <br />- {l s='Reference' mod='lemonway'} : <span class="reference"><strong>{$reference|escape:'html':'UTF-8'}</strong></span>
+    <br /><br />{l s='An email has been sent with this information.' mod='lemonway'}
+    <br /><br />{l s='If you have questions, comments or concerns, please contact our' mod='lemonway'} <a href="{$link->getPageLink('contact', true)|escape:'html':'UTF-8'}">{l s='expert customer support team.' mod='lemonway'}</a>
 </p>
-{else}
-{if isset($shop_name)}
-	<h3>{l s='Your order on %s has not been accepted.' sprintf=$shop_name mod='lemonway'}</h3>
-{else}
-	<h3>{l s='Your order has not been accepted.' mod='lemonway'}</h3>
-{/if}
-
-<p>
-	<br />- {l s='Reference' mod='lemonway'} <span class="reference"> <strong>{$reference|escape:'html':'UTF-8'}</strong></span>
-	<br /><br />{l s='Please, try to order again.' mod='lemonway'}
-	<br /><br />{l s='If you have questions, comments or concerns, please contact our' mod='lemonway'} <a href="{$link->getPageLink('contact', true)|escape:'html':'UTF-8'}">{l s='expert customer support team.' mod='lemonway'}</a>
-</p>
-{/if}
 <hr />
