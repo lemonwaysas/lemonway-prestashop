@@ -72,22 +72,18 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         Context::getContext()->currency = new Currency((int) Context::getContext()->cart->id_currency);
         Context::getContext()->language = new Language((int) Context::getContext()->customer->id_lang);
 
-        // Default value for a payment that succeed.
-        
+        // Default value for a payment that failed.
+        $payment_status = Configuration::get("PS_OS_ERROR");
         $currency_id = (int) Context::getContext()->currency->id;
 
         switch ($action) {
             case 'return':
                 $payment_status = Configuration::get('PS_OS_PAYMENT');
-                /**
-                 * If the order has been validated we try to retrieve it
-                 */
+                // If the order has been validated we try to retrieve it
                 $order_id = Order::getOrderByCartId((int) $cart->id);
 
                 if (!$order_id) {
-                    /**
-                     * Converting cart into a valid order
-                     */
+                    // Converting cart into a valid order
                     $this->module->validateOrder(
                         $cart_id,
                         $payment_status,
@@ -103,9 +99,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 }
 
                 if ($order_id && ($secure_key == $customer->secure_key)) {
-                    /**
-                     * The order has been placed so we redirect the customer on the confirmation page.
-                     */
+                    //The order has been placed so we redirect the customer on the confirmation page.
                     $module_id = $this->module->id;
                     Tools::redirect(
                         'index.php?controller=order-confirmation&id_cart=' . $cart_id
@@ -115,13 +109,35 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 break;
 
             case 'cancel':
-                //redirect to cart
+                // Redirect to cart
                 Tools::redirect($this->context->link->getPageLink('order', true));
                 break;
 
             case 'error':
-                $this->addError($this->module->l("Your payment has been refused. Please try again."));
-                return $this->displayError();
+                $order_id = Order::getOrderByCartId((int) $cart->id);
+
+                if (!$order_id) {
+                    // Converting cart into a valid order
+                    $this->module->validateOrder(
+                        $cart_id,
+                        $payment_status,
+                        $cart_total_paid,
+                        $methodInstance->getTitle(),
+                        null,
+                        array(),
+                        $currency_id,
+                        false,
+                        $secure_key
+                    );
+                    $order_id = Order::getOrderByCartId((int) $cart->id);
+                }
+
+                if ($order_id && ($secure_key == $customer->secure_key)) {
+                    $this->addError($this->module->l("Your payment has been refused. Please try again."));
+                    $this->displayError();
+                }
+
+                break;
 
             default:
         }

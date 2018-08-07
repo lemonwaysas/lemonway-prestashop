@@ -212,8 +212,6 @@ class SplitpaymentDeadline extends ObjectModel
                         /* if(SplitpaymentDeadline::allIsPaid($order)){
                             $id_order_state = Configuration::get('PS_OS_PAYMENT');
                         } */
-
-                        break;
                     } else {
                         $this->status = SplitpaymentDeadline::STATUS_FAILED;
                         $message = Tools::displayError($res->TRANS->HPAY->MSG);
