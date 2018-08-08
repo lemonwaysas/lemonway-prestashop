@@ -252,10 +252,9 @@ class SplitpaymentProfile extends ObjectModel
         $fmod = fmod($amount, $maxCycles);
 
         for ($i = 0; $i <= ($maxCycles - 1); $i++) {
-            $j = $i - 1;
             $todayClone = clone $todayDate;
             $format = 'Y-m-d';
-            $freqByCycles = $periodFrequency + $j;
+            $freqByCycles = $periodFrequency * $i;
             $interval = null;
 
             switch ($periodUnit) {
@@ -281,8 +280,8 @@ class SplitpaymentProfile extends ObjectModel
             }
 
             $dateToPay = $todayClone->add($interval)->format($format);
-
             $amountToPay = $i == 0 ? ($part + $fmod) : $part;
+
             $paymentsSplit[] = array(
                 'dateToPay' => $dateToPay,
                 'amountToPay' => $formatPrice ? Tools::displayPrice($amountToPay, $id_currency) : $amountToPay

@@ -93,7 +93,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-		$this->version = '1.4.0';
+        $this->version = '1.4.0';
         $this->author = 'Lemon Way';
         $this->need_instance = 0;
 
@@ -316,6 +316,7 @@ class Lemonway extends PaymentModule
         Configuration::deleteByName('CUSTOM_ENVIRONMENT_NAME');
         Configuration::deleteByName('LEMONWAY_IS_TEST_MODE');
         Configuration::deleteByName('LEMONWAY_CSS_URL');
+        Configuration::deleteByName('LEMONWAY_TPL');
 
         //METHOD CONFIGURATION
         Configuration::deleteByName('LEMONWAY_ONECLIC_ENABLED'); //Keeped for old module versions
@@ -361,7 +362,8 @@ class Lemonway extends PaymentModule
                     'LEMONWAY_MERCHANT_ID' => Configuration::get('LEMONWAY_MERCHANT_ID', null),
                     'CUSTOM_ENVIRONMENT_NAME' => Configuration::get('CUSTOM_ENVIRONMENT_NAME', null),
                     'LEMONWAY_IS_TEST_MODE' => Configuration::get('LEMONWAY_IS_TEST_MODE', null),
-                    'LEMONWAY_CSS_URL' => Configuration::get('LEMONWAY_CSS_URL', null)
+                    'LEMONWAY_CSS_URL' => Configuration::get('LEMONWAY_CSS_URL', null),
+                    'LEMONWAY_TPL' => Configuration::get('LEMONWAY_TPL', null)
                 );
 
             case 'CC_XTIMES':
@@ -870,7 +872,15 @@ class Lemonway extends PaymentModule
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-css3"></i>',
                         'desc' => $this->l('Customise the stylesheet of the payment page') . " " .
-                            $this->l('(Notice: If your website is in https, the CSS URL has to be in https too)'),
+                            $this->l('(Notice: If your website is in https, the CSS URL has to be in https too)')
+                    ),
+                    array(
+                        'col' => 6,
+                        'label' => $this->l('Payment page template'),
+                        'name' => 'LEMONWAY_TPL',
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-pencil"></i>',
+                        'desc' => $this->l('The template name that Lemon Way sent to you.') . " "
                     ),
                     array(
                         'col' => 3,
@@ -878,7 +888,7 @@ class Lemonway extends PaymentModule
                         'prefix' => '<i class="icon icon-leaf"></i>',
                         'desc' => $this->l('If you have a specific environment with Lemon Way'),
                         'name' => 'CUSTOM_ENVIRONMENT_NAME',
-                        'label' => $this->l('Custom environment name'),
+                        'label' => $this->l('Custom environment name')
                     )
                 ),
                 'submit' => array(
@@ -1015,10 +1025,6 @@ class Lemonway extends PaymentModule
         $order = isset($params['objOrder']) ? $params['objOrder'] : $params['order'];
         $total_to_pay = $order->getOrdersTotalPaid();
         $currency = new Currency($order->id_currency);
-
-        if ($order->getCurrentOrderState()->id != Configuration::get('PS_OS_ERROR')) {
-            $this->smarty->assign('status', 'ok');
-        }
 
         $this->smarty->assign(array(
             'id_order' => $order->id,
@@ -1159,7 +1165,7 @@ class Lemonway extends PaymentModule
             return $id_cart;
         }
 
-        throw new Exception($this->l("Cart not found!"), 406);
+        throw new Exception($this->l('Cart not found!'), 406);
     }
 
     public function isVersion17()

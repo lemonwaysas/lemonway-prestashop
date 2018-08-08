@@ -103,6 +103,11 @@ class LemonWayConfig
         return Configuration::get('LEMONWAY_CSS_URL', null);
     }
 
+    public static function getTpl()
+    {
+        return Configuration::get('LEMONWAY_TPL', null);
+    }
+
     public static function getOneclicEnabled($method)
     {
         return Configuration::get('LEMONWAY_' . Tools::strtoupper($method) . '_ONECLIC_ENABLED', null);

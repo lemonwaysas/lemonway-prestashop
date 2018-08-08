@@ -62,20 +62,12 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         $secure_key = $this->context->customer->secure_key;
         $kit = new LemonWayKit();
 
-        /**
-         * Generate a new wkToken for this cart ID
-         * It' is necessary to send a new wkToken for each requests
-         */
+        // Generate a new wkToken for this cart ID
+        // It' is necessary to send a new wkToken for each requests
         $wkToken = $this->module->saveWkToken($cart->id);
         $comment = Configuration::get('PS_SHOP_NAME') . " - " . $cart->id . " - " .
             $customer->lastname . " " . $customer->firstname . " - " . $customer->email;
 
-        /**
-         * Check if module mkt is installed, in this case, we don't send amount commission
-         * Because we need this funds for credit vendors
-         *
-         */
-        // $amountComRaw = !$this->module->moduleMktIsEnabled() ? (float)$cart->getOrderTotal(true, 3) : 0;
         $amountComRaw = 0;
         $amountCom = number_format($amountComRaw, 2, '.', '');
 
@@ -105,7 +97,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
         );
 
         $profile = null;
-        //If is X times method, we split the payment
+        // If is X times method, we split the payment
         if ($methodInstance->isSplitPayment() &&
             ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))) {
             $profile = new SplitpaymentProfile($splitPaypentProfileId);
@@ -123,7 +115,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             }
         }
 
-        $returnlCallbackParams = array_merge($baseCallbackParams, array(
+        $returnCallbackParams = array_merge($baseCallbackParams, array(
             'register_card' => (int) $this->registerCard(),
             'action' => 'return'
         ));
@@ -138,7 +130,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
 
         if (!$this->useCard()) {
-            //call directkit to get Webkit Token
+            // Call directkit to get Webkit Token
             $params = array(
                 'wkToken' => $wkToken,
                 'wallet' => LemonWayConfig::getWalletMerchantId(),
@@ -148,7 +140,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 'returnUrl' => urlencode($this->context->link->getModuleLink(
                     'lemonway',
                     'validation',
-                    $returnlCallbackParams,
+                    $returnCallbackParams,
                     true
                 )),
                 'cancelUrl' => urlencode($this->context->link->getModuleLink(
@@ -170,9 +162,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             try {
                 $res = $kit->moneyInWebInit($params);
 
-                /**
-                 * Oops, an error occured.
-                 */
+                // Oops, an error occured.
                 if (isset($res->E)) {
                     throw new Exception((string) $res->E->Msg, (int) $res->E->Code);
                 }
@@ -211,7 +201,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
             $lwUrl = LemonWayConfig::getWebkitUrl() . '?moneyintoken=' . $moneyInToken . '&p='
                 . urlencode(LemonWayConfig::getCssUrl()) . '&tpl='
-                . urlencode(LemonWayConfig::getCssUrl()) . '&lang=' . $language;
+                . urlencode(LemonWayConfig::getTpl()) . '&lang=' . $language;
 
             Tools::redirect($lwUrl);
         } else {

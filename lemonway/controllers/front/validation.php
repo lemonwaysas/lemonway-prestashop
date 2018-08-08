@@ -95,13 +95,15 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         }
 
         if ($this->isGet()) { // Is redirection from Lemonway
+            PrestaShopLogger::addLog("Lemon Way redirection: " . print_r($_GET, true));
+
             if ((Tools::isSubmit('secure_key') == false)) {
                 die;
             }
 
             Tools::redirect($this->context->link->getModuleLink('lemonway', 'confirmation', $redirectParams, true));
         } elseif ($this->isPost()) { // Is instant payment notification
-            PrestaShopLogger::addLog("POST: " . print_r($_POST, true));
+            PrestaShopLogger::addLog("Lemon Way IPN: " . print_r($_POST, true));
 
             if (Tools::isSubmit('response_code') == false) {
                 die;
@@ -212,7 +214,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 $cardId = Configuration::get($cardKey);
                 if ($cardId) {
                     //Save deadlines
-                    $profile->generateDeadlines($order, $cardId, $methodInstance->getCode(), true, true);
+                    $profile->generateDeadlines($order, $cardId, $methodInstance->getCode(), $this->isValidOrder($action, $response_code), $this->isValidOrder($action, $response_code));
                     ConfigurationCore::deleteByName($cardKey);
                 } else {
                     throw new Exception($this->module->l("Card token not found"));
