@@ -178,8 +178,7 @@ class Lemonway extends PaymentModule
         $pdf_invoice = false,
         $paid = false,
         $send_email = false
-    )
-    {
+    ) {
         if (!Configuration::get($key)) {
             $os = new OrderState();
             $os->name = array();
@@ -291,9 +290,9 @@ class Lemonway extends PaymentModule
             "fr" => "En attente de validation par Lemonway"
         );
 
-        $adminLemonwayId = Db::getInstance()->getValue(
+        /*$adminLemonwayId = Db::getInstance()->getValue(
             "SELECT `id_tab` FROM " . _DB_PREFIX_ . "tab WHERE `class_name` = 'AdminLemonway'"
-        );
+        );*/
 
         include(dirname(__FILE__) . '/sql/install.php');
         

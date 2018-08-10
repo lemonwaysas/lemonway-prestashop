@@ -262,7 +262,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 
             $templateVars = array();
             $history->sendEmail($order, $templateVars);
-
         } else {
             //@TODO throw error for not http method supported
             die("HTTP Method not Allowed");

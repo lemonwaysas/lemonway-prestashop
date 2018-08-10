@@ -330,7 +330,6 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                         $this->addError($res->TRANS->HPAY->MSG);
                         return $this->displayError();
                     }
-
                 }
             } else {
                 $this->addError('Customer not logged or card not found!');
