@@ -317,11 +317,10 @@ class ControllerBackwardModule
     {
         if (_PS_VERSION_ < '1.5') {
             $this->addJS(_PS_JS_DIR_ . 'jquery/jquery-1.4.4.min.js');
-        } else if (_PS_VERSION_ >= '1.5') {
+        } elseif (_PS_VERSION_ >= '1.5') {
             $this->addJS(_PS_JS_DIR_ . 'jquery/jquery-1.7.2.min.js');
         }
     }
-
 }
 
 /**

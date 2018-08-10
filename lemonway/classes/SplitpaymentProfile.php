@@ -291,15 +291,15 @@ class SplitpaymentProfile extends ObjectModel
         return $asJson ? json_encode($paymentsSplit) : $paymentsSplit;
     }
   
-  /**
-     * Checks if object field values are valid before database interaction
-     *
-     * @param bool $die
-     * @param bool $error_return
-     *
-     * @return bool|string True, false or error message.
-     * @throws PrestaShopException
-     */
+    /**
+       * Checks if object field values are valid before database interaction
+       *
+       * @param bool $die
+       * @param bool $error_return
+       *
+       * @return bool|string True, false or error message.
+       * @throws PrestaShopException
+       */
     public function validateFields($die = true, $error_return = false)
     {
         $return = parent::validateFields($die, $error_return);

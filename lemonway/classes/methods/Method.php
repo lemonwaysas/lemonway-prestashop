@@ -126,6 +126,7 @@ abstract class Method
                     return true;
                 }
                 // return so no need to break
+                // no break
             default:
                 return true;
         }

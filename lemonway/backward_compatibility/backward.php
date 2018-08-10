@@ -42,7 +42,7 @@ if (!in_array('BWDisplay', get_declared_classes())) {
 // If not under an object we don't have to set the context
 if (!isset($this)) {
     return;
-} else if (isset($this->context)) {
+} elseif (isset($this->context)) {
     $employeeSet = isset($this->context->employee->id) && $this->context->employee->id;
     $currentIndexSet = isset(AdminController::$currentIndex) && !empty(AdminController::$currentIndex);
 

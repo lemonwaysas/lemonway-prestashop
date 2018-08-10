@@ -331,7 +331,7 @@ class Lemonway extends PaymentModule
         
         //CREDIT CARD X TIMES (split)
         Configuration::deleteByName('LEMONWAY_SPLITPAYMENT_IS_RUNNING');
-       // Configuration::deleteByName('LEMONWAY_SPLIT_PAYMENT_OS');
+        // Configuration::deleteByName('LEMONWAY_SPLIT_PAYMENT_OS');
 
         //Do Not delete this configuration
         //Configuration::deleteByName('LEMONWAY_PENDING_OS');

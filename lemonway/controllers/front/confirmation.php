@@ -153,7 +153,6 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
 
     protected function displayError()
     {
-
         if ($this->module->isVersion17()) {
             $cartUrl = 'index.php?controller=cart&action=show';
             return $this->redirectWithNotifications($cartUrl);
