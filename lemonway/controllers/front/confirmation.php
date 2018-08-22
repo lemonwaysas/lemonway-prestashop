@@ -80,9 +80,9 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
             case 'return':
                 $payment_status = Configuration::get('PS_OS_PAYMENT');
                 // If the order has been validated we try to retrieve it
-                $order_id = Order::getOrderByCartId((int) $cart->id);
+                $order_id = (int) Order::getOrderByCartId((int) $cart->id);
 
-                if (!$order_id) {
+                if (!Context::getContext()->cart->OrderExists()) {
                     // Converting cart into a valid order
                     $this->module->validateOrder(
                         $cart_id,
@@ -95,7 +95,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                         false,
                         $secure_key
                     );
-                    $order_id = Order::getOrderByCartId((int) $cart->id);
+                    $order_id = (int) Order::getOrderByCartId((int) $cart->id);
                 }
 
                 if ($order_id && ($secure_key == $customer->secure_key)) {
@@ -114,9 +114,9 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                 break;
 
             case 'error':
-                $order_id = Order::getOrderByCartId((int) $cart->id);
+                $order_id = (int) Order::getOrderByCartId((int) $cart->id);
 
-                if (!$order_id) {
+                if (!Context::getContext()->cart->OrderExists()) {
                     // Converting cart into a valid order
                     $this->module->validateOrder(
                         $cart_id,
@@ -129,7 +129,7 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                         false,
                         $secure_key
                     );
-                    $order_id = Order::getOrderByCartId((int) $cart->id);
+                    $order_id = (int) Order::getOrderByCartId((int) $cart->id);
                 }
 
                 if ($order_id && ($secure_key == $customer->secure_key)) {

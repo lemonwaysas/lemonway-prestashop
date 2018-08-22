@@ -247,7 +247,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     false,
                     $secure_key
                 )) {
-                    $order_id = (int)Order::getOrderByCartId($cart->id); //Get new order id
+                    $order_id = (int)Order::getOrderByCartId((int) $cart->id); //Get new order id
                 
                     /* @var $order OrderCore */
                     $order = new Order($order_id);

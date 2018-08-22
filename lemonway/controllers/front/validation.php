@@ -165,7 +165,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 $id_order_state = Configuration::get('PS_OS_ERROR');
             }
 
-            $order_id = (int)Order::getOrderByCartId($cart_id);
+            $order_id = (int)Order::getOrderByCartId((int) $cart_id);
 
             if (!Context::getContext()->cart->OrderExists()) {
                 $this->module->validateOrder(
@@ -179,10 +179,10 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                     false,
                     $secure_key
                 );
-                $order_id = Order::getOrderByCartId((int) $cart_id);
+                $order_id = (int) Order::getOrderByCartId((int) $cart_id);
 
                 if ($methodInstance->isSplitPayment()) {
-                    $order_id = (int)Order::getOrderByCartId($cart_id); //Get new order id
+                    $order_id = (int) Order::getOrderByCartId((int) $cart_id); //Get new order id
 
                     /* @var $order OrderCore */
                     $order = new Order($order_id);
