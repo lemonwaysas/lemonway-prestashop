@@ -189,7 +189,8 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 
                     /* @var $invoiceCollection PrestaShopCollectionCore */
                     $invoiceCollection = $order->getInvoicesCollection();
-                    $lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
+                    $lastInvoice = $invoiceCollection
+                        ->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
 
                     $order->addOrderPayment(
                         $amount_paid,
@@ -214,7 +215,13 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 $cardId = Configuration::get($cardKey);
                 if ($cardId) {
                     //Save deadlines
-                    $profile->generateDeadlines($order, $cardId, $methodInstance->getCode(), $this->isValidOrder($action, $response_code), $this->isValidOrder($action, $response_code));
+                    $profile->generateDeadlines(
+                        $order,
+                        $cardId,
+                        $methodInstance->getCode(),
+                        $this->isValidOrder($action, $response_code),
+                        $this->isValidOrder($action, $response_code)
+                    );
                     ConfigurationCore::deleteByName($cardKey);
                 } else {
                     throw new Exception($this->module->l("Card token not found"));

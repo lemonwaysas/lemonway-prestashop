@@ -107,7 +107,10 @@ class Lemonway extends PaymentModule
         parent::__construct();
 
         $this->displayName = $this->l('Lemon Way for E-commerce');
-        $this->description = $this->l('A one minute integration for the cheapest payment solution in Europe. Accept payment by credit cards from all around the world.');
+        $this->description = $this->l(
+            'A one minute integration for the cheapest payment solution in Europe. 
+            Accept payment by credit cards from all around the world.'
+        );
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall? You will lose your datas!');
         $this->limited_countries = array();
         $this->local_path = _PS_MODULE_DIR_ . $this->name . '/';
@@ -569,7 +572,12 @@ class Lemonway extends PaymentModule
                 $fieldPaymentProfile = array(
                     'type' => 'checkbox',
                     'label' => $this->l('Split Payment profile'),
-                    'desc' => $this->l('Choose split payment to show in front') . "<br/>" . sprintf('<a href="%s">%s</a>', $adminSplitPaymentTabUrl, $this->l('Create a split payment profile')),
+                    'desc' => $this->l('Choose split payment to show in front') . "<br/>" .
+                        sprintf(
+                            '<a href="%s">%s</a>',
+                            $adminSplitPaymentTabUrl,
+                            $this->l('Create a split payment profile')
+                        ),
                     'name' => 'LEMONWAY_CC_XTIMES_SPLITPAYMENTS',
                     'values' => array(
                         'query' => $splitpaymentProfiles,

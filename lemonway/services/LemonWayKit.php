@@ -118,7 +118,9 @@ class LemonWayKit
 
         // Log
         $requestParams["p"]["wlPass"] = "*masked*";
-        PrestaShopLogger::addLog("Lemon Way: " . $url . " - Request: " . json_encode($requestParams) . " - Response: " . $response);
+        PrestaShopLogger::addLog(
+            "Lemon Way: " . $url . " - Request: " . json_encode($requestParams) . " - Response: " . $response
+        );
 
         if (curl_errno($ch)) {
             throw new Exception(curl_error($ch));
