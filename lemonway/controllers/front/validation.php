@@ -228,16 +228,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 }
             }
 
-            try {
-                $history = new OrderHistory();
-                $history->id_order = (int)$order_id;
-
-                $history->changeIdOrderState($id_order_state, $order, false);
-                $history->save();
-            } catch (Exception $e) {
-                PrestaShopLogger::addLog($e->getMessage(), 4);
-            }
-
             if ($methodInstance->isSplitPayment()) {
                 /* @var $invoiceCollection PrestaShopCollectionCore */
                 $invoiceCollection = $order->getInvoicesCollection();
@@ -266,9 +256,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                     }
                 }
             }
-
-            $templateVars = array();
-            $history->sendEmail($order, $templateVars);
         } else {
             //@TODO throw error for not http method supported
             die("HTTP Method not Allowed");
