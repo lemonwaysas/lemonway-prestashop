@@ -37,6 +37,8 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
      */
     public function postProcess()
     {
+        PrestaShopLogger::addLog("Lemon Way: Payment validation");
+
         // If the module is not active anymore, no need to process anything.
         if (!$this->module->active) {
             die;

@@ -66,14 +66,6 @@ class Lemonway extends PaymentModule
     /** @var bool */
     public static $is_active = 1;
 
-    public static $statuesLabel = array(
-        1 => "Document uniquement reçu",
-        2 => "Document vérifié et accepté",
-        3 => "Document vérifié mais non accepté",
-        4 => "Document remplacé par un autre document",
-        5 => "Validité du document expiré"
-    );
-
     public static $subMethods = array(
         "CC" => array(
             "classname" => "Cc",
@@ -93,7 +85,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.4.0';
+        $this->version = '1.4.0.1';
         $this->author = 'Lemon Way';
         $this->need_instance = 0;
 
