@@ -234,7 +234,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
                 $currency_id = (int)$this->context->currency->id;
                 $message = Tools::getValue('response_msg');
-                $id_order_state = Configuration::get(Lemonway::LEMONWAY_PENDING_OS);
+                $id_order_state = Configuration::get('PS_OS_PAYMENT');
                 //First, create order with pending state
                 if ($this->module->validateOrder(
                     $cart->id,

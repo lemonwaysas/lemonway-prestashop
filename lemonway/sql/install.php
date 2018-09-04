@@ -27,17 +27,26 @@ function installSQL($module)
 {
     $sql = array();
 
-    $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'lemonway_oneclic` (
-	    `id_oneclic` int(11) NOT NULL AUTO_INCREMENT,
-		`id_customer` int(11) NOT NULL,
-		`id_card` int(11) NOT NULL,
-		`card_num` varchar(30) NOT NULL,
-		`card_exp`  varchar(8) NOT NULL DEFAULT \'\',
-		`card_type` varchar(20) NOT NULL DEFAULT \'\',
-		`date_add` datetime NOT NULL,
-	    `date_upd` datetime NOT NULL,
-	    PRIMARY KEY  (`id_oneclic`)
-	) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+    $sql[] = "CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "lemonway_wktoken` (
+            `id_cart_wktoken` int(11) NOT NULL AUTO_INCREMENT,
+            `id_cart` int(11) NOT NULL,
+            `wktoken` varchar(255) NOT NULL,
+            PRIMARY KEY (`id_cart_wktoken`),
+            UNIQUE KEY `wktoken` (`wktoken`),
+            UNIQUE KEY `id_cart` (`id_cart`)
+            ) ENGINE=" . _MYSQL_ENGINE_ . " DEFAULT CHARSET=utf8;
+
+            CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "lemonway_oneclic` (
+    	    `id_oneclic` int(11) NOT NULL AUTO_INCREMENT,
+    		`id_customer` int(11) NOT NULL,
+    		`id_card` int(11) NOT NULL,
+    		`card_num` varchar(30) NOT NULL,
+    		`card_exp`  varchar(8) NOT NULL DEFAULT '',
+    		`card_type` varchar(20) NOT NULL DEFAULT '',
+    		`date_add` datetime NOT NULL,
+    	    `date_upd` datetime NOT NULL,
+    	    PRIMARY KEY  (`id_oneclic`)
+    	) ENGINE=" . _MYSQL_ENGINE_ . " DEFAULT CHARSET=utf8;";
 
     foreach ($sql as $query) {
         if (Db::getInstance()->execute($query) == false) {

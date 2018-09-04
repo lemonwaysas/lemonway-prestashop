@@ -23,7 +23,7 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-if (!defined('_PS_VERSION_')) {
+if (!defined("_PS_VERSION_")) {
     exit;
 }
 
@@ -36,17 +36,17 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_1_2_9($module)
 {
-    $query = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'lemonway_splitpayment_profile` (
+    $query = "CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "lemonway_splitpayment_profile` (
                 `id_profile` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
                 `name` varchar(150) NOT NULL,
                 `period_unit` varchar(30) NOT NULL,
                 `period_frequency` int(10) UNSIGNED NOT NULL ,
                 `period_max_cycles` int(10) UNSIGNED NOT NULL ,
-                `active` tinyint(1) UNSIGNED  NOT NULL DEFAULT \'1\',
+                `active` tinyint(1) UNSIGNED  NOT NULL DEFAULT '1',
                 PRIMARY KEY  (`id_profile`)
-            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;
+            ) ENGINE=" . _MYSQL_ENGINE_ . " DEFAULT CHARSET=utf8;
 
-            CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'lemonway_splitpayment_deadline` (
+            CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "lemonway_splitpayment_deadline` (
                 `id_splitpayment` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
                 `id_order` int(10) UNSIGNED NOT NULL ,
                 `order_reference` VARCHAR(9) NOT NULL,
@@ -57,19 +57,17 @@ function upgrade_module_1_2_9($module)
                 `amount_to_pay` decimal(12,4) NOT NULL,
                 `date_to_pay` datetime NOT NULL ,
                 `method_code` varchar(150) NOT NULL,
-                `attempts` int(4) UNSIGNED NOT NULL DEFAULT \'0\' ,
-                `status` varchar(60) NOT NULL DEFAULT \'pending\',
+                `attempts` int(4) UNSIGNED NOT NULL DEFAULT '0',
+                `status` varchar(60) NOT NULL DEFAULT 'pending',
                 `paid_at` datetime,
                 `date_add` datetime NOT NULL,
-                  `date_upd` datetime NOT NULL,
+                `date_upd` datetime NOT NULL,
                 PRIMARY KEY  (`id_splitpayment`)
-            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+            ) ENGINE=" . _MYSQL_ENGINE_ . " DEFAULT CHARSET=utf8;";
 
     if (Db::getInstance()->execute($query) == false) {
         return false;
     }
-
-    updateNewConfigurationKeyValue();
 
     $translationsAdminSplitpaymentProfile = array(
         'en' => 'Split payment profile',
@@ -97,15 +95,4 @@ function addAdminTab($module, $tabClass, $translations)
     );
 
     return $module->installModuleTab($tabClass, $translations, $adminLemonwayId, $module->name);
-}
-
-function updateNewConfigurationKeyValue()
-{
-    Configuration::updateValue('LEMONWAY_CC_ENABLED', true);
-    Configuration::updateValue('LEMONWAY_CC_TITLE', 'Credit card');
-
-    $oldconf = Configuration::get('LEMONWAY_ONECLIC_ENABLED');
-    Configuration::updateValue('LEMONWAY_CC_ONECLIC_ENABLED', $oldconf);
-
-    return true;
 }

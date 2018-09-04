@@ -34,8 +34,6 @@ require_once 'classes/methods/CcXtimes.php';
 
 class Lemonway extends PaymentModule
 {
-    const DEBUG_MODE = true;
-    const LEMONWAY_PENDING_OS = 'LEMONWAY_PENDING_OS';
     const LEMONWAY_SPLIT_PAYMENT_OS = 'LEMONWAY_SPLIT_PAYMENT_OS';
 
     protected $config_form = false;
@@ -66,6 +64,14 @@ class Lemonway extends PaymentModule
     /** @var bool */
     public static $is_active = 1;
 
+    public static $statuesLabel = array(
+        1 => "Document uniquement reçu",
+        2 => "Document vérifié et accepté",
+        3 => "Document vérifié mais non accepté",
+        4 => "Document remplacé par un autre document",
+        5 => "Validité du document expiré"
+    );
+
     public static $subMethods = array(
         "CC" => array(
             "classname" => "Cc",
@@ -85,7 +91,7 @@ class Lemonway extends PaymentModule
     {
         $this->name = 'lemonway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.4.0.1';
+        $this->version = '1.4.1';
         $this->author = 'Lemon Way';
         $this->need_instance = 0;
 
@@ -115,7 +121,7 @@ class Lemonway extends PaymentModule
 
     public function installModuleTab($tabClass, $translations, $idTabParent, $moduleName = null)
     {
-        @copy(_PS_MODULE_DIR_ . $this->name . '/logo.png', _PS_IMG_DIR_ . 't/' . $tabClass . '.png');
+        @copy(_PS_MODULE_DIR_ . $this->name . '/icon.png', _PS_IMG_DIR_ . 't/' . $tabClass . '.png');
         /* @var $tab TabCore */
         $tab = new Tab();
         foreach (Language::getLanguages(false) as $language) {
@@ -172,7 +178,8 @@ class Lemonway extends PaymentModule
         $invoice = false,
         $pdf_invoice = false,
         $paid = false,
-        $send_email = false
+        $send_email = false,
+        $template = null
     ) {
         if (!Configuration::get($key)) {
             $os = new OrderState();
@@ -188,6 +195,7 @@ class Lemonway extends PaymentModule
             $os->color = $color;
             $os->hidden = $hidden;
             $os->send_email = $send_email;
+            $os->template = $template;
             $os->delivery = $delivery;
             $os->logable = $logable;
             $os->invoice = $invoice;
@@ -217,16 +225,17 @@ class Lemonway extends PaymentModule
         );
         
         return $this->addStatus(
-            self::LEMONWAY_SPLIT_PAYMENT_OS,
-            $translationsStatus,
-            "#32CD32",
-            false,
-            false,
-            true,
-            true,
-            true,
-            false,
-            true
+            self::LEMONWAY_SPLIT_PAYMENT_OS, // key
+            $translationsStatus, // translations
+            "#32CD32", // color
+            false, // hidden
+            false, // delivery
+            false, // logable
+            true, // invoice
+            true, // pdf_invoice
+            false, // paid
+            true, // send_email
+            "payment" // template
         );
     }
 
@@ -241,37 +250,35 @@ class Lemonway extends PaymentModule
         }
 
         if (extension_loaded('curl') == false) {
-            $this->_errors[] = $this->l('You have to enable the cURL extension on your server to install this module');
+            $this->_errors[] = $this->l('You have to enable the cURL extension on your server to install this module.');
             return false;
         }
 
-        //API CONFIGURATION
         Configuration::updateValue('LEMONWAY_API_LOGIN', '');
         Configuration::updateValue('LEMONWAY_API_PASSWORD', '');
         Configuration::updateValue('LEMONWAY_MERCHANT_ID', '');
         Configuration::updateValue('CUSTOM_ENVIRONMENT_NAME', '');
         Configuration::updateValue('LEMONWAY_IS_TEST_MODE', false);
-        
-        //METHOD CONFIGURATION
+
         Configuration::updateValue(
             'LEMONWAY_CSS_URL',
             'https://webkit.lemonway.fr/css/mercanet/mercanet_lw_custom.css'
         );
+        Configuration::updateValue('LEMONWAY_TPL', '');
+
+        // Credit Card
+        Configuration::updateValue('LEMONWAY_CC_ENABLED', true);
+
+        // CREDIT CARD X TIMES (split)
+        Configuration::updateValue('LEMONWAY_CC_XTIMES_ENABLED', false);
 
         //COMMON CREDIT CARD Configuration
         foreach (self::$subMethods as $method) {
-            Configuration::updateValue('LEMONWAY_' . Tools::strtoupper($method['code']) . '_ONECLIC_ENABLED', null);
+            Configuration::updateValue('LEMONWAY_' . Tools::strtoupper($method['code']) . '_ONECLIC_ENABLED', false);
             Configuration::updateValue('LEMONWAY_' . Tools::strtoupper($method['code']) . '_TITLE', $method['title']);
         }
 
-        Configuration::updateValue('LEMONWAY_CC_ENABLED', 1);
-        Configuration::updateValue('LEMONWAY_CC_XTIMES_ENABLED', null);
-
-        //CREDIT CARD X TIMES (split)
         Configuration::updateValue('LEMONWAY_CC_XTIMES_SPLITPAYMENTS', null);
-
-        //Prepare status values
-        $key = self::LEMONWAY_PENDING_OS;
 
         $translationsAdminLemonway = array(
             "en" => "Lemon Way",
@@ -280,15 +287,6 @@ class Lemonway extends PaymentModule
 
         $this->installModuleTab('AdminLemonway', $translationsAdminLemonway, 0);
 
-        $translationsStatus = array(
-            "en" => "Pending payment validation from Lemonway",
-            "fr" => "En attente de validation par Lemonway"
-        );
-
-        /*$adminLemonwayId = Db::getInstance()->getValue(
-            "SELECT `id_tab` FROM " . _DB_PREFIX_ . "tab WHERE `class_name` = 'AdminLemonway'"
-        );*/
-
         include(dirname(__FILE__) . '/sql/install.php');
         
         return parent::install() &&
@@ -296,8 +294,6 @@ class Lemonway extends PaymentModule
             $this->registerHook('backOfficeHeader') &&
             $this->registerHook('payment') &&
             $this->registerHook('paymentReturn') &&
-            $this->addStatus($key, $translationsStatus, 'orange') && //Add new Status
-            //$this->installModuleTab('AdminMoneyOut', $translationsAdminMoneyOut, $adminLemonwayId) &&
             installSQL($this);
     }
 
@@ -311,27 +307,18 @@ class Lemonway extends PaymentModule
         Configuration::deleteByName('LEMONWAY_IS_TEST_MODE');
         Configuration::deleteByName('LEMONWAY_CSS_URL');
         Configuration::deleteByName('LEMONWAY_TPL');
-
-        //METHOD CONFIGURATION
-        Configuration::deleteByName('LEMONWAY_ONECLIC_ENABLED'); //Keeped for old module versions
         
         //COMMON CREDIT CARD Configuration
         foreach (self::$subMethods as $method) {
             Configuration::deleteByName('LEMONWAY_' . Tools::strtoupper($method['code']) . '_ONECLIC_ENABLED');
             Configuration::deleteByName('LEMONWAY_' . Tools::strtoupper($method['code']) . '_ENABLED');
             Configuration::deleteByName('LEMONWAY_' . Tools::strtoupper($method['code']) . '_TITLE');
-            Configuration::deleteByName('LEMONWAY_' . Tools::strtoupper($method['code']) . '_SPLITPAYMENTS');
         }
         
-        
         //CREDIT CARD X TIMES (split)
+        Configuration::deleteByName('LEMONWAY_CC_XTIMES_SPLITPAYMENTS');
         Configuration::deleteByName('LEMONWAY_SPLITPAYMENT_IS_RUNNING');
-        // Configuration::deleteByName('LEMONWAY_SPLIT_PAYMENT_OS');
 
-        //Do Not delete this configuration
-        //Configuration::deleteByName('LEMONWAY_PENDING_OS');
-        
-        $this->uninstallModuleTab('AdminMoneyOut');
         $this->uninstallModuleTab('AdminLemonway');
         $this->uninstallModuleTab('AdminSplitpaymentProfile');
         $this->uninstallModuleTab('AdminSplitpaymentDeadline');
