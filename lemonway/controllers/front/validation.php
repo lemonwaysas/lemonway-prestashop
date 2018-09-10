@@ -182,27 +182,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                     $secure_key
                 );
                 $order_id = (int) Order::getOrderByCartId((int) $cart_id);
-
-                if ($methodInstance->isSplitPayment()) {
-                    $order_id = (int) Order::getOrderByCartId((int) $cart_id); //Get new order id
-
-                    /* @var $order OrderCore */
-                    $order = new Order($order_id);
-
-                    /* @var $invoiceCollection PrestaShopCollectionCore */
-                    $invoiceCollection = $order->getInvoicesCollection();
-                    $lastInvoice = $invoiceCollection
-                        ->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
-
-                    $order->addOrderPayment(
-                        $amount_paid,
-                        $methodInstance->getTitle(),
-                        Tools::getValue('response_transactionId'),
-                        null,
-                        null,
-                        ($lastInvoice ? $lastInvoice : null)
-                    );
-                }
             }
 
             if ($methodInstance->isSplitPayment() && !$profile) {
@@ -228,9 +207,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 } else {
                     throw new Exception($this->module->l("Card token not found"));
                 }
-            }
 
-            if ($methodInstance->isSplitPayment()) {
                 /* @var $invoiceCollection PrestaShopCollectionCore */
                 $invoiceCollection = $order->getInvoicesCollection();
 

@@ -79,6 +79,11 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
         switch ($action) {
             case 'return':
                 $payment_status = Configuration::get('PS_OS_PAYMENT');
+
+                if ($methodInstance->isSplitPayment()) {
+                    $payment_status = Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
+                }
+
                 // If the order has been validated we try to retrieve it
                 $order_id = (int) Order::getOrderByCartId((int) $cart->id);
 
@@ -96,6 +101,10 @@ class LemonwayConfirmationModuleFrontController extends ModuleFrontController
                         $secure_key
                     );
                     $order_id = (int) Order::getOrderByCartId((int) $cart->id);
+                }
+
+                if ($methodInstance->isSplitPayment() && !$profile) {
+                    throw new Exception("Wrong data for split payment");
                 }
 
                 if ($order_id && ($secure_key == $customer->secure_key)) {
