@@ -35,7 +35,14 @@ if (!defined('_PS_VERSION_')) {
  *
  * @return boolean
  */
-function upgrade_module_1_4_0($module)
+function upgrade_module_1_4_1($module)
 {
     $module->uninstallModuleTab('AdminMoneyOut');
+
+    $os = new OrderState(Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS));
+    $os->logable = false;
+    $os->template = "payment";
+    $os->save();
+
+    return true;
 }

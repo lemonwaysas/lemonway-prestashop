@@ -42,6 +42,7 @@ function installSQL($module)
 
     foreach ($sql as $query) {
         if (Db::getInstance()->execute($query) == false) {
+            PrestaShopLogger::addLog("Database installation failed.", 4, null, null, null, true);
             return false;
         }
     }
@@ -66,6 +67,7 @@ function installSQL($module)
                 if (function_exists($upgradeFunc)) {
                     $res = $upgradeFunc($module);
                     if (!$res) {
+                        PrestaShopLogger::addLog("Database installation failed.", 4, null, null, null, true);
                         return false;
                     }
                 }
