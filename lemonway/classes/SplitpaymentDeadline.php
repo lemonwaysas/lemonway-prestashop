@@ -203,7 +203,7 @@ class SplitpaymentDeadline extends ObjectModel
                                 $lastInvoice
                             );
                         } catch (Exception $e) {
-                            PrestaShopLogger::addLog($e->getMessage(), 4);
+                            PrestaShopLogger::addLog($e->getMessage(), 4, null, null, null, true);
                         }
 
                         //@TODO change order state if is the last split payment

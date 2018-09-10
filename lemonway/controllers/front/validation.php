@@ -37,7 +37,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
      */
     public function postProcess()
     {
-        PrestaShopLogger::addLog("Lemon Way: Payment validation");
+        PrestaShopLogger::addLog("Lemon Way: Payment validation", 1, null, null, null, true);
 
         // If the module is not active anymore, no need to process anything.
         if (!$this->module->active) {
@@ -97,7 +97,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         }
 
         if ($this->isGet()) { // Is redirection from Lemonway
-            PrestaShopLogger::addLog("Lemon Way redirection: " . print_r($_GET, true));
+            PrestaShopLogger::addLog("Lemon Way redirection: " . print_r($_GET, true), 1, null, null, null, true);
 
             if ((Tools::isSubmit('secure_key') == false)) {
                 die;
@@ -105,7 +105,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 
             Tools::redirect($this->context->link->getModuleLink('lemonway', 'confirmation', $redirectParams, true));
         } elseif ($this->isPost()) { // Is instant payment notification
-            PrestaShopLogger::addLog("Lemon Way IPN: " . print_r($_POST, true));
+            PrestaShopLogger::addLog("Lemon Way IPN: " . print_r($_POST, true), 1, null, null, null, true);
 
             if (Tools::isSubmit('response_code') == false) {
                 die;
@@ -246,7 +246,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                         $lastInvoice
                     );
                 } catch (Exception $e) {
-                    PrestaShopLogger::addLog($e->getMessage(), 4);
+                    PrestaShopLogger::addLog($e->getMessage(), 4, null, null, null, true);
                 }
             } else { //Update order payment
                 foreach ($order->getOrderPaymentCollection() as $orderPayment) {
@@ -254,7 +254,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                         $orderPayment->payment_method = $methodInstance->getTitle();
                         $orderPayment->update();
                     } catch (Exception $e) {
-                        PrestaShopLogger::addLog($e->getMessage(), 4);
+                        PrestaShopLogger::addLog($e->getMessage(), 4, null, null, null, true);
                     }
                 }
             }
@@ -276,7 +276,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         try {
             $res = $kit->getMoneyInTransDetails($params);
         } catch (Exception $e) {
-            PrestaShopLogger::addLog($e->getMessage(), 4);
+            PrestaShopLogger::addLog($e->getMessage(), 4, null, null, null, true);
             throw $e;
         }
 

@@ -245,12 +245,13 @@ class Lemonway extends PaymentModule
     */
     public function install()
     {
+        PrestaShopLogger::addLog("LemonWay module is installing...", 1, null, null, null, true);
         if (Shop::isFeatureActive()) {
             Shop::setContext(Shop::CONTEXT_ALL);
         }
 
         if (extension_loaded('curl') == false) {
-            $this->_errors[] = $this->l('You have to enable the cURL extension on your server to install this module.');
+            $this->_errors[] = $this->l("You have to enable the cURL extension on your server to install this module.");
             return false;
         }
 
@@ -289,12 +290,20 @@ class Lemonway extends PaymentModule
 
         include(dirname(__FILE__) . '/sql/install.php');
         
-        return parent::install() &&
+        $installed = parent::install() &&
             $this->registerHook('header') &&
             $this->registerHook('backOfficeHeader') &&
             $this->registerHook('payment') &&
             $this->registerHook('paymentReturn') &&
             installSQL($this);
+
+        if ($installed) {
+            PrestaShopLogger::addLog("LemonWay module is installed.", 1, null, null, null, true);
+        } else {
+            PrestaShopLogger::addLog("LemonWay installation failed.", 4, null, null, null, true);
+        }
+
+        return $installed;
     }
 
     public function uninstall()

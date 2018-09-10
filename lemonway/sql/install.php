@@ -25,18 +25,10 @@
 
 function installSQL($module)
 {
+    PrestaShopLogger::addLog("Database installation for LemonWay.", 1, null, null, null, true);
     $sql = array();
 
-    $sql[] = "CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "lemonway_wktoken` (
-            `id_cart_wktoken` int(11) NOT NULL AUTO_INCREMENT,
-            `id_cart` int(11) NOT NULL,
-            `wktoken` varchar(255) NOT NULL,
-            PRIMARY KEY (`id_cart_wktoken`),
-            UNIQUE KEY `wktoken` (`wktoken`),
-            UNIQUE KEY `id_cart` (`id_cart`)
-            ) ENGINE=" . _MYSQL_ENGINE_ . " DEFAULT CHARSET=utf8;
-
-            CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "lemonway_oneclic` (
+    $sql[] = "CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "lemonway_oneclic` (
     	    `id_oneclic` int(11) NOT NULL AUTO_INCREMENT,
     		`id_customer` int(11) NOT NULL,
     		`id_card` int(11) NOT NULL,
