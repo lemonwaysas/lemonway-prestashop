@@ -194,16 +194,14 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                             if ($register_card && $cart->id_customer) {
                                 $card = $this->module->getCustomerCard($cart->id_customer);
 
-                                if (!$card) {
-                                    $card = array();
+                                if ($card) {
+                                    $card['id_customer'] = $cart->id_customer;
+                                    $card['card_num'] = $operation->EXTRA->NUM;
+                                    $card['card_type'] = $operation->EXTRA->TYP;
+                                    $card['card_exp'] = $operation->EXTRA->EXP;
+
+                                    $this->module->insertOrUpdateCard($cart->id_customer, $card);
                                 }
-
-                                $card['id_customer'] = $cart->id_customer;
-                                $card['card_num'] = $operation->EXTRA->NUM;
-                                $card['card_type'] = $operation->EXTRA->TYP;
-                                $card['card_exp'] = $operation->EXTRA->EXP;
-
-                                $this->module->insertOrUpdateCard($cart->id_customer, $card);
                             }
 
                             if ($this->isGet()) {

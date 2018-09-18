@@ -226,7 +226,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 }
 
                 // If signed in and saved card
-                if ($customer->id && isset($res->MONEYINWEB->CARD) && $this->registerCard()) {
+                if ($customer->id && $customer->isLogged() && isset($res->MONEYINWEB->CARD) && $this->registerCard()) {
                     $card = $this->module->getCustomerCard($customer->id);
 
                     if (!$card) {
