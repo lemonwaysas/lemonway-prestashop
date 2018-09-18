@@ -48,7 +48,9 @@ class LemonWayKit
 
     public function moneyInWebInit($params)
     {
-        return self::sendRequest('MoneyInWebInit', $params);
+        $res = self::sendRequest('MoneyInWebInit', $params);
+
+        return $res->MONEYINWEB;
     }
 
     public function moneyInWithCardId($params)

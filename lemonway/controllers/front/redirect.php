@@ -188,7 +188,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             $kit = new LemonWayKit();
 
             // Payment
-            if (!$this->useCard()) {
+            if (!$customer->isLogged() || !$this->useCard()) {
                 // Not rebill => MoneyInWebInit
                 $params = array(
                     "wkToken" => $wkToken,
@@ -226,7 +226,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 }
 
                 // If signed in and saved card
-                if ($customer->id && $customer->isLogged() && isset($res->MONEYINWEB->CARD) && $this->registerCard()) {
+                if ($customer->id && $customer->isLogged() && isset($res->CARD) && $this->registerCard()) {
                     $card = $this->module->getCustomerCard($customer->id);
 
                     if (!$card) {
@@ -234,7 +234,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     }
 
                     $card['id_customer'] = $customer->id;
-                    $card['id_card'] = $res->MONEYINWEB->CARD->ID;
+                    $card['id_card'] = $res->CARD->ID;
 
                     $this->module->insertOrUpdateCard($customer->id, $card);
                 }
@@ -243,7 +243,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     //@TODO: splitpayment save card
                 }             
 
-                $moneyInToken = (string) $res->MONEYINWEB->TOKEN;
+                $moneyInToken = $res->TOKEN;
 
                 // Generate payment page link
                 $paymentPage = LemonWayConfig::getWebkitUrl()
@@ -254,8 +254,31 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
                 Tools::redirect($paymentPage);
             } else {
-                // Rebill => MoneyInWithCardId
-                //@TODO: use saved card
+                // Rebill
+                $card = $this->module->getCustomerCard($customer->id);
+                if (!$card) {
+                    throw new Exception($this->module->l("Card not found."), $customer->id);
+                }
+
+                // MoneyInWithCardId
+                $params = array(
+                    "wkToken" => $wkToken,
+                    "wallet" => $wallet,
+                    "cardId" => $card["id_card"],
+                    "amountTot" => $amountTot,
+                    "amountCom" => "0.00",
+                    "comment" => $comment . " (MoneyInWithCardId)",
+                    "autoCommission" => $autoCommission
+                );
+
+                $res = $kit->moneyInWithCardId($params);
+
+                // Error from API
+                if (isset($res->E)) {
+                    throw new Exception((string) $res->E->Msg, (int) $res->E->Code);
+                }
+
+
             }
         } catch (Exception $e) {
             PrestaShopLogger::addLog("LemonWay::redirect - " . $e->getMessage() . " (" . $e->getCode() . ")", 4, null, null, null, true);
