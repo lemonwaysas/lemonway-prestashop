@@ -25,273 +25,6 @@
 
 class LemonwayValidationModuleFrontController extends ModuleFrontController
 {
-    public function __construct()
-    {
-        parent::__construct();
-        require_once _PS_MODULE_DIR_ . $this->module->name . '/services/LemonWayKit.php';
-    }
-
-    /**
-     * This class should be use by your Instant Payment
-     * Notification system to validate the order remotely
-     */
-    public function postProcess()
-    {
-        PrestaShopLogger::addLog("Lemon Way: Payment validation", 1, null, null, null, true);
-
-        // If the module is not active anymore, no need to process anything.
-        if (!$this->module->active) {
-            die;
-        }
-
-        if ((Tools::isSubmit('response_wkToken') == false) || Tools::isSubmit('action') == false) {
-            die;
-        }
-
-        $action = Tools::getValue('action');
-        $cart_id = $this->module->getCartIdFromToken(Tools::getValue('response_wkToken'));
-
-        // Restore the context from the $cart_id & the $customer_id to process the validation properly.
-        Context::getContext()->cart = new Cart((int) $cart_id);
-
-        if (!Context::getContext()->cart->id) {
-            die;
-        }
-
-        Context::getContext()->customer = new Customer((int) Context::getContext()->cart->id_customer);
-        Context::getContext()->currency = new Currency((int) Context::getContext()->cart->id_currency);
-        Context::getContext()->language = new Language((int) Context::getContext()->customer->id_lang);
-
-        /* @var $methodInstance Method */
-        $methodInstance = $this->module->methodFactory(Tools::getValue('payment_method'));
-        $cart_total_paid = (float) Tools::ps_round(
-            (float) Context::getContext()->cart->getOrderTotal(true, Cart::BOTH),
-            2
-        );
-
-        $redirectParams = array(
-            'action' => $action,
-            'secure_key' => Tools::getValue('secure_key'),
-            'cart_id' => $cart_id,
-            'payment_method' => $methodInstance->getCode()
-        );
-
-        $profile = new SplitpaymentProfile();
-
-        // If is X times method, we split the payment
-        if ($methodInstance->isSplitPayment() &&
-            ($splitPaypentProfileId = Tools::getValue('splitpayment_profile_id'))) {
-            $profile = new SplitpaymentProfile($splitPaypentProfileId);
-
-            if ($profile) {
-                $splitpayments = $profile->splitPaymentAmount($cart_total_paid);
-                $firstSplit = $splitpayments[0];
-                $cart_total_paid = (float) Tools::ps_round((float) $firstSplit['amountToPay'], 2);
-
-                // Add prodile Id to base callbackparamters
-                $redirectParams['splitpayment_profile_id'] = $splitPaypentProfileId;
-            } else {
-                $this->addError($this->l('Split payment profile not found!'));
-                return $this->displayError();
-            }
-        }
-
-        if ($this->isGet()) { // Is redirection from Lemonway
-            PrestaShopLogger::addLog("Lemon Way redirection: " . print_r($_GET, true), 1, null, null, null, true);
-
-            if ((Tools::isSubmit('secure_key') == false)) {
-                die;
-            }
-
-            Tools::redirect($this->context->link->getModuleLink('lemonway', 'confirmation', $redirectParams, true));
-        } elseif ($this->isPost()) { // Is instant payment notification
-            PrestaShopLogger::addLog("Lemon Way IPN: " . print_r($_POST, true), 1, null, null, null, true);
-
-            if (Tools::isSubmit('response_code') == false) {
-                die;
-            }
-            
-            $response_code = Tools::getValue('response_code');
-            $amount = (float) Tools::getValue('response_transactionAmount');
-            $amount_paid = Tools::ps_round((float) $amount, 2);
-
-            $register_card = (bool) Tools::getValue('register_card', false);
-
-            $secure_key = Context::getContext()->customer->secure_key;
-
-            // Default status to error
-            $id_order_state = Configuration::get('PS_OS_ERROR');
-            // Default message;
-            $message = Tools::getValue('response_msg');
-
-            if ($this->isValidOrder($action, $response_code) === true) {
-                switch ($action) {
-                    case 'return':
-                        $id_order_state = Configuration::get('PS_OS_PAYMENT');
-
-                        if ($methodInstance->isSplitPayment()) {
-                            $id_order_state = Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
-                        }
-
-                        $message = Tools::getValue('response_msg');
-
-                        if (($customer_id = Context::getContext()->customer->id) && $register_card) {
-                            $card = $this->module->getCustomerCard($customer_id);
-
-                            if (!$card) {
-                                $card = array();
-                            }
-
-                            $card['id_customer'] = $customer_id;
-                            $card['card_num'] = $this->getMoneyInTransDetails()->TRANS->HPAY[0]->EXTRA->NUM;
-                            $card['card_type'] = $this->getMoneyInTransDetails()->TRANS->HPAY[0]->EXTRA->TYP;
-                            $card['card_exp'] = $this->getMoneyInTransDetails()->TRANS->HPAY[0]->EXTRA->EXP;
-
-                            $this->module->insertOrUpdateCard($customer_id, $card);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            
-            // $module_name = $this->module->displayName;
-            $currency_id = (int)Context::getContext()->currency->id;
-
-            $isSameAmount = (
-                number_format($cart_total_paid, _PS_PRICE_COMPUTE_PRECISION_) ===
-                number_format($amount_paid, _PS_PRICE_COMPUTE_PRECISION_)
-            );
-
-            if (!$isSameAmount) {
-                $id_order_state = Configuration::get('PS_OS_ERROR');
-            }
-
-            $order_id = (int)Order::getOrderByCartId((int) $cart_id);
-
-            if (!Context::getContext()->cart->OrderExists()) {
-                $this->module->validateOrder(
-                    $cart_id,
-                    $id_order_state,
-                    $amount_paid,
-                    $methodInstance->getTitle(),
-                    $message,
-                    array(),
-                    $currency_id,
-                    false,
-                    $secure_key
-                );
-                $order_id = (int) Order::getOrderByCartId((int) $cart_id);
-            }
-
-            if ($methodInstance->isSplitPayment() && !$profile) {
-                throw new Exception("Wrong data for split payment");
-            }
-
-            $order = new Order($order_id);
-
-            if ($methodInstance->isSplitPayment()) {
-                //$card = $this->module->getCustomerCard($order->id_customer);
-                $cardKey = 'LEMONWAY_CARD_ID_' . $order->id_customer . '_' . $order->id_cart;
-                $cardId = Configuration::get($cardKey);
-                if ($cardId) {
-                    //Save deadlines
-                    $profile->generateDeadlines(
-                        $order,
-                        $cardId,
-                        $methodInstance->getCode(),
-                        $this->isValidOrder($action, $response_code),
-                        $this->isValidOrder($action, $response_code)
-                    );
-                    ConfigurationCore::deleteByName($cardKey);
-                } else {
-                    throw new Exception($this->module->l("Card token not found"));
-                }
-
-                /* @var $invoiceCollection PrestaShopCollectionCore */
-                $invoiceCollection = $order->getInvoicesCollection();
-
-                $lastInvoice = $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
-
-                try {
-                    $order->addOrderPayment(
-                        $amount_paid,
-                        $methodInstance->getTitle(),
-                        Tools::getValue('response_transactionId'),
-                        null,
-                        null,
-                        $lastInvoice
-                    );
-                } catch (Exception $e) {
-                    PrestaShopLogger::addLog($e->getMessage(), 4, null, null, null, true);
-                }
-            } else { //Update order payment
-                foreach ($order->getOrderPaymentCollection() as $orderPayment) {
-                    try {
-                        $orderPayment->payment_method = $methodInstance->getTitle();
-                        $orderPayment->update();
-                    } catch (Exception $e) {
-                        PrestaShopLogger::addLog($e->getMessage(), 4, null, null, null, true);
-                    }
-                }
-            }
-        } else {
-            //@TODO throw error for not http method supported
-            die("HTTP Method not Allowed");
-        }
-    }
-
-    protected function getMoneyInTransDetails()
-    {
-        // Call directkit to get Webkit Token
-        $params = array('transactionMerchantToken' => Tools::getValue('response_wkToken'));
-
-        // Call api to get transaction detail for this order
-        /* @var $kit LemonWayKit */
-        $kit = new LemonWayKit();
-
-        try {
-            $res = $kit->getMoneyInTransDetails($params);
-        } catch (Exception $e) {
-            PrestaShopLogger::addLog($e->getMessage(), 4, null, null, null, true);
-            throw $e;
-        }
-
-        if (isset($res->E)) {
-            throw new Exception((string) $res->E->Msg, (int) $res->E->Code);
-        }
-
-        return $res;
-    }
-
-    protected function isValidOrder($action, $response_code)
-    {
-        if ($response_code != "0000") {
-            return false;
-        }
-
-        $actionToStatus = array(
-            "return" => "3",
-            "error" => "0",
-            "cancel" => "0"
-        );
-
-        if (!isset($actionToStatus[$action])) {
-            return false;
-        }
-
-        /* @var $operation Operation */
-        $operation = $this->getMoneyInTransDetails();
-
-        if ($operation) {
-            if ($operation->TRANS->HPAY[0]->STATUS == $actionToStatus[$action]) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     protected function isGet()
     {
         return Tools::strtoupper($_SERVER['REQUEST_METHOD']) == 'GET';
@@ -300,5 +33,229 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
     protected function isPost()
     {
         return Tools::strtoupper($_SERVER['REQUEST_METHOD']) == 'POST';
+    }
+
+    protected function displayError()
+    {
+        if ($this->module->isVersion17()) {
+            return $this->redirectWithNotifications(Context::getContext()->link->getPageLink("order"));
+        }
+
+        /**
+         * Create the breadcrumb for your ModuleFrontController.
+         */
+        $path = '<a href="' . Context::getContext()->link->getPageLink('order', null, null, 'step=3') . '">'
+            . $this->module->l('Payment')
+            . '</a><span class="navigation-pipe">&gt;</span>' . $this->module->l('Error');
+
+        Context::getContext()->smarty->assign(
+            array(
+                "path" => $path,
+                "errors" => $this->errors,
+                "warning" => $this->warning
+            )
+        );
+
+        $template = 'error.tpl';
+
+        if ($this->module->isVersion17()) {
+            $template = 'module:' . $this->module->name . '/views/templates/front/error.tpl';
+        }
+
+        return $this->setTemplate($template);
+    }
+
+    // Public functions
+    public function __construct()
+    {
+        parent::__construct();
+        require_once _PS_MODULE_DIR_ . $this->module->name . '/services/LemonWayKit.php';
+    }
+
+    // Main function: Validating the order
+    public function postProcess()
+    {
+        PrestaShopLogger::addLog("LemonWay::validation - Payment validation: " . print_r($_REQUEST, true), 1, null, null, null, true);
+
+        try {
+            if (!Tools::isSubmit("response_wkToken") || !Tools::isSubmit("action") || !Tools::isSubmit("method_code") || !Tools::isSubmit("secure_key")) {
+                throw new Exception($this->module->l("Bad request."));
+            }
+
+            $wkToken = Tools::getValue("response_wkToken");
+
+            // Retrieve the cart
+            $cart_id = $this->module->getCartIdFromToken($wkToken);
+            $cart = new Cart($cart_id);
+
+            if (!$cart_id || !$cart) {
+                throw new Exception($this->module->l("Cart not found."), $cart_id);
+            }
+
+            $secure_key = Tools::getValue("secure_key");
+
+            if ($secure_key != $cart->secure_key) {
+                throw new Exception($this->module->l("Secure key does not match."));
+            }
+
+            // Operation details
+            $kit = new LemonWayKit();
+
+            $params = array(
+                "transactionMerchantToken" => $wkToken
+            );
+
+            $operation = $kit->getMoneyInTransDetails($params);
+
+            $action = Tools::getValue("action");
+
+            $methodInstance = $this->module->methodFactory(Tools::getValue("method_code"));
+
+            if ($this->isPost()) {
+                if (!Tools::isSubmit("response_code") || !Tools::isSubmit("response_msg") || !Tools::isSubmit("response_transactionId") || !Tools::isSubmit("response_transactionAmount") || !Tools::isSubmit("response_transactionMessage")) {
+                    throw new Exception("Bad IPN.");
+                }
+
+                $response_code = Tools::getValue("response_code"); 
+                $response_msg = Tools::getValue("response_msg");
+            }
+
+            switch ($action) {
+                case "return":
+                    if (!empty($response_code) && $response_code !== "0000") {
+                        if ($response_code === "2002") {
+                            $order_state = Configuration::get("PS_OS_CANCELED");
+                            $message = $this->module->l("Operation canceled by user:");
+                        } else {
+                            $order_state = Configuration::get("PS_OS_ERROR");
+                            $this->module->l("Payment error:");
+                        }    
+
+                        if ($cart->OrderExists()) {
+                            $order_id = Order::getOrderByCartId($cart->id);
+                            $order = new Order($order_id);
+                            $order->setCurrentState($order_state);   
+                        }
+
+                        $message .= " " . $operation->INT_MSG;
+                        if (!empty($response_msg)) {
+                            $message .= " (" . $response_msg . ")";
+                        }
+
+                        throw new Exception($message);
+                    }
+
+                    switch ($operation->INT_STATUS) {
+                        case 0:
+                            // Success
+                            $is_order_validated = Db::getInstance()->getValue("SELECT `is_order_validated` FROM `" . _DB_PREFIX_ . "lemonway_wktoken` WHERE `wktoken` = '" . pSQL($wkToken) . "' AND `id_cart` = '" . pSQL($cart->id) . "'");
+
+                            if (!$cart->OrderExists() && $is_order_validated === "0") {
+                                // Update is_order_validated flag
+                                Db::getInstance()->update("lemonway_wktoken", array("is_order_validated" => 1), " `wktoken` = '" . pSQL($wkToken) . "' AND `id_cart` = '" . pSQL($cart->id) . "' AND `is_order_validated` = '0'");
+                                if (Db::getInstance()->Affected_Rows() == 1) {
+                                    $message = $operation->MSG . ": " . $operation->INT_MSG;
+                                    if (!empty($response_msg)) {
+                                        $message .= " (" . $response_msg . ")";
+                                    }
+                                    // Convert cart into a valid order
+                                    $this->module->validateOrder(
+                                        $cart->id, // $id_cart
+                                        Configuration::get("PS_OS_PAYMENT"), // $id_order_state
+                                        $operation->CRED, // Amount really paid by customer (in the default currency)
+                                        $methodInstance->getTitle(), // Payment method (eg. 'Credit card')
+                                        $message, // Message to attach to order
+                                        array(), // $extra_vars
+                                        null, // $currency_special
+                                        false, // $dont_touch_amount
+                                        $secure_key // $secure_key
+                                    );
+                                }
+                            }
+
+                            if ($this->isGet()) {
+                                $order_id = Order::getOrderByCartId($cart->id);
+
+                                if ($order_id) {
+                                    //The order has been placed so we redirect the customer on the confirmation page.
+                                    $module_id = $this->module->id;
+                                    Tools::redirect(
+                                        $this->context->link->getPageLink(
+                                            "order-confirmation",
+                                            null,
+                                            null,
+                                            array(
+                                                "id_cart" => $cart->id,
+                                                "id_module" => $this->module->id,
+                                                "id_order" => $order_id,
+                                                "key" => $secure_key
+                                            )
+                                        )
+                                    );
+                                }
+                            }
+
+                            break;
+                        case 6:
+                            if ($cart->OrderExists()) {
+                                // Abort order if exists
+                                $order_id = Order::getOrderByCartId($cart->id);
+                                $order = new Order($order_id);
+                                $order->setCurrentState(Configuration::get("PS_OS_ERROR"));
+                            }
+
+                            $message = $this->module->l("Payment error:") . " " . $operation->INT_MSG;
+                            if (!empty($response_msg)) {
+                                $message .= " (" . $response_msg . ")";
+                            }
+
+                            throw new Exception($message);
+                            break;
+                        default:
+                            // Do nothing
+                            break;
+                    }
+                    break;
+                case "error":
+                    if ($cart->OrderExists()) {
+                        // Abort order if exists
+                        $order_id = Order::getOrderByCartId($cart->id);
+                        $order = new Order($order_id);
+                        $order->setCurrentState(Configuration::get("PS_OS_ERROR"));
+                    }
+
+                    $message = $this->module->l("Payment error:") . " " . $operation->INT_MSG;
+                    if (!empty($response_msg)) {
+                        $message .= " (" . $response_msg . ")";
+                    }
+
+                    throw new Exception($message);
+                    break;
+                case "cancel":
+                    PrestaShopLogger::addLog("LemonWay::validation - Customer has canceled the payment.", 1, null, null, null, true);
+                    if ($cart->OrderExists()) {
+                        // Cancel order if exists
+                        $order_id = Order::getOrderByCartId($cart->id);
+                        $order = new Order($order_id);
+                        $order->setCurrentState(Configuration::get("PS_OS_CANCELED"));
+                    }
+
+                    array_push($this->warning, $this->module->l("You have canceled the payment."));
+                    return $this->displayError();
+                    break;
+                default:
+                    throw new Exception($this->module->l("Bad request."));
+                    break;
+            }
+        } catch (Exception $e) {
+            PrestaShopLogger::addLog("LemonWay::validation - " . $e->getMessage() . " (" . $e->getCode() . ")", 4, null, null, null, true);
+
+            if ($this->isGet()) {
+                array_push($this->errors, $e->getMessage() . " (" . $e->getCode() . ")");
+                return $this->displayError();
+            } else {
+                die;
+            }
+        }
     }
 }

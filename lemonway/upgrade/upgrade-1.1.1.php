@@ -34,18 +34,14 @@ if (!defined('_PS_VERSION_')) {
 */
 function upgrade_module_1_1_1()
 {
-    $query = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'lemonway_wktoken` (
+    $query = "CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "lemonway_wktoken` (
     `id_cart_wktoken` int(11) NOT NULL AUTO_INCREMENT,
     `id_cart` int(11) NOT NULL,
     `wktoken` varchar(255) NOT NULL,
     PRIMARY KEY (`id_cart_wktoken`),
     UNIQUE KEY `wktoken` (`wktoken`),
     UNIQUE KEY `id_cart` (`id_cart`)
-    ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+    ) ENGINE=" . _MYSQL_ENGINE_ . " DEFAULT CHARSET=utf8;";
 
-    if (Db::getInstance()->execute($query) == false) {
-        return false;
-    }
-
-    return true;
+    return Db::getInstance()->execute($query);
 }

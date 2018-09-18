@@ -65,7 +65,7 @@ function upgrade_module_1_2_9($module)
                 PRIMARY KEY  (`id_splitpayment`)
             ) ENGINE=" . _MYSQL_ENGINE_ . " DEFAULT CHARSET=utf8;";
 
-    if (Db::getInstance()->execute($query) == false) {
+    if (!Db::getInstance()->execute($query)) {
         return false;
     }
 

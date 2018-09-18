@@ -23,10 +23,20 @@
  *}
 
 <div>
-	<h3>{l s='An error occurred' mod='lemonway'}:</h3>
-	<ul class="alert alert-danger">
-		{foreach from=$errors item='error'}
-			<li>{$error|escape:'htmlall':'UTF-8'}.</li>
-		{/foreach}
-	</ul>
+    <h3>{l s='An error occurred' mod='lemonway'}:</h3>
+    {if  $errors|@count gt 0} 
+    <ul class="alert alert-danger">
+        {foreach from=$errors item='error'}
+        <li>{$error|escape:'htmlall':'UTF-8'}.</li>
+        {/foreach}
+    </ul>
+    {/if}
+
+    {if  $warning|@count gt 0}
+    <ul class="alert alert-warning">
+        {foreach from=$warning item='warningMessage'}
+        <li>{$warningMessage|escape:'htmlall':'UTF-8'}.</li>
+        {/foreach}
+    </ul>
+    {/if} 
 </div>

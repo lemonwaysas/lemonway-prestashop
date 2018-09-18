@@ -62,7 +62,7 @@ class LemonWayKit
     {
         $res = self::sendRequest('GetMoneyInTransDetails', $params);
 
-        return $res;
+        return $res->TRANS->HPAY[0];
     }
 
     private function sendRequest($methodName, $params)
@@ -139,7 +139,7 @@ class LemonWayKit
                     $response = json_decode($response);
                     //Check error
                     if (isset($response->d->E)) {
-                        throw new Exception($response->d->E->Msg . " (Error code: " . $response->d->E->Code . ")");
+                        throw new Exception($response->d->E->Msg, $response->d->E->Code);
                     }
                     return $response->d;
                 case 400:

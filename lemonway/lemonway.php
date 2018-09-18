@@ -245,7 +245,7 @@ class Lemonway extends PaymentModule
     */
     public function install()
     {
-        PrestaShopLogger::addLog("LemonWay module is installing...", 1, null, null, null, true);
+        PrestaShopLogger::addLog("LemonWay: LemonWay module is installing...", 1, null, null, null, true);
         if (Shop::isFeatureActive()) {
             Shop::setContext(Shop::CONTEXT_ALL);
         }
@@ -1113,7 +1113,7 @@ class Lemonway extends PaymentModule
     public function getWkToken($id_cart)
     {
         return Db::getInstance()->getValue(
-            'SELECT `wktoken` FROM `' . _DB_PREFIX_ . 'lemonway_wktoken` lw WHERE lw.`id_cart` = ' . (int)pSQL($id_cart)
+            "SELECT `wktoken` FROM `" . _DB_PREFIX_ . "lemonway_wktoken` lw WHERE lw.`id_cart` = " . (int)pSQL($id_cart)
         );
     }
 
@@ -1132,13 +1132,13 @@ class Lemonway extends PaymentModule
         $wkToken = $this->generateUniqueCartId($id_cart);
         
         //Default  update query
-        $query = 'UPDATE `' . _DB_PREFIX_ . 'lemonway_wktoken` SET `wktoken` = \'' . pSQL($wkToken) .
+        $query = "UPDATE `" . _DB_PREFIX_ . "lemonway_wktoken` SET `wktoken` = '" . pSQL($wkToken) .
         "' WHERE `id_cart` = " . (int)pSQL($id_cart);
         
         //If cart haven't wkToken we insert it
         if (!$this->checkIfCartHasWkToken($id_cart)) {
-            $query = 'INSERT INTO `' . _DB_PREFIX_ . 'lemonway_wktoken` (`id_cart`, `wktoken`) VALUES (\''
-                . (int)pSQL($id_cart) . '\',\'' . pSQL($wkToken) . '\') ';
+            $query = "INSERT INTO `" . _DB_PREFIX_ . "lemonway_wktoken` (`id_cart`, `wktoken`) VALUES ('"
+                . (int)pSQL($id_cart) . "', '" . pSQL($wkToken) . "') ";
         }
 
         Db::getInstance()->execute($query);
@@ -1154,17 +1154,17 @@ class Lemonway extends PaymentModule
     public function getCartIdFromToken($wktoken)
     {
         if ($id_cart = Db::getInstance()->getValue(
-            'SELECT `id_cart` FROM `' . _DB_PREFIX_ . 'lemonway_wktoken` lw WHERE lw.`wktoken` = \''
+            "SELECT `id_cart` FROM `" . _DB_PREFIX_ . "lemonway_wktoken` lw WHERE lw.`wktoken` = '"
             . pSQL($wktoken) . "'"
         )) {
             return $id_cart;
         }
 
-        throw new Exception($this->l('Cart not found!'), 406);
+        throw new Exception($this->l("Cart not found!"), 406);
     }
 
     public function isVersion17()
     {
-        return (bool)version_compare(_PS_VERSION_, '1.7', '>=');
+        return (bool)version_compare(_PS_VERSION_, "1.7", ">=");
     }
 }
