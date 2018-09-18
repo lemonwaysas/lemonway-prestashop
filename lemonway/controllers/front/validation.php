@@ -146,8 +146,24 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                     }
 
                     switch ($operation->INT_STATUS) {
-                        case 0:
-                            // Success
+                        case 6:
+                            // Error
+                            if ($cart->OrderExists()) {
+                                // Abort order if exists
+                                $order_id = Order::getOrderByCartId($cart->id);
+                                $order = new Order($order_id);
+                                $order->setCurrentState(Configuration::get("PS_OS_ERROR"));
+                            }
+
+                            $message = $this->module->l("Payment error:") . " " . $operation->INT_MSG;
+                            if (!empty($response_msg)) {
+                                $message .= " (" . $response_msg . ")";
+                            }
+
+                            throw new Exception($message);
+                            break;
+                        default:
+                            // Not error + returnUrl => success
                             $is_order_validated = Db::getInstance()->getValue("SELECT `is_order_validated` FROM `" . _DB_PREFIX_ . "lemonway_wktoken` WHERE `wktoken` = '" . pSQL($wkToken) . "' AND `id_cart` = '" . pSQL($cart->id) . "'");
 
                             if (!$cart->OrderExists() && $is_order_validated === "0") {
@@ -194,25 +210,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                     );
                                 }
                             }
-
-                            break;
-                        case 6:
-                            if ($cart->OrderExists()) {
-                                // Abort order if exists
-                                $order_id = Order::getOrderByCartId($cart->id);
-                                $order = new Order($order_id);
-                                $order->setCurrentState(Configuration::get("PS_OS_ERROR"));
-                            }
-
-                            $message = $this->module->l("Payment error:") . " " . $operation->INT_MSG;
-                            if (!empty($response_msg)) {
-                                $message .= " (" . $response_msg . ")";
-                            }
-
-                            throw new Exception($message);
-                            break;
-                        default:
-                            // Do nothing
                             break;
                     }
                     break;
