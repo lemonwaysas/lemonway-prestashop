@@ -134,7 +134,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                         if ($cart->OrderExists()) {
                             $order_id = Order::getOrderByCartId($cart->id);
                             $order = new Order($order_id);
-                            $order->setCurrentState($order_state);   
+                            $order->setCurrentState($order_state);
                         }
 
                         $message .= " " . $operation->INT_MSG;
@@ -189,6 +189,23 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                 }
                             }
 
+                            // If save card
+                            $register_card = Tools::getValue("register_card", false);
+                            if ($register_card && $cart->id_customer) {
+                                $card = $this->module->getCustomerCard($cart->id_customer);
+
+                                if (!$card) {
+                                    $card = array();
+                                }
+
+                                $card['id_customer'] = $cart->id_customer;
+                                $card['card_num'] = $operation->EXTRA->NUM;
+                                $card['card_type'] = $operation->EXTRA->TYP;
+                                $card['card_exp'] = $operation->EXTRA->EXP;
+
+                                $this->module->insertOrUpdateCard($cart->id_customer, $card);
+                            }
+
                             if ($this->isGet()) {
                                 $order_id = Order::getOrderByCartId($cart->id);
 
@@ -196,7 +213,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                     //The order has been placed so we redirect the customer on the confirmation page.
                                     $module_id = $this->module->id;
                                     Tools::redirect(
-                                        $this->context->link->getPageLink(
+                                       Context::getContext()->link->getPageLink(
                                             "order-confirmation",
                                             null,
                                             null,

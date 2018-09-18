@@ -168,7 +168,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             );
 
             $returnCallbackParams = array_merge($baseCallbackParams, array(
-                //'register_card' => (int) $this->registerCard(),
+                "register_card" => (int) $this->registerCard(),
                 "action" => "return"
             ));
 
@@ -225,10 +225,22 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     throw new Exception((string) $res->E->Msg, (int) $res->E->Code);
                 }
 
-                //@TODO: saved card
- 
+                // If signed in and saved card
+                if ($customer->id && isset($res->MONEYINWEB->CARD) && $this->registerCard()) {
+                    $card = $this->module->getCustomerCard($customer->id);
+
+                    if (!$card) {
+                        $card = array();
+                    }
+
+                    $card['id_customer'] = $customer->id;
+                    $card['id_card'] = $res->MONEYINWEB->CARD->ID;
+
+                    $this->module->insertOrUpdateCard($customer->id, $card);
+                }
+
                 if ($methodInstance->isSplitPayment()){
-                    //@TODO: splitpayment
+                    //@TODO: splitpayment save card
                 }             
 
                 $moneyInToken = (string) $res->MONEYINWEB->TOKEN;
