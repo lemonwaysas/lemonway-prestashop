@@ -129,6 +129,10 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
     public function postProcess()
     {
         try {
+            // Get context
+            $cart = $this->context->cart;
+            $customer = $this->context->customer;
+
             $method_code = Tools::getValue("method_code");
 
             $methodInstance = $this->module->methodFactory($method_code);
@@ -137,9 +141,6 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 throw new Exception($this->module->l("Payment method not allowed."), $method_code);
             }
 
-            // Get context
-            $cart = $this->context->cart;
-            
             // Generate a new wkToken for this cart
             $wkToken = $this->module->saveWkToken($cart->id);
 
@@ -154,7 +155,6 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             $autoCommission = LemonWayConfig::is4EcommerceMode() ? 0 : 1;
 
             // Generate comment
-            $customer = $this->context->customer;
             $comment = Configuration::get("PS_SHOP_NAME")
                 . " - " . $cart->id
                 . " - " . $customer->lastname . " " . $customer->firstname
@@ -165,10 +165,10 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             $baseCallbackParams = array(
                 "secure_key" => $secure_key,
                 "method_code" => $method_code,
+                "register_card" => (int) $this->registerCard()
             );
 
             $returnCallbackParams = array_merge($baseCallbackParams, array(
-                "register_card" => (int) $this->registerCard(),
                 "action" => "return"
             ));
 
@@ -218,15 +218,15 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     "registerCard" => (int)($this->registerCard() || $methodInstance->isSplitPayment())
                 );
 
-                $res = $kit->moneyInWebInit($params);
+                $moneyInWeb = $kit->moneyInWebInit($params);
 
                 // Error from API
-                if (isset($res->E)) {
-                    throw new Exception((string) $res->E->Msg, (int) $res->E->Code);
+                if (isset($moneyInWeb->E)) {
+                    throw new Exception((string) $moneyInWeb->E->Msg, (int) $moneyInWeb->E->Code);
                 }
 
                 // If signed in and saved card
-                if ($customer->id && $customer->isLogged() && isset($res->CARD) && $this->registerCard()) {
+                if ($customer->id && $customer->isLogged() && isset($moneyInWeb->CARD) && $this->registerCard()) {
                     $card = $this->module->getCustomerCard($customer->id);
 
                     if (!$card) {
@@ -234,7 +234,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     }
 
                     $card['id_customer'] = $customer->id;
-                    $card['id_card'] = $res->CARD->ID;
+                    $card['id_card'] = $moneyInWeb->CARD->ID;
 
                     $this->module->insertOrUpdateCard($customer->id, $card);
                 }
@@ -243,7 +243,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     //@TODO: splitpayment save card
                 }             
 
-                $moneyInToken = $res->TOKEN;
+                $moneyInToken = $moneyInWeb->TOKEN;
 
                 // Generate payment page link
                 $paymentPage = LemonWayConfig::getWebkitUrl()
@@ -271,17 +271,53 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     "autoCommission" => $autoCommission
                 );
 
-                $res = $kit->moneyInWithCardId($params);
+                $hpay = $kit->moneyInWithCardId($params);
 
                 // Error from API
-                if (isset($res->E)) {
-                    throw new Exception((string) $res->E->Msg, (int) $res->E->Code);
+                if (isset($hpay->E)) {
+                    throw new Exception((string) $hpay->E->Msg, (int) $hpay->E->Code);
                 }
 
+                if ($hpay->STATUS == "3") {
+                    if ($methodInstance->isSplitPayment()) {
+                        // @TODO: split payment
+                    }
 
+                    if (!$cart->OrderExists()) {
+                        // Convert cart into a valid order
+                        $this->module->validateOrder(
+                            $cart->id, // $id_cart
+                            Configuration::get("PS_OS_PAYMENT"), // $id_order_state
+                            $hpay->CRED, // Amount really paid by customer (in the default currency)
+                            $methodInstance->getTitle(), // Payment method (eg. 'Credit card')
+                            $hpay->MSG, // Message to attach to order
+                            array(), // $extra_vars
+                            null, // $currency_special
+                            false, // $dont_touch_amount
+                            $secure_key // $secure_key
+                        );
+                    }
+
+                    //The order has been placed so we redirect the customer on the confirmation page.
+                    Tools::redirect(
+                       $this->context->link->getPageLink(
+                            "order-confirmation",
+                            null,
+                            null,
+                            array(
+                                "id_cart" => $cart->id,
+                                "id_module" => $this->module->id,
+                                "key" => $secure_key
+                            )
+                        )
+                    );
+                } else {
+                    throw new Exception($this->module->l("Payment error."), $card["id_card"]);
+                }
             }
         } catch (Exception $e) {
-            PrestaShopLogger::addLog("LemonWay::redirect - " . $e->getMessage() . " (" . $e->getCode() . ")", 4, null, null, null, true);
+            $cart_id = isset($cart) ? $cart->id : null;
+            PrestaShopLogger::addLog("LemonWay::redirect - " . $e->getMessage() . " (" . $e->getCode() . ")", 4, null, "Cart", $cart_id, true);
             array_push($this->errors, $e->getMessage() . " (" . $e->getCode() . ")");
             return $this->displayError();
         }

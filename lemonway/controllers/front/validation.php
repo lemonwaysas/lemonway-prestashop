@@ -105,14 +105,29 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 "transactionMerchantToken" => $wkToken
             );
 
-            $operation = $kit->getMoneyInTransDetails($params);
+            $hpay = $kit->getMoneyInTransDetails($params);
+
+            // If save card
+            $register_card = Tools::getValue("register_card", false);
+            if ($register_card && $cart->id_customer) {
+                $card = $this->module->getCustomerCard($cart->id_customer);
+
+                if ($card) {
+                    $card['id_customer'] = $cart->id_customer;
+                    $card['card_num'] = isset($hpay->EXTRA) ? $hpay->EXTRA->NUM : null;
+                    $card['card_type'] = isset($hpay->EXTRA) ? $hpay->EXTRA->TYP : null;
+                    $card['card_exp'] = isset($hpay->EXTRA) ? $hpay->EXTRA->EXP : null;
+
+                    $this->module->insertOrUpdateCard($cart->id_customer, $card);
+                }
+            }
 
             $action = Tools::getValue("action");
 
             $methodInstance = $this->module->methodFactory(Tools::getValue("method_code"));
 
             if ($this->isPost()) {
-                if (!Tools::isSubmit("response_code") || !Tools::isSubmit("response_msg") || !Tools::isSubmit("response_transactionId") || !Tools::isSubmit("response_transactionAmount") || !Tools::isSubmit("response_transactionMessage")) {
+                if (!Tools::isSubmit("response_code") || !Tools::isSubmit("response_msg")) {
                     throw new Exception("Bad IPN.");
                 }
 
@@ -137,7 +152,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                             $order->setCurrentState($order_state);
                         }
 
-                        $message .= " " . $operation->INT_MSG;
+                        $message .= " " . $hpay->INT_MSG;
                         if (!empty($response_msg)) {
                             $message .= " (" . $response_msg . ")";
                         }
@@ -145,7 +160,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                         throw new Exception($message);
                     }
 
-                    switch ($operation->INT_STATUS) {
+                    switch ($hpay->INT_STATUS) {
                         case 6:
                             // Error
                             if ($cart->OrderExists()) {
@@ -155,7 +170,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                 $order->setCurrentState(Configuration::get("PS_OS_ERROR"));
                             }
 
-                            $message = $this->module->l("Payment error:") . " " . $operation->INT_MSG;
+                            $message = $this->module->l("Payment error:") . " " . $hpay->INT_MSG;
                             if (!empty($response_msg)) {
                                 $message .= " (" . $response_msg . ")";
                             }
@@ -170,7 +185,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                 // Update is_order_validated flag
                                 Db::getInstance()->update("lemonway_wktoken", array("is_order_validated" => 1), " `wktoken` = '" . pSQL($wkToken) . "' AND `id_cart` = '" . pSQL($cart->id) . "' AND `is_order_validated` = '0'");
                                 if (Db::getInstance()->Affected_Rows() == 1) {
-                                    $message = $operation->MSG . ": " . $operation->INT_MSG;
+                                    $message = $hpay->MSG . ": " . $hpay->INT_MSG;
                                     if (!empty($response_msg)) {
                                         $message .= " (" . $response_msg . ")";
                                     }
@@ -178,7 +193,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                     $this->module->validateOrder(
                                         $cart->id, // $id_cart
                                         Configuration::get("PS_OS_PAYMENT"), // $id_order_state
-                                        $operation->CRED, // Amount really paid by customer (in the default currency)
+                                        $hpay->CRED, // Amount really paid by customer (in the default currency)
                                         $methodInstance->getTitle(), // Payment method (eg. 'Credit card')
                                         $message, // Message to attach to order
                                         array(), // $extra_vars
@@ -189,41 +204,24 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                 }
                             }
 
-                            // If save card
-                            $register_card = Tools::getValue("register_card", false);
-                            if ($register_card && $cart->id_customer) {
-                                $card = $this->module->getCustomerCard($cart->id_customer);
-
-                                if ($card) {
-                                    $card['id_customer'] = $cart->id_customer;
-                                    $card['card_num'] = $operation->EXTRA->NUM;
-                                    $card['card_type'] = $operation->EXTRA->TYP;
-                                    $card['card_exp'] = $operation->EXTRA->EXP;
-
-                                    $this->module->insertOrUpdateCard($cart->id_customer, $card);
-                                }
-                            }
-
                             if ($this->isGet()) {
-                                $order_id = Order::getOrderByCartId($cart->id);
-
-                                if ($order_id) {
-                                    //The order has been placed so we redirect the customer on the confirmation page.
-                                    $module_id = $this->module->id;
-                                    Tools::redirect(
-                                       Context::getContext()->link->getPageLink(
-                                            "order-confirmation",
-                                            null,
-                                            null,
-                                            array(
-                                                "id_cart" => $cart->id,
-                                                "id_module" => $this->module->id,
-                                                "id_order" => $order_id,
-                                                "key" => $secure_key
-                                            )
+                                //The order has been placed so we redirect the customer on the confirmation page.
+                                Tools::redirect(
+                                   Context::getContext()->link->getPageLink(
+                                        "order-confirmation",
+                                        null,
+                                        null,
+                                        array(
+                                            "id_cart" => $cart->id,
+                                            "id_module" => $this->module->id,
+                                            "key" => $secure_key
                                         )
-                                    );
-                                }
+                                    )
+                                );
+
+                            } else {
+                                // No redirection if POST
+                                return true;
                             }
                             break;
                     }
@@ -236,7 +234,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                         $order->setCurrentState(Configuration::get("PS_OS_ERROR"));
                     }
 
-                    $message = $this->module->l("Payment error:") . " " . $operation->INT_MSG;
+                    $message = $this->module->l("Payment error:") . " " . $hpay->INT_MSG;
                     if (!empty($response_msg)) {
                         $message .= " (" . $response_msg . ")";
                     }
@@ -244,7 +242,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                     throw new Exception($message);
                     break;
                 case "cancel":
-                    PrestaShopLogger::addLog("LemonWay::validation - Customer has canceled the payment.", 1, null, null, null, true);
+                    PrestaShopLogger::addLog("LemonWay::validation - Customer has canceled the payment.", 1, null, "Cart", $cart->id, true);
                     if ($cart->OrderExists()) {
                         // Cancel order if exists
                         $order_id = Order::getOrderByCartId($cart->id);
@@ -260,13 +258,14 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                     break;
             }
         } catch (Exception $e) {
-            PrestaShopLogger::addLog("LemonWay::validation - " . $e->getMessage() . " (" . $e->getCode() . ")", 4, null, null, null, true);
+            $cart_id = isset($cart) ? $cart->id : null;
+            PrestaShopLogger::addLog("LemonWay::validation - " . $e->getMessage() . " (" . $e->getCode() . ")", 4, null, "Cart", $cart_id, true);
 
             if ($this->isGet()) {
                 array_push($this->errors, $e->getMessage() . " (" . $e->getCode() . ")");
                 return $this->displayError();
             } else {
-                die;
+                return false;
             }
         }
     }
