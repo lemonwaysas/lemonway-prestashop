@@ -141,6 +141,21 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 throw new Exception($this->module->l("Payment method not allowed."), $method_code);
             }
 
+            // If split payment
+            if ($methodInstance->isSplitPayment()) {
+                $splitPaypentProfileId = Tools::getValue("splitpayment_profile_id");
+
+                if (!$splitPaypentProfileId) {
+                    throw new Exception($this->module->l("Split payment profile not found"));
+                }
+
+                $profile = new SplitpaymentProfile($splitPaypentProfileId);
+
+                if (!$profile) {
+                    throw new Exception($this->module->l("Split payment profile not found"));
+                }
+            }
+
             // Generate a new wkToken for this cart
             $wkToken = $this->module->saveWkToken($cart->id);
 
@@ -149,7 +164,16 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
             // Get amount
             $orderTotal = $cart->getOrderTotal();
-            $amountTot = number_format((float)$orderTotal, 2, '.', '');
+
+            if ($methodInstance->isSplitPayment()) {
+                // If split payment
+                $splitpayments = $profile->splitPaymentAmount($orderTotal);
+                $firstSplit = $splitpayments[0];
+                $amountTot = number_format((float) $firstSplit["amountToPay"], 2, ".", "");
+            } else {
+                // If not split payment
+                $amountTot = number_format((float)$orderTotal, 2, ".", "");
+            }
 
             // LW Entreprise => autocom
             $autoCommission = LemonWayConfig::is4EcommerceMode() ? 0 : 1;
@@ -180,9 +204,10 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 "action" => "error"
             ));
 
-            // Params for split payment
-            if ($methodInstance->isSplitPayment()){
-                //@TODO: splitpayment params
+            // If split payment
+            if ($methodInstance->isSplitPayment()) {
+                //Add prodile ID to base callback params
+                $baseCallbackParams["splitpayment_profile_id"] = $splitPaypentProfileId;
             }
             
             $kit = new LemonWayKit();
@@ -239,9 +264,19 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     $this->module->insertOrUpdateCard($customer->id, $card);
                 }
 
-                if ($methodInstance->isSplitPayment()){
-                    //@TODO: splitpayment save card
-                }             
+                // If split payment
+                if ($methodInstance->isSplitPayment()) {
+                    if (!$moneyInWeb->CARD->ID) {
+                        throw new Exception("Cannot save card token.");
+                    }
+
+                    // Save card id temporarily
+                    ConfigurationCore::updateValue(
+                        'LEMONWAY_CARD_ID_' . $customer->id .'_' . $cart->id,
+                        $moneyInWeb->CARD->ID
+                    );
+                }
+           
 
                 $moneyInToken = $moneyInWeb->TOKEN;
 
@@ -256,7 +291,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             } else {
                 // Rebill
                 $card = $this->module->getCustomerCard($customer->id);
-                if (!$card) {
+                if (!isset($card["id_card"])) {
                     throw new Exception($this->module->l("Card not found."), $customer->id);
                 }
 
@@ -279,15 +314,19 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 }
 
                 if ($hpay->STATUS == "3") {
-                    if ($methodInstance->isSplitPayment()) {
-                        // @TODO: split payment
-                    }
-
                     if (!$cart->OrderExists()) {
+                        if ($methodInstance->isSplitPayment()) {
+                            // If split payment
+                            $id_order_state = Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
+                        } else {
+                            // If not split payment
+                            $id_order_state = Configuration::get("PS_OS_PAYMENT"); 
+                        }
+
                         // Convert cart into a valid order
                         $this->module->validateOrder(
                             $cart->id, // $id_cart
-                            Configuration::get("PS_OS_PAYMENT"), // $id_order_state
+                            $id_order_state, // $id_order_state
                             $hpay->CRED, // Amount really paid by customer (in the default currency)
                             $methodInstance->getTitle(), // Payment method (eg. 'Credit card')
                             $hpay->MSG, // Message to attach to order
@@ -296,6 +335,38 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                             false, // $dont_touch_amount
                             $secure_key // $secure_key
                         );
+
+                        // If split payment
+                        if ($methodInstance->isSplitPayment()) {
+                            // Get order
+                            $order_id = Order::getOrderByCartId($cart->id);
+                            $order = new Order($order_id);
+
+                            // Add order payment
+                            // @TODO
+                            /*try {
+                                $order->addOrderPayment(
+                                    $amountTot,
+                                    $methodInstance->getTitle(),
+                                    Tools::getValue('response_transactionId'),
+                                    null,
+                                    null,
+                                    $lastInvoice
+                                );
+                            } catch (Exception $e) {
+                                $this->addError($e->getMessage());
+                                return $this->displayError();
+                            }*/
+
+                            // Save deadlines
+                            /*$profile->generateDeadlines(
+                                $order,
+                                $card["id_card"],
+                                $methodInstance->getCode(),
+                                true,
+                                true
+                            );*/
+                        }
                     }
 
                     //The order has been placed so we redirect the customer on the confirmation page.
