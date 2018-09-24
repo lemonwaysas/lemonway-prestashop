@@ -75,7 +75,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
     // Main function: Validating the order
     public function postProcess()
     {
-        PrestaShopLogger::addLog("LemonWay::validation - Payment validation: " . print_r($_REQUEST, true), 1, null, null, null, true);
+        PrestaShopLogger::addLog("LemonWay::validation - Payment validation: " . print_r($_REQUEST, true), 1, null, "LemonWay", $this->module->id, true);
 
         try {
             if (!Tools::isSubmit("response_wkToken") || !Tools::isSubmit("action") || !Tools::isSubmit("method_code") || !Tools::isSubmit("secure_key")) {

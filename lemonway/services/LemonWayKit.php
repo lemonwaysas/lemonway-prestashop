@@ -124,8 +124,8 @@ class LemonWayKit
             "Lemon Way: " . $url . " - Request: " . json_encode($requestParams) . " - Response: " . $response,
             1,
             null,
-            null,
-            null,
+            "LemonWay",
+            1,
             true
         );
 

@@ -245,7 +245,7 @@ class Lemonway extends PaymentModule
     */
     public function install()
     {
-        PrestaShopLogger::addLog("LemonWay: LemonWay module is installing...", 1, null, null, null, true);
+        PrestaShopLogger::addLog("LemonWay: LemonWay module is installing...", 1, null, "LemonWay", $this->id, true);
         if (Shop::isFeatureActive()) {
             Shop::setContext(Shop::CONTEXT_ALL);
         }
@@ -298,9 +298,9 @@ class Lemonway extends PaymentModule
             installSQL($this);
 
         if ($installed) {
-            PrestaShopLogger::addLog("LemonWay module is installed.", 1, null, null, null, true);
+            PrestaShopLogger::addLog("LemonWay module is installed.", 1, null, "LemonWay", $this->id, true);
         } else {
-            PrestaShopLogger::addLog("LemonWay installation failed.", 4, null, null, null, true);
+            PrestaShopLogger::addLog("LemonWay installation failed.", 4, null, "LemonWay", $this->id, true);
         }
 
         return $installed;
@@ -461,16 +461,6 @@ class Lemonway extends PaymentModule
 
             Configuration::updateValue($key, $value);
         }
-    }
-
-    public function moduleMktIsInstalled()
-    {
-        return !(Module::isInstalled('lemonwaymkt') === false);
-    }
-
-    public function moduleMktIsEnabled()
-    {
-        return !(Module::isEnabled('lemonwaymkt') === false);
     }
 
     /**
