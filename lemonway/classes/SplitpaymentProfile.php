@@ -215,7 +215,14 @@ class SplitpaymentProfile extends ObjectModel
 
             if ($add) {
                 if (!$splitDealine->add()) {
-                    PrestaShopLogger::addLog("Error during split payment deadline records", 4, null, "Order", $order->id, true);
+                    PrestaShopLogger::addLog(
+                        "Error during split payment deadline records",
+                        4,
+                        null,
+                        "Order",
+                        $order->id,
+                        true
+                    );
                 }
             }
         }

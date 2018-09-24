@@ -67,7 +67,14 @@ function installSQL($module)
                 if (function_exists($upgradeFunc)) {
                     $res = $upgradeFunc($module);
                     if (!$res) {
-                        PrestaShopLogger::addLog("Database installation failed.", 4, null, "LemonWay", $module->id, true);
+                        PrestaShopLogger::addLog(
+                            "Database installation failed.",
+                            4,
+                            null,
+                            "LemonWay",
+                            $module->id,
+                            true
+                        );
                         return false;
                     }
                 }

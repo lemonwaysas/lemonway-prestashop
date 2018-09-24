@@ -75,10 +75,22 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
     // Main function: Validating the order
     public function postProcess()
     {
-        PrestaShopLogger::addLog("LemonWay::validation - Payment validation: " . print_r($_REQUEST, true), 1, null, "LemonWay", $this->module->id, true);
+        PrestaShopLogger::addLog(
+            "LemonWay::validation - Payment validation: " . print_r($_REQUEST, true),
+            1,
+            null,
+            "LemonWay",
+            $this->module->id,
+            true
+        );
 
         try {
-            if (!Tools::isSubmit("response_wkToken") || !Tools::isSubmit("action") || !Tools::isSubmit("method_code") || !Tools::isSubmit("secure_key")) {
+            if (
+                !Tools::isSubmit("response_wkToken")
+                || !Tools::isSubmit("action")
+                || !Tools::isSubmit("method_code")
+                || !Tools::isSubmit("secure_key")
+            ) {
                 throw new Exception($this->module->l("Bad request."));
             }
 
@@ -202,7 +214,14 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 
                             if (!$cart->OrderExists() && $is_order_validated === "0") {
                                 // Update is_order_validated flag
-                                Db::getInstance()->update("lemonway_wktoken", array("is_order_validated" => 1), " `wktoken` = '" . pSQL($wkToken) . "' AND `id_cart` = '" . pSQL($cart->id) . "' AND `is_order_validated` = '0'");
+                                Db::getInstance()->update(
+                                    "lemonway_wktoken",
+                                    array("is_order_validated" => 1),
+                                    " `wktoken` = '" . pSQL($wkToken) .
+                                        "' AND `id_cart` = '" . pSQL($cart->id) .
+                                        "' AND `is_order_validated` = '0'"
+                                );
+
                                 if (Db::getInstance()->Affected_Rows() == 1) {
                                     $message = $hpay->MSG . ": " . $hpay->INT_MSG;
                                     if (!empty($response_msg)) {
@@ -247,7 +266,11 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 
                                         // Invoice
                                         $invoiceCollection = $order->getInvoicesCollection();
-                                        $lastInvoice = $invoiceCollection->orderBy("date_add")->setPageNumber(1)->setPageSize(1)->getFirst();
+                                        $lastInvoice = $invoiceCollection
+                                            ->orderBy("date_add")
+                                            ->setPageNumber(1)
+                                            ->setPageSize(1)
+                                            ->getFirst();
 
                                         // Add order payment
                                         $order->addOrderPayment(
@@ -269,7 +292,9 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                         $splitPaypentProfileId = Tools::getValue("splitpayment_profile_id");
 
                                         if (!$splitPaypentProfileId) {
-                                            throw new Exception($this->module->l("Split payment profile ID not found."));
+                                            throw new Exception(
+                                                $this->module->l("Split payment profile ID not found.")
+                                            );
                                         }
 
                                         $profile = new SplitpaymentProfile($splitPaypentProfileId);
@@ -338,7 +363,14 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 
                     throw new Exception($message);
                 case "cancel":
-                    PrestaShopLogger::addLog("LemonWay::validation - Customer has canceled the payment.", 1, null, "Cart", $cart->id, true);
+                    PrestaShopLogger::addLog(
+                        "LemonWay::validation - Customer has canceled the payment.",
+                        1,
+                        null,
+                        "Cart",
+                        $cart->id,
+                        true
+                    );
                     if ($cart->OrderExists()) {
                         // Cancel order if exists
                         $order_id = Order::getOrderByCartId($cart->id);
@@ -363,7 +395,14 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
             }
         } catch (Exception $e) {
             $cart_id = isset($cart) ? $cart->id : null;
-            PrestaShopLogger::addLog("LemonWay::validation - " . $e->getMessage() . " (" . $e->getCode() . ")", 4, null, "Cart", $cart_id, true);
+            PrestaShopLogger::addLog(
+                "LemonWay::validation - " . $e->getMessage() . " (" . $e->getCode() . ")",
+                4,
+                null,
+                "Cart",
+                $cart_id,
+                true
+            );
 
             if ($this->isGet()) {
                 array_push($this->errors, $e->getMessage() . " (" . $e->getCode() . ")");

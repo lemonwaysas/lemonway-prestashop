@@ -348,7 +348,11 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
                             // Invoice
                             $invoiceCollection = $order->getInvoicesCollection();
-                            $lastInvoice = $invoiceCollection->orderBy("date_add")->setPageNumber(1)->setPageSize(1)->getFirst();
+                            $lastInvoice = $invoiceCollection
+                                ->orderBy("date_add")
+                                ->setPageNumber(1)
+                                ->setPageSize(1)
+                                ->getFirst();
 
                             // Add order payment
                             $order->addOrderPayment(
@@ -390,7 +394,14 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             }
         } catch (Exception $e) {
             $cart_id = isset($cart) ? $cart->id : null;
-            PrestaShopLogger::addLog("LemonWay::redirect - " . $e->getMessage() . " (" . $e->getCode() . ")", 4, null, "Cart", $cart_id, true);
+            PrestaShopLogger::addLog(
+                "LemonWay::redirect - " . $e->getMessage() . " (" . $e->getCode() . ")",
+                4,
+                null,
+                "Cart",
+                $cart_id,
+                true
+            );
             array_push($this->errors, $e->getMessage() . " (" . $e->getCode() . ")");
             return $this->displayError();
         }

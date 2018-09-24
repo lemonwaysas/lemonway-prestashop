@@ -200,8 +200,19 @@ class SplitpaymentDeadline extends ObjectModel
                     throw new Exception($message);
                 }
             } catch (Exception $e) {
-                PrestaShopLogger::addLog("An error occurred while trying to pay split payment: " . $e->getMessage() . " (" . $e->getCode() . ")", 4, null, "Order", $order->id, true);
-                Tools::displayError("An error occurred while trying to pay split payment: " . $e->getMessage() . " (" . $e->getCode() . ")");
+                PrestaShopLogger::addLog(
+                    "An error occurred while trying to pay split payment: "
+                        . $e->getMessage() . " (" . $e->getCode() . ")",
+                    4,
+                    null,
+                    "Order",
+                    $order->id,
+                    true
+                );
+                Tools::displayError(
+                    "An error occurred while trying to pay split payment: "
+                        . $e->getMessage() . " (" . $e->getCode() . ")"
+                );
                 $this->status = SplitpaymentDeadline::STATUS_FAILED;
 
                 if ($update) {
