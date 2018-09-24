@@ -295,7 +295,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                             if ($this->isGet()) {
                                 //The order has been placed so we redirect the customer on the confirmation page.
                                 Tools::redirect(
-                                   Context::getContext()->link->getPageLink(
+                                    Context::getContext()->link->getPageLink(
                                         "order-confirmation",
                                         null,
                                         null,
