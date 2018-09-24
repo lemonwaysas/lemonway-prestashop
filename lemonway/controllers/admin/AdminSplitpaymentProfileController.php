@@ -76,7 +76,6 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
         }
     }
 
-
     public function initPageHeaderToolbar()
     {
         parent::initPageHeaderToolbar();
@@ -121,7 +120,6 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
         }
     }
 
-
     /**
      * Object creation
      *
@@ -132,7 +130,6 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
     {
         return parent::processAdd();
     }
-
 
     public function renderForm()
     {
@@ -264,7 +261,6 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
             'id_employee' => $this->context->employee->id,
             'is_admin' => 1,
         );
-
 
         return parent::renderForm();
     }

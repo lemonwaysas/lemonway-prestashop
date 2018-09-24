@@ -146,13 +146,13 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 $splitPaypentProfileId = Tools::getValue("splitpayment_profile_id");
 
                 if (!$splitPaypentProfileId) {
-                    throw new Exception($this->module->l("Split payment profile not found"));
+                    throw new Exception($this->module->l("Split payment profile ID not found."));
                 }
 
                 $profile = new SplitpaymentProfile($splitPaypentProfileId);
 
                 if (!$profile) {
-                    throw new Exception($this->module->l("Split payment profile not found"));
+                    throw new Exception($this->module->l("Split payment profile not found."));
                 }
             }
 
@@ -192,6 +192,12 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 "register_card" => (int) $this->registerCard()
             );
 
+            // If split payment
+            if ($methodInstance->isSplitPayment()) {
+                //Add prodile ID to base callback params
+                $baseCallbackParams["splitpayment_profile_id"] = $splitPaypentProfileId;
+            }
+
             $returnCallbackParams = array_merge($baseCallbackParams, array(
                 "action" => "return"
             ));
@@ -204,12 +210,6 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 "action" => "error"
             ));
 
-            // If split payment
-            if ($methodInstance->isSplitPayment()) {
-                //Add prodile ID to base callback params
-                $baseCallbackParams["splitpayment_profile_id"] = $splitPaypentProfileId;
-            }
-            
             $kit = new LemonWayKit();
 
             // Payment
@@ -330,7 +330,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                             $hpay->CRED, // Amount really paid by customer (in the default currency)
                             $methodInstance->getTitle(), // Payment method (eg. 'Credit card')
                             $hpay->MSG, // Message to attach to order
-                            array(), // $extra_vars
+                            array("transaction_id" => $hpay->ID), // $extra_vars
                             null, // $currency_special
                             false, // $dont_touch_amount
                             $secure_key // $secure_key
@@ -340,32 +340,39 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                         if ($methodInstance->isSplitPayment()) {
                             // Get order
                             $order_id = Order::getOrderByCartId($cart->id);
+
+                            if (!$order_id) {
+                                throw new Exception($this->module->l("Order ID not found."));
+                            }
+
                             $order = new Order($order_id);
 
+                            if (!$order) {
+                                throw new Exception($this->module->l("Order not found."));
+                            }
+
+                            // Invoice
+                            $invoiceCollection = $order->getInvoicesCollection();
+                            $lastInvoice = $invoiceCollection->orderBy("date_add")->setPageNumber(1)->setPageSize(1)->getFirst();
+
                             // Add order payment
-                            // @TODO
-                            /*try {
-                                $order->addOrderPayment(
-                                    $amountTot,
-                                    $methodInstance->getTitle(),
-                                    Tools::getValue('response_transactionId'),
-                                    null,
-                                    null,
-                                    $lastInvoice
-                                );
-                            } catch (Exception $e) {
-                                $this->addError($e->getMessage());
-                                return $this->displayError();
-                            }*/
+                            $order->addOrderPayment(
+                                $hpay->CRED, // $amount_paid
+                                null, // $payment_method
+                                $hpay->ID, // $payment_transaction_id
+                                null, // $currency
+                                null, // $date
+                                $lastInvoice // $order_invoice
+                            );
 
                             // Save deadlines
-                            /*$profile->generateDeadlines(
+                            $profile->generateDeadlines(
                                 $order,
                                 $card["id_card"],
                                 $methodInstance->getCode(),
                                 true,
                                 true
-                            );*/
+                            );
                         }
                     }
 

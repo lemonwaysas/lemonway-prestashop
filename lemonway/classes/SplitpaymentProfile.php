@@ -247,7 +247,6 @@ class SplitpaymentProfile extends ObjectModel
                 $this->getId());
         }
 
-
         $part = (int) ($amount / $maxCycles);
         $fmod = fmod($amount, $maxCycles);
 

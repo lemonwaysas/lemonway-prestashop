@@ -168,7 +168,7 @@ class SplitpaymentDeadline extends ObjectModel
                 'wkToken' => $order->id,
                 'wallet' => LemonWayConfig::getWalletMerchantId(),
                 'amountTot' => number_format($this->amount_to_pay, 2, '.', ''),
-                'amountCom' => number_format(0, 2, '.', ''),
+                'amountCom' => "0.00",
                 'comment' => $comment . " (Splitpayment #" . $this->id . ")",
                 'autoCommission' => $autocommission,
                 'cardId' => $this->token
@@ -176,16 +176,16 @@ class SplitpaymentDeadline extends ObjectModel
 
             try {
                 $this->attempts++;
-                $res = $kit->moneyInWithCardId($params);
+                $hpay = $kit->moneyInWithCardId($params);
 
-                if (isset($res->E)) {
+                /*if (isset($res->E)) {
                     $this->status = SplitpaymentDeadline::STATUS_FAILED;
                     $message = Tools::displayError("An error occurred while trying to pay split payment. 
                         Error code: " . $res->E->Code . " - Message: " . $res->E->Msg);
 
                     throw new Exception($message, (int)$res->E->Code);
-                } else {
-                    if ($res->TRANS->HPAY->STATUS == "3") {
+                } else {*/
+                    if ($hpay->STATUS == "3") {
                         $this->status = SplitpaymentDeadline::STATUS_COMPLETE;
 
                         /* @var $invoiceCollection PrestaShopCollectionCore */
@@ -197,7 +197,7 @@ class SplitpaymentDeadline extends ObjectModel
                             $order->addOrderPayment(
                                 $this->amount_to_pay,
                                 $methodInstance->getTitle(),
-                                $res->TRANS->HPAY->ID,
+                                $hpay->ID,
                                 null,
                                 null,
                                 $lastInvoice
@@ -214,10 +214,10 @@ class SplitpaymentDeadline extends ObjectModel
                         } */
                     } else {
                         $this->status = SplitpaymentDeadline::STATUS_FAILED;
-                        $message = Tools::displayError($res->TRANS->HPAY->MSG);
+                        $message = Tools::displayError($hpay->MSG);
                         throw new Exception($message);
                     }
-                }
+                //}
             } catch (Exception $e) {
                 $this->status = SplitpaymentDeadline::STATUS_FAILED;
 
