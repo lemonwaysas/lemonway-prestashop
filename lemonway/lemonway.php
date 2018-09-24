@@ -121,7 +121,7 @@ class Lemonway extends PaymentModule
 
     public function installModuleTab($tabClass, $translations, $idTabParent, $moduleName = null)
     {
-        @copy(_PS_MODULE_DIR_ . $this->name . '/icon.png', _PS_IMG_DIR_ . 't/' . $tabClass . '.png');
+        @copy(_PS_MODULE_DIR_ . $this->name . '/icon.gif', _PS_IMG_DIR_ . 't/' . $tabClass . '.png');
         /* @var $tab TabCore */
         $tab = new Tab();
         foreach (Language::getLanguages(false) as $language) {

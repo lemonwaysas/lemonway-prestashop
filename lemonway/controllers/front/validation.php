@@ -196,7 +196,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                             }
 
                             throw new Exception($message);
-                            break;
                         default:
                             // Not error + returnUrl => success
                             $is_order_validated = Db::getInstance()->getValue("SELECT `is_order_validated` FROM `" . _DB_PREFIX_ . "lemonway_wktoken` WHERE `wktoken` = '" . pSQL($wkToken) . "' AND `id_cart` = '" . pSQL($cart->id) . "'");
@@ -338,7 +337,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                     }
 
                     throw new Exception($message);
-                    break;
                 case "cancel":
                     PrestaShopLogger::addLog("LemonWay::validation - Customer has canceled the payment.", 1, null, "Cart", $cart->id, true);
                     if ($cart->OrderExists()) {
@@ -360,10 +358,8 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
 
                     array_push($this->warning, $this->module->l("You have canceled the payment."));
                     return $this->displayError();
-                    break;
                 default:
                     throw new Exception($this->module->l("Bad request."));
-                    break;
             }
         } catch (Exception $e) {
             $cart_id = isset($cart) ? $cart->id : null;

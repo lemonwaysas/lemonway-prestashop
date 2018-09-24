@@ -373,7 +373,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
                     //The order has been placed so we redirect the customer on the confirmation page.
                     Tools::redirect(
-                       $this->context->link->getPageLink(
+                        $this->context->link->getPageLink(
                             "order-confirmation",
                             null,
                             null,
