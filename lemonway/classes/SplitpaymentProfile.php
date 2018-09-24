@@ -247,8 +247,8 @@ class SplitpaymentProfile extends ObjectModel
                 $this->getId());
         }
 
-        $part = (int) ($amount / $maxCycles);
-        $fmod = fmod($amount, $maxCycles);
+        $part = floor($amount / $maxCycles * 100) / 100;
+        $fmod = $amount - $part * $maxCycles;
 
         for ($i = 0; $i <= ($maxCycles - 1); $i++) {
             $todayClone = clone $todayDate;

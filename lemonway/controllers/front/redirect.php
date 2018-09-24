@@ -308,11 +308,6 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
                 $hpay = $kit->moneyInWithCardId($params);
 
-                // Error from API
-                if (isset($hpay->E)) {
-                    throw new Exception((string) $hpay->E->Msg, (int) $hpay->E->Code);
-                }
-
                 if ($hpay->INT_STATUS == 0) {
                     if (!$cart->OrderExists()) {
                         if ($methodInstance->isSplitPayment()) {
