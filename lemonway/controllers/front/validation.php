@@ -131,7 +131,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                     throw new Exception("Bad IPN.");
                 }
 
-                $response_code = Tools::getValue("response_code"); 
+                $response_code = Tools::getValue("response_code");
                 $response_msg = Tools::getValue("response_msg");
             }
 
@@ -144,7 +144,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                         } else {
                             $order_state = Configuration::get("PS_OS_ERROR");
                             $this->module->l("Payment error:");
-                        }    
+                        }
 
                         if ($cart->OrderExists()) {
                             $order_id = Order::getOrderByCartId($cart->id);
@@ -215,7 +215,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                         $id_order_state = Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
                                     } else {
                                         // If not split payment
-                                        $id_order_state = Configuration::get("PS_OS_PAYMENT"); 
+                                        $id_order_state = Configuration::get("PS_OS_PAYMENT");
                                     }
 
                                     // Convert cart into a valid order
@@ -307,7 +307,6 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                         )
                                     )
                                 );
-
                             } else {
                                 // No redirection if POST
                                 return true;

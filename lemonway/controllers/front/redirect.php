@@ -315,7 +315,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                             $id_order_state = Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS);
                         } else {
                             // If not split payment
-                            $id_order_state = Configuration::get("PS_OS_PAYMENT"); 
+                            $id_order_state = Configuration::get("PS_OS_PAYMENT");
                         }
 
                         // Convert cart into a valid order

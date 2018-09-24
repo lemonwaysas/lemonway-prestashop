@@ -218,7 +218,7 @@ class SplitpaymentDeadline extends ObjectModel
         }
 
         // Change order state if is the last split payment
-        if(SplitpaymentDeadline::allIsPaid($order)){
+        if (SplitpaymentDeadline::allIsPaid($order)) {
             $order->setCurrentState(Configuration::get("PS_OS_PAYMENT"));
         }
     }
