@@ -313,7 +313,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                     throw new Exception((string) $hpay->E->Msg, (int) $hpay->E->Code);
                 }
 
-                if ($hpay->STATUS == "3") {
+                if ($hpay->INT_STATUS == 0) {
                     if (!$cart->OrderExists()) {
                         if ($methodInstance->isSplitPayment()) {
                             // If split payment

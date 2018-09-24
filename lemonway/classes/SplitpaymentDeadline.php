@@ -139,7 +139,7 @@ class SplitpaymentDeadline extends ObjectModel
                 return false;
             }
         }
-
+        
         return true;
     }
 
@@ -178,47 +178,30 @@ class SplitpaymentDeadline extends ObjectModel
                 $this->attempts++;
                 $hpay = $kit->moneyInWithCardId($params);
 
-                /*if (isset($res->E)) {
+                if ($hpay->INT_STATUS == 0) {
+                    $this->status = SplitpaymentDeadline::STATUS_COMPLETE;
+
+                    /* @var $invoiceCollection PrestaShopCollectionCore */
+                    $invoiceCollection = $order->getInvoicesCollection();
+                    $lastInvoice =
+                        $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
+
+                    $order->addOrderPayment(
+                        $this->amount_to_pay,
+                        $methodInstance->getTitle(),
+                        $hpay->ID,
+                        null,
+                        null,
+                        $lastInvoice
+                    );
+                } else {
                     $this->status = SplitpaymentDeadline::STATUS_FAILED;
-                    $message = Tools::displayError("An error occurred while trying to pay split payment. 
-                        Error code: " . $res->E->Code . " - Message: " . $res->E->Msg);
-
-                    throw new Exception($message, (int)$res->E->Code);
-                } else {*/
-                    if ($hpay->STATUS == "3") {
-                        $this->status = SplitpaymentDeadline::STATUS_COMPLETE;
-
-                        /* @var $invoiceCollection PrestaShopCollectionCore */
-                        $invoiceCollection = $order->getInvoicesCollection();
-                        $lastInvoice =
-                            $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
-
-                        try {
-                            $order->addOrderPayment(
-                                $this->amount_to_pay,
-                                $methodInstance->getTitle(),
-                                $hpay->ID,
-                                null,
-                                null,
-                                $lastInvoice
-                            );
-                        } catch (Exception $e) {
-                            PrestaShopLogger::addLog($e->getMessage(), 4, null, null, null, true);
-                        }
-
-                        //@TODO change order state if is the last split payment
-                        //$id_order_state = Configuration::get('PS_OS_PAYMENT');
-                        // change order state if is the last split payment
-                        /* if(SplitpaymentDeadline::allIsPaid($order)){
-                            $id_order_state = Configuration::get('PS_OS_PAYMENT');
-                        } */
-                    } else {
-                        $this->status = SplitpaymentDeadline::STATUS_FAILED;
-                        $message = Tools::displayError($hpay->MSG);
-                        throw new Exception($message);
-                    }
-                //}
+                    $message = Tools::displayError($hpay->MSG);
+                    throw new Exception($message);
+                }
             } catch (Exception $e) {
+                PrestaShopLogger::addLog("An error occurred while trying to pay split payment: " . $e->getMessage() . " (" . $e->getCode() . ")", 4, null, "Order", $order->id, true);
+                Tools::displayError("An error occurred while trying to pay split payment: " . $e->getMessage() . " (" . $e->getCode() . ")");
                 $this->status = SplitpaymentDeadline::STATUS_FAILED;
 
                 if ($update) {
@@ -232,6 +215,11 @@ class SplitpaymentDeadline extends ObjectModel
             if ($update) {
                 $this->update();
             }
+        }
+
+        // Change order state if is the last split payment
+        if(SplitpaymentDeadline::allIsPaid($order)){
+            $order->setCurrentState(Configuration::get("PS_OS_PAYMENT"));
         }
     }
 

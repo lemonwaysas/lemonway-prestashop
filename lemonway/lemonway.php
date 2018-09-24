@@ -227,7 +227,7 @@ class Lemonway extends PaymentModule
         return $this->addStatus(
             self::LEMONWAY_SPLIT_PAYMENT_OS, // key
             $translationsStatus, // translations
-            "#32CD32", // color
+            "#4169E1", // color
             false, // hidden
             false, // delivery
             false, // logable

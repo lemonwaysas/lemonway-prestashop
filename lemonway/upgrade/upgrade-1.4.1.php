@@ -42,6 +42,7 @@ function upgrade_module_1_4_1($module)
     $os = new OrderState(Configuration::get(Lemonway::LEMONWAY_SPLIT_PAYMENT_OS));
     $os->logable = false;
     $os->template = "payment";
+    $os->color = "#4169E1";
     $os->save();
 
     $query = "ALTER TABLE `" . _DB_PREFIX_ . "lemonway_wktoken`
