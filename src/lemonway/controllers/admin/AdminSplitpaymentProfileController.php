@@ -222,7 +222,7 @@ class AdminSplitpaymentProfileController extends ModuleAdminController
                 )
             ),
             'required' => false,
-            'desc' => "[" . $this->l('Period Max Cycles') . "] " . $this->l("times, one every ") .
+            'desc' => "[" . $this->l('Period Max Cycles') . "] " . $this->l('times, one every ') .
                 "[" . $this->l('Period Frequency') . "]" . " [" . $this->l('Period Unit') . "]"
         );
 

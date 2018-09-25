@@ -251,7 +251,7 @@ class Lemonway extends PaymentModule
         }
 
         if (extension_loaded('curl') == false) {
-            $this->_errors[] = $this->l("You have to enable the cURL extension on your server to install this module.");
+            $this->_errors[] = $this->l('You have to enable the cURL extension on your server to install this module.');
             return false;
         }
 
@@ -615,11 +615,11 @@ class Lemonway extends PaymentModule
 
         $switch = array(
                 'type' => 'switch',
-                'label' => $this->l('Enable Oneclic'),
+                'label' => $this->l('Enable One-click'),
                 'name' => 'LEMONWAY_' . $methodCode . '_ONECLIC_ENABLED',
                 'is_bool' => true,
                 'class' => 't',
-                'desc' => $this->l('Display oneclic form on payment step'),
+                'desc' => $this->l('Display one-click form on payment step'),
                 'values' => array(
                     array(
                             'id' => 'active_on',
@@ -639,10 +639,10 @@ class Lemonway extends PaymentModule
         if (version_compare(_PS_VERSION_, "1.6.0.0") == -1) {
             $switch = array(
                 'type' => 'select',
-                'label' => $this->l('Enable Oneclic'),
+                'label' => $this->l('Enable One-click'),
                 'name' => 'LEMONWAY_' . $methodCode . '_ONECLIC_ENABLED',
                 'is_bool' => true,
-                'desc' => $this->l('Display oneclic form on payment step'),
+                'desc' => $this->l('Display one-click form on payment step'),
                 'options' => array(
                     'query' => array(
                         array(
@@ -1150,7 +1150,7 @@ class Lemonway extends PaymentModule
             return $id_cart;
         }
 
-        throw new Exception($this->l("Cart not found!"), 406);
+        throw new Exception($this->l('Cart not found!'), 406);
     }
 
     public function isVersion17()

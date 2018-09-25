@@ -91,34 +91,7 @@
                         </div>
                         {/if}
 
-                        <!--<div class="row lw_container_cards_types" style="{if $method->getData('oneclic_allowed') == 1 && $method->getData('customer_has_card') == 1}display:none{/if}" >
-                            <div class="col-md-2 col-xs-3">
-                                <div class="radio">
-                                    <label> 
-                                        <input type="radio" name="cc_type" value="CB" required checked="checked"> 
-                                        <img class="img-responsive" alt="CB" src="{$module_dir|escape:'html':'UTF-8'}views/img/carte-bleue.png">
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-2 col-xs-3">
-                                <div class="radio">
-                                    <label> 
-                                        <input type="radio" name="cc_type" value="VISA" required> 
-                                        <img class="img-responsive" alt="VISA" src="{$module_dir|escape:'html':'UTF-8'}views/img/Visa.png">
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-2 col-xs-3">
-                                <div class="radio">
-                                    <label> 
-                                        <input type="radio" name="cc_type" value="MASTERCARD" required> 
-                                        <img class="img-responsive" alt="MASTERCARD" src="{$module_dir|escape:'html':'UTF-8'}views/img/Mastercard-logo.png">
-                                    </label>
-                                </div>  
-                            </div>
-                        </div>-->
-
-                        {if $method->getData('oneclic_allowed') == 1} <!-- Oneclic form -->
+                        {if $method->getData('oneclic_allowed') == 1} <!-- One-click form -->
                         <div class="lemonway-payment-oneclic-container">            
                             {if $method->getData('customer_has_card') == 0} <!-- User can choose to save his card -->
                             <div class="checkbox">

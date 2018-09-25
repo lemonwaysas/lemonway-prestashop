@@ -89,7 +89,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                 || !Tools::isSubmit("action")
                 || !Tools::isSubmit("method_code")
                 || !Tools::isSubmit("secure_key")) {
-                throw new Exception($this->module->l("Bad request."));
+                throw new Exception($this->module->l('Bad request.'));
             }
 
             $wkToken = Tools::getValue("response_wkToken");
@@ -99,13 +99,13 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
             $cart = new Cart($cart_id);
 
             if (!$cart_id || !$cart) {
-                throw new Exception($this->module->l("Cart not found."), $cart_id);
+                throw new Exception($this->module->l('Cart not found.'), $cart_id);
             }
 
             $secure_key = Tools::getValue("secure_key");
 
             if ($secure_key != $cart->secure_key) {
-                throw new Exception($this->module->l("Secure key does not match."));
+                throw new Exception($this->module->l('Secure key does not match.'));
             }
 
             // Operation details
@@ -150,23 +150,23 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                     if (!empty($response_code) && $response_code !== "0000") {
                         if ($response_code === "2002") {
                             $order_state = Configuration::get("PS_OS_CANCELED");
-                            $message = $this->module->l("Operation canceled by user:");
+                            $message = $this->module->l('Operation canceled by user:');
                         } else {
                             $order_state = Configuration::get("PS_OS_ERROR");
-                            $this->module->l("Payment error:");
+                            $this->module->l('Payment error:');
                         }
 
                         if ($cart->OrderExists()) {
                             $order_id = Order::getOrderByCartId($cart->id);
 
                             if (!$order_id) {
-                                throw new Exception($this->module->l("Order ID not found."));
+                                throw new Exception($this->module->l('Order ID not found.'));
                             }
 
                             $order = new Order($order_id);
 
                             if (!$order) {
-                                throw new Exception($this->module->l("Order not found."));
+                                throw new Exception($this->module->l('Order not found.'));
                             }
 
                             $order->setCurrentState($order_state);
@@ -188,19 +188,19 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                 $order_id = Order::getOrderByCartId($cart->id);
 
                                 if (!$order_id) {
-                                    throw new Exception($this->module->l("Order ID not found."));
+                                    throw new Exception($this->module->l('Order ID not found.'));
                                 }
 
                                 $order = new Order($order_id);
 
                                 if (!$order) {
-                                    throw new Exception($this->module->l("Order not found."));
+                                    throw new Exception($this->module->l('Order not found.'));
                                 }
 
                                 $order->setCurrentState(Configuration::get("PS_OS_ERROR"));
                             }
 
-                            $message = $this->module->l("Payment error:") . " " . $hpay->INT_MSG;
+                            $message = $this->module->l('Payment error:') . " " . $hpay->INT_MSG;
                             if (!empty($response_msg)) {
                                 $message .= " (" . $response_msg . ")";
                             }
@@ -257,13 +257,13 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                         $order_id = Order::getOrderByCartId($cart->id);
 
                                         if (!$order_id) {
-                                            throw new Exception($this->module->l("Order ID not found."));
+                                            throw new Exception($this->module->l('Order ID not found.'));
                                         }
 
                                         $order = new Order($order_id);
 
                                         if (!$order) {
-                                            throw new Exception($this->module->l("Order not found."));
+                                            throw new Exception($this->module->l('Order not found.'));
                                         }
 
                                         // Invoice
@@ -288,21 +288,21 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                         $cardId = Configuration::get($cardKey);
 
                                         if (!$cardId) {
-                                            throw new Exception($this->module->l("Card token not found."));
+                                            throw new Exception($this->module->l('Card token not found.'));
                                         }
 
                                         $splitPaypentProfileId = Tools::getValue("splitpayment_profile_id");
 
                                         if (!$splitPaypentProfileId) {
                                             throw new Exception(
-                                                $this->module->l("Split payment profile ID not found.")
+                                                $this->module->l('Split payment profile ID not found.')
                                             );
                                         }
 
                                         $profile = new SplitpaymentProfile($splitPaypentProfileId);
 
                                         if (!$profile) {
-                                            throw new Exception($this->module->l("Split payment profile not found."));
+                                            throw new Exception($this->module->l('Split payment profile not found.'));
                                         }
 
                                         // Save deadlines
@@ -346,19 +346,19 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                         $order_id = Order::getOrderByCartId($cart->id);
 
                         if (!$order_id) {
-                            throw new Exception($this->module->l("Order ID not found."));
+                            throw new Exception($this->module->l('Order ID not found.'));
                         }
 
                         $order = new Order($order_id);
 
                         if (!$order) {
-                            throw new Exception($this->module->l("Order not found."));
+                            throw new Exception($this->module->l('Order not found.'));
                         }
 
                         $order->setCurrentState(Configuration::get("PS_OS_ERROR"));
                     }
 
-                    $message = $this->module->l("Payment error:") . " " . $hpay->INT_MSG;
+                    $message = $this->module->l('Payment error:') . " " . $hpay->INT_MSG;
                     if (!empty($response_msg)) {
                         $message .= " (" . $response_msg . ")";
                     }
@@ -378,22 +378,22 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                         $order_id = Order::getOrderByCartId($cart->id);
                         
                         if (!$order_id) {
-                            throw new Exception($this->module->l("Order ID not found."));
+                            throw new Exception($this->module->l('Order ID not found.'));
                         }
 
                         $order = new Order($order_id);
 
                         if (!$order) {
-                            throw new Exception($this->module->l("Order not found."));
+                            throw new Exception($this->module->l('Order not found.'));
                         }
                         
                         $order->setCurrentState(Configuration::get("PS_OS_CANCELED"));
                     }
 
-                    array_push($this->warning, $this->module->l("You have canceled the payment."));
+                    array_push($this->warning, $this->module->l('You have canceled the payment.'));
                     return $this->displayError();
                 default:
-                    throw new Exception($this->module->l("Bad request."));
+                    throw new Exception($this->module->l('Bad request.'));
             }
         } catch (Exception $e) {
             $cart_id = isset($cart) ? $cart->id : null;

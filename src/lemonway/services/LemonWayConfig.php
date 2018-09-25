@@ -25,59 +25,70 @@
 
 class LemonWayConfig
 {
-    const LEMONWAY_DEFAULT_ENVIRONMENT = 'lwecommerce';
+    const LW4E_DIRECTKIT_URL_PROD = "https://ws.lemonway.fr/mb/lwecommerce/prod/lw4e_json/Service_json.asmx";
+    const LW4E_DIRECTKIT_URL_TEST = "https://sandbox-api.lemonway.fr/mb/lwecommerce/dev/lw4e_json/Service_json.asmx";
+    const LW4E_WEBKIT_URL_PROD = "https://webkit.lemonway.fr/mb/lwecommerce/prod";
+    const LW4E_WEBKIT_URL_TEST = "https://sandbox-webkit.lemonway.fr/lwecommerce/dev";
 
-    const LEMONWAY_DIRECTKIT_FORMAT_URL_PROD = 'https://ws.lemonway.fr/mb/%s/prod/directkitjson2/service.asmx';
-    const LEMONWAY_DIRECTKIT_FORMAT_URL_TEST = 'https://sandbox-api.lemonway.fr/mb/%s/dev/directkitjson2/service.asmx';
-    const LEMONWAY_WEBKIT_FORMAT_URL_PROD = 'https://webkit.lemonway.fr/mb/%s/prod';
-    const LEMONWAY_WEBKIT_FORMAT_URL_TEST = 'https://sandbox-webkit.lemonway.fr/%s/dev';
-
-    private static function getEvironmentName()
-    {
-        $env_name = Configuration::get('CUSTOM_ENVIRONMENT_NAME', null);
-
-        //If no custom environment we use lwecommerce
-        if (empty($env_name)) {
-            $env_name = self::LEMONWAY_DEFAULT_ENVIRONMENT;
-        }
-
-        return $env_name;
-    }
+    const LEMONWAY_DIRECTKIT_FORMAT_URL_PROD = "https://ws.lemonway.fr/mb/%s/prod/directkitjson2/service.asmx";
+    const LEMONWAY_DIRECTKIT_FORMAT_URL_TEST = "https://sandbox-api.lemonway.fr/mb/%s/dev/directkitjson2/service.asmx";
+    const LEMONWAY_WEBKIT_FORMAT_URL_PROD = "https://webkit.lemonway.fr/mb/%s/prod";
+    const LEMONWAY_WEBKIT_FORMAT_URL_TEST = "https://sandbox-webkit.lemonway.fr/%s/dev";
 
     public static function isTestMode()
     {
-        return (bool) Configuration::get('LEMONWAY_IS_TEST_MODE', null);
+        return (bool) Configuration::get("LEMONWAY_IS_TEST_MODE", null);
     }
 
     public static function is4EcommerceMode()
     {
-        $env_name = Configuration::get('CUSTOM_ENVIRONMENT_NAME', null);
+        $env_name = Configuration::get("CUSTOM_ENVIRONMENT_NAME", null);
 
         // If no custom environment name so lwecommerce
         return (empty($env_name));
     }
 
     public static function getDirectkitUrl()
-    {
-        $env_name = LemonWayConfig::getEvironmentName();
-        
-        if (LemonWayConfig::isTestMode()) {
-            $url = sprintf(self::LEMONWAY_DIRECTKIT_FORMAT_URL_TEST, $env_name);
+    {   
+        if (LemonWayConfig::is4EcommerceMode()) {
+            // If LW4EC
+            if (LemonWayConfig::isTestMode()) {
+                $url = self::LW4E_DIRECTKIT_URL_TEST;
+            } else {
+                $url = self::LW4E_DIRECTKIT_URL_PROD;
+            }
         } else {
-            $url = sprintf(self::LEMONWAY_DIRECTKIT_FORMAT_URL_PROD, $env_name);
+            // If LW Entreprise
+            $env_name = Configuration::get("CUSTOM_ENVIRONMENT_NAME", null);
+            
+            if (LemonWayConfig::isTestMode()) {
+                $url = sprintf(self::LEMONWAY_DIRECTKIT_FORMAT_URL_TEST, $env_name);
+            } else {
+                $url = sprintf(self::LEMONWAY_DIRECTKIT_FORMAT_URL_PROD, $env_name);
+            }
         }
-
+        
         return $url;
     }
 
     public static function getWebkitUrl()
     {
-        $env_name = LemonWayConfig::getEvironmentName();
-
-        if (LemonWayConfig::isTestMode()) {
-            $url = sprintf(self::LEMONWAY_WEBKIT_FORMAT_URL_TEST, $env_name);
+        if (LemonWayConfig::is4EcommerceMode()) {
+            // If LW4EC
+            if (LemonWayConfig::isTestMode()) {
+                $url = self::LW4E_WEBKIT_URL_TEST;
+            } else {
+                $url = self::LW4E_WEBKIT_URL_PROD;
+            }
         } else {
-            $url = sprintf(self::LEMONWAY_WEBKIT_FORMAT_URL_PROD, $env_name);
+            // If LW Entreprise
+            $env_name = Configuration::get("CUSTOM_ENVIRONMENT_NAME", null);
+
+            if (LemonWayConfig::isTestMode()) {
+                $url = sprintf(self::LEMONWAY_WEBKIT_FORMAT_URL_TEST, $env_name);
+            } else {
+                $url = sprintf(self::LEMONWAY_WEBKIT_FORMAT_URL_PROD, $env_name);
+            }
         }
 
         return $url;

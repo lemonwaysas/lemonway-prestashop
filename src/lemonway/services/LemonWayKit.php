@@ -57,7 +57,7 @@ class LemonWayKit
     {
         $res = self::sendRequest('MoneyInWithCardId', $params);
 
-        return $res;
+        return $res->TRANS->HPAY;
     }
 
     public function getMoneyInTransDetails($params)

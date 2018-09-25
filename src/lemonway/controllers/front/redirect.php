@@ -138,7 +138,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
             $methodInstance = $this->module->methodFactory($method_code);
         
             if (!$methodInstance->isAllowed()) {
-                throw new Exception($this->module->l("Payment method not allowed."), $method_code);
+                throw new Exception($this->module->l('Payment method not allowed.'), $method_code);
             }
 
             // If split payment
@@ -146,13 +146,13 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 $splitPaypentProfileId = Tools::getValue("splitpayment_profile_id");
 
                 if (!$splitPaypentProfileId) {
-                    throw new Exception($this->module->l("Split payment profile ID not found."));
+                    throw new Exception($this->module->l('Split payment profile ID not found.'));
                 }
 
                 $profile = new SplitpaymentProfile($splitPaypentProfileId);
 
                 if (!$profile) {
-                    throw new Exception($this->module->l("Split payment profile not found."));
+                    throw new Exception($this->module->l('Split payment profile not found.'));
                 }
             }
 
@@ -292,7 +292,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 // Rebill
                 $card = $this->module->getCustomerCard($customer->id);
                 if (!isset($card["id_card"])) {
-                    throw new Exception($this->module->l("Card not found."), $customer->id);
+                    throw new Exception($this->module->l('Card not found.'), $customer->id);
                 }
 
                 // MoneyInWithCardId
@@ -337,13 +337,13 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                             $order_id = Order::getOrderByCartId($cart->id);
 
                             if (!$order_id) {
-                                throw new Exception($this->module->l("Order ID not found."));
+                                throw new Exception($this->module->l('Order ID not found.'));
                             }
 
                             $order = new Order($order_id);
 
                             if (!$order) {
-                                throw new Exception($this->module->l("Order not found."));
+                                throw new Exception($this->module->l('Order not found.'));
                             }
 
                             // Invoice
@@ -389,7 +389,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                         )
                     );
                 } else {
-                    throw new Exception($this->module->l("Payment error."), $card["id_card"]);
+                    throw new Exception($this->module->l('Payment error.'), $card["id_card"]);
                 }
             }
         } catch (Exception $e) {
