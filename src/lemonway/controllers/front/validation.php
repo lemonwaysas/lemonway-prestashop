@@ -85,12 +85,10 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
         );
 
         try {
-            if (
-                !Tools::isSubmit("response_wkToken")
+            if (!Tools::isSubmit("response_wkToken")
                 || !Tools::isSubmit("action")
                 || !Tools::isSubmit("method_code")
-                || !Tools::isSubmit("secure_key")
-            ) {
+                || !Tools::isSubmit("secure_key")) {
                 throw new Exception($this->module->l("Bad request."));
             }
 
@@ -210,7 +208,11 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                             throw new Exception($message);
                         default:
                             // Not error + returnUrl => success
-                            $is_order_validated = Db::getInstance()->getValue("SELECT `is_order_validated` FROM `" . _DB_PREFIX_ . "lemonway_wktoken` WHERE `wktoken` = '" . pSQL($wkToken) . "' AND `id_cart` = '" . pSQL($cart->id) . "'");
+                            $is_order_validated = Db::getInstance()->getValue(
+                                "SELECT `is_order_validated` 
+                                FROM `" . _DB_PREFIX_ . "lemonway_wktoken` 
+                                WHERE `wktoken` = '" . pSQL($wkToken) . "' AND `id_cart` = '" . pSQL($cart->id) . "'"
+                            );
 
                             if (!$cart->OrderExists() && $is_order_validated === "0") {
                                 // Update is_order_validated flag
