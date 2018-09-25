@@ -49,7 +49,7 @@ class LemonWayConfig
     }
 
     public static function getDirectkitUrl()
-    {   
+    {
         if (LemonWayConfig::is4EcommerceMode()) {
             // If LW4EC
             if (LemonWayConfig::isTestMode()) {
