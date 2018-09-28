@@ -31,8 +31,6 @@ class LemonWayKit
     {
         return array(
             'directKitUrl' => LemonWayConfig::getDirectkitUrl(),
-            'webkitUrl' => LemonWayConfig::getWebkitUrl(),
-            'isTestMode' => LemonWayConfig::isTestMode(),
             'wlLogin' => LemonWayConfig::getApiLogin(),
             'wlPass' => LemonWayConfig::getApiPassword(),
             'language' => 'en'
@@ -90,7 +88,7 @@ class LemonWayKit
         $baseParams = array(
             'wlLogin' => $accessConfig['wlLogin'],
             'wlPass' => $accessConfig['wlPass'],
-            'language' => 'fr',
+            'language' => $accessConfig['language'],
             'version' => '10.0',
             'walletIp' => $ip,
             'walletUa' => $ua,

@@ -322,7 +322,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                         $this->module->validateOrder(
                             $cart->id, // $id_cart
                             $id_order_state, // $id_order_state
-                            $hpay->CRED, // Amount really paid by customer (in the default currency)
+                            $hpay->CRED + $hpay->COM, // Amount really paid by customer (in the default currency)
                             $methodInstance->getTitle(), // Payment method (eg. 'Credit card')
                             $hpay->MSG, // Message to attach to order
                             array("transaction_id" => $hpay->ID), // $extra_vars
@@ -356,7 +356,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
 
                             // Add order payment
                             $order->addOrderPayment(
-                                $hpay->CRED, // $amount_paid
+                                $hpay->CRED + $hpay->COM, // $amount_paid
                                 null, // $payment_method
                                 $hpay->ID, // $payment_transaction_id
                                 null, // $currency

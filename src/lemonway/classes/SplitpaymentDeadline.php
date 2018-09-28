@@ -188,7 +188,7 @@ class SplitpaymentDeadline extends ObjectModel
                         $invoiceCollection->orderBy('date_add')->setPageNumber(1)->setPageSize(1)->getFirst();
 
                     $order->addOrderPayment(
-                        $this->amount_to_pay,
+                        $hpay->CRED + $hpay->COM,
                         $methodInstance->getTitle(),
                         $hpay->ID,
                         null,
