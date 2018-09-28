@@ -179,6 +179,7 @@ class SplitpaymentDeadline extends ObjectModel
                 $hpay = $kit->moneyInWithCardId($params);
 
                 if ($hpay->INT_STATUS == 0) {
+                    // Status 0 means success
                     $this->status = SplitpaymentDeadline::STATUS_COMPLETE;
 
                     /* @var $invoiceCollection PrestaShopCollectionCore */

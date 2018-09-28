@@ -276,7 +276,6 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                         $moneyInWeb->CARD->ID
                     );
                 }
-           
 
                 $moneyInToken = $moneyInWeb->TOKEN;
 
@@ -309,6 +308,7 @@ class LemonwayRedirectModuleFrontController extends ModuleFrontController
                 $hpay = $kit->moneyInWithCardId($params);
 
                 if ($hpay->INT_STATUS == 0) {
+                    // Status 0 means success
                     if (!$cart->OrderExists()) {
                         if ($methodInstance->isSplitPayment()) {
                             // If split payment

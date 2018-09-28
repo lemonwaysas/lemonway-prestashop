@@ -390,6 +390,9 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                         $order->setCurrentState(Configuration::get("PS_OS_CANCELED"));
                     }
 
+                    if (!$this->module->isVersion17()) {
+                        $this->warning = array();
+                    }
                     array_push($this->warning, $this->module->l('You have canceled the payment.'));
                     return $this->displayError();
                 default:
