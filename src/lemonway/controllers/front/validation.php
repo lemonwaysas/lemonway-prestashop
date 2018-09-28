@@ -242,7 +242,7 @@ class LemonwayValidationModuleFrontController extends ModuleFrontController
                                     $this->module->validateOrder(
                                         $cart->id, // $id_cart
                                         $id_order_state, // $id_order_state
-                                        $hpay->CRED + $hpay->COM, // Amount really paid by customer (in the default currency)
+                                        $hpay->CRED + $hpay->COM, // Amount really paid by customer
                                         $methodInstance->getTitle(), // Payment method (eg. 'Credit card')
                                         $message, // Message to attach to order
                                         array("transaction_id" => $hpay->ID), // $extra_vars
