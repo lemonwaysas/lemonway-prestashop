@@ -1,3 +1,5 @@
+⚠️WARNING: This client is deprecated⚠️ 
+
 # Lemon Way Payment Gateway for Prestashop
 ---
 ## How to use this repository
